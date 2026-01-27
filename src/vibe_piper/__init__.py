@@ -7,7 +7,6 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
-from vibe_piper.decorators import asset
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.operators import (
     add_field,
@@ -21,6 +20,19 @@ from vibe_piper.operators import (
     map_field,
     map_transform,
     validate_schema,
+)
+from vibe_piper.schema_definitions import (
+    AnyType,
+    Array,
+    Boolean,
+    Date,
+    DateTime,
+    DeclarativeSchema,
+    Float,
+    Integer,
+    Object,
+    String,
+    define_schema,
 )
 from vibe_piper.types import (
     Asset,
@@ -59,8 +71,6 @@ __all__ = [
     "DefaultExecutor",
     "ErrorStrategy",
     "__version__",
-    # Decorators
-    "asset",
     # Operators
     "map_transform",
     "map_field",
@@ -73,4 +83,16 @@ __all__ = [
     "aggregate_group_by",
     "validate_schema",
     "custom_operator",
+    # Declarative Schema API
+    "define_schema",
+    "String",
+    "Integer",
+    "Float",
+    "Boolean",
+    "DateTime",
+    "Date",
+    "Array",
+    "Object",
+    "AnyType",
+    "DeclarativeSchema",
 ]
