@@ -9,6 +9,14 @@ __version__ = "0.1.0"
 
 from vibe_piper.decorators import asset, expect
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
+from vibe_piper.expectations import (
+    ExpectationLibrary,
+    ExpectationSuite,
+    FailureStrategy,
+    SuiteResult,
+    compose_expectations,
+    create_parameterized_expectation,
+)
 from vibe_piper.operators import (
     add_field,
     aggregate_count,
@@ -20,6 +28,8 @@ from vibe_piper.operators import (
     filter_operator,
     map_field,
     map_transform,
+    validate_expectation,
+    validate_expectation_suite,
     validate_schema,
 )
 from vibe_piper.pipeline import (
@@ -87,6 +97,13 @@ __all__ = [
     # Decorators
     "asset",
     "expect",
+    # Expectations
+    "ExpectationLibrary",
+    "ExpectationSuite",
+    "SuiteResult",
+    "FailureStrategy",
+    "compose_expectations",
+    "create_parameterized_expectation",
     # Pipeline builders
     "PipelineBuilder",
     "PipelineContext",
@@ -104,6 +121,8 @@ __all__ = [
     "aggregate_sum",
     "aggregate_group_by",
     "validate_schema",
+    "validate_expectation",
+    "validate_expectation_suite",
     "custom_operator",
     # Declarative Schema API
     "define_schema",
