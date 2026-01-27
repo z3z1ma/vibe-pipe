@@ -52,3 +52,32 @@ dmypy.json
 .tickets/.audit/
 .tickets/.cache/
 .tickets/.locks/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+*.egg
+
+# Documentation
+docs/build/
+docs/_build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# UV
+.uv/
+uv.lock
