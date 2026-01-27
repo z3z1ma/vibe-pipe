@@ -7,6 +7,7 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
+from vibe_piper.decorators import asset
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.operators import (
     add_field,
@@ -58,6 +59,8 @@ __all__ = [
     "DefaultExecutor",
     "ErrorStrategy",
     "__version__",
+    # Decorators
+    "asset",
     # Operators
     "map_transform",
     "map_field",
