@@ -1,14 +1,14 @@
 """
 Decorator utilities for Vibe Piper.
 
-This module provides decorators for creating Assets and other Vibe Piper
-objects in a declarative way.
+This module provides decorators for creating Assets, Expectations, and other
+Vibe Piper objects in a declarative way.
 """
 
 from collections.abc import Callable
-from typing import Any, ParamSpec, TypeVar, cast
+from typing import Any, ParamSpec, TypeVar
 
-from vibe_piper.types import Asset, AssetType, Schema
+from vibe_piper.types import Asset, AssetType, Expectation, Schema, ValidationResult
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -121,3 +121,120 @@ class AssetDecorator:
 
 # Create an instance that can be used as a decorator
 asset = AssetDecorator()
+
+
+# =============================================================================
+# Expectation Decorator
+# =============================================================================
+
+
+def _create_expectation_from_function(
+    func: Callable[[Any], ValidationResult | bool],
+    name: str | None,
+    severity: str,
+    description: str | None,
+    metadata: dict[str, Any] | None,
+    config: dict[str, Any] | None,
+) -> Expectation:
+    """Helper function to create an Expectation from a function."""
+    # Determine expectation name
+    expectation_name = name or func.__name__
+
+    # Use docstring as description if not provided
+    expectation_description = description
+    if expectation_description is None and func.__doc__:
+        expectation_description = func.__doc__.strip()
+
+    # Wrap the function to ensure it returns ValidationResult
+    def validation_fn(data: Any) -> ValidationResult:
+        result = func(data)
+        if isinstance(result, ValidationResult):
+            return result
+        # If function returns bool, convert to ValidationResult
+        if result:
+            return ValidationResult(is_valid=True)
+        return ValidationResult(
+            is_valid=False,
+            errors=(f"Expectation '{expectation_name}' failed",),
+        )
+
+    # Create the Expectation instance
+    return Expectation(
+        name=expectation_name,
+        fn=validation_fn,
+        description=expectation_description,
+        severity=severity,
+        metadata=metadata or {},
+        config=config or {},
+    )
+
+
+class ExpectationDecorator:
+    """Decorator class that supports both @expect and @expect(...) patterns."""
+
+    def __call__(
+        self,
+        func_or_name: Callable[[Any], ValidationResult | bool] | str | None = None,
+        **kwargs: Any,
+    ) -> (
+        Expectation | Callable[[Callable[[Any], ValidationResult | bool]], Expectation]
+    ):
+        """
+        Decorator to convert a function into an Expectation.
+
+        Can be used as:
+        - @expect (without parentheses)
+        - @expect() (with empty parentheses)
+        - @expect(name="foo", ...) (with parameters)
+
+        The decorated function should either:
+        - Return a ValidationResult
+        - Return a bool (True = valid, False = invalid)
+
+        Args:
+            func_or_name: Either the function to decorate (when using @expect)
+                          or a custom expectation name (when using @expect(...))
+            **kwargs: Additional keyword arguments (severity, description, etc.)
+
+        Returns:
+            Either an Expectation (when used as @expect) or a decorator function
+            (when used as @expect(...))
+        """
+        # Extract parameters from kwargs with defaults
+        severity = kwargs.pop("severity", "error")
+        description = kwargs.pop("description", None)
+        metadata = kwargs.pop("metadata", None)
+        config = kwargs.pop("config", None)
+        name_param = kwargs.pop("name", None)
+
+        # Case 1: @expect (no parentheses) - func_or_name is the function
+        if callable(func_or_name):
+            return _create_expectation_from_function(
+                func=func_or_name,
+                name=name_param,
+                severity=severity,
+                description=description,
+                metadata=metadata,
+                config=config,
+            )
+
+        # Case 2 & 3: @expect(...) - with or without parameters
+        # Return a decorator function
+        # Use name from kwargs if provided, otherwise use func_or_name
+        name = name_param if name_param is not None else func_or_name
+
+        def decorator(func: Callable[[Any], ValidationResult | bool]) -> Expectation:
+            return _create_expectation_from_function(
+                func=func,
+                name=name,
+                severity=severity,
+                description=description,
+                metadata=metadata,
+                config=config,
+            )
+
+        return decorator
+
+
+# Create an instance that can be used as a decorator
+expect = ExpectationDecorator()

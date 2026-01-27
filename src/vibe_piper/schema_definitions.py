@@ -18,19 +18,14 @@ Example:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from inspect import isclass
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
-    Generic,
     Protocol,
     TypeVar,
-    cast,
-    final,
 )
 
 from vibe_piper.types import DataType, Schema, SchemaField
@@ -620,8 +615,8 @@ class SchemaMeta(type):
         cls = type.__new__(mcs, name, bases, namespace)
 
         # Attach schema and fields as class attributes using setattr
-        setattr(cls, "_schema", schema)
-        setattr(cls, "__fields__", fields)
+        cls._schema = schema
+        cls.__fields__ = fields
 
         return cls
 
@@ -745,6 +740,7 @@ def define_schema(
         # Import DataRecord lazily to avoid circular imports
         def validate_method(cls: type, data: Mapping[str, Any]) -> DataRecord:
             from vibe_piper.types import DataRecord
+
             return DataRecord(data=data, schema=cls._schema)  # type: ignore[attr-defined]
 
         cls.validate = classmethod(validate_method)  # type: ignore[attr-defined]

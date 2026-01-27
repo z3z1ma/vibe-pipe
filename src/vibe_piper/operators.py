@@ -17,7 +17,6 @@ from vibe_piper.types import (
     OperatorType,
     PipelineContext,
     Schema,
-    SchemaField,
 )
 
 T = TypeVar("T")
@@ -99,12 +98,14 @@ def map_field(
         name=name,
         operator_type=OperatorType.TRANSFORM,
         fn=lambda data, ctx: [
-            DataRecord(
-                data={**r.data, field_name: transform_fn(r.get(field_name))},
-                schema=r.schema,
+            (
+                DataRecord(
+                    data={**r.data, field_name: transform_fn(r.get(field_name))},
+                    schema=r.schema,
+                )
+                if field_name in r.data
+                else r
             )
-            if field_name in r.data
-            else r
             for r in data
         ],
         description=description or f"Transform field '{field_name}'",
@@ -370,6 +371,7 @@ def aggregate_group_by(
                 description="Group by category and count"
             )
     """
+
     def group_by_fn(
         data: list[DataRecord],
         ctx: PipelineContext,
@@ -421,6 +423,7 @@ def validate_schema(
                 description="Validate user records"
             )
     """
+
     def validate_fn(
         data: list[DataRecord],
         ctx: PipelineContext,
@@ -428,8 +431,7 @@ def validate_schema(
         # Validation happens in DataRecord.__post_init__
         # This operator just re-creates records to trigger validation
         return [
-            DataRecord(data=r.data, schema=schema, metadata=r.metadata)
-            for r in data
+            DataRecord(data=r.data, schema=schema, metadata=r.metadata) for r in data
         ]
 
     return Operator(

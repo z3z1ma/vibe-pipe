@@ -5,27 +5,23 @@ This module tests the declarative schema API, including field types,
 schema conversion, validation, and inheritance.
 """
 
-from typing import Any
-
 import pytest
 
 from vibe_piper import (
     AnyType,
     Array,
     Boolean,
+    DataRecord,
     Date,
     DateTime,
-    DataRecord,
-    define_schema,
     Float,
     Integer,
     Object,
     Schema,
-    SchemaField,
     String,
+    define_schema,
 )
 from vibe_piper.types import DataType
-
 
 # =============================================================================
 # Field Tests
