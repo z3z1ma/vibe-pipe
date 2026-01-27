@@ -1,0 +1,9 @@
+id,name,value,category,timestamp
+1,Alice,100.5,electronics,2024-01-15T10:30:00Z
+2,Bob,250.0,books,2024-01-15T11:45:00Z
+3,Charlie,75.25,clothing,2024-01-15T12:00:00Z
+4,Diana,350.75,electronics,2024-01-15T13:15:00Z
+5,Eve,125.0,books,2024-01-15T14:30:00Z
+6,Frank,200.0,clothing,2024-01-15T15:45:00Z
+7,Grace,175.5,electronics,2024-01-15T16:00:00Z
+8,Henry,300.0,books,2024-01-15T17:15:00Z

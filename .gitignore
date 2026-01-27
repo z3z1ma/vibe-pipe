@@ -1,5 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc
+*.log
+.poetry-installer-error-*.log
+
+# Documentation
+docs/build/
+docs/_build/
+
+# OS
+.DS_Store
+
+# UV
+.uv/
+uv.lock
+
+# Murmur
 .memos/index.sqlite3*
 .memos/personal/
 .tickets/.audit/
 .tickets/.cache/
 .tickets/.locks/
+.murmur/
+.claude/
+.opencode/
+coverage.xml
