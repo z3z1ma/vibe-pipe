@@ -877,6 +877,54 @@ class ValidationResult:
 
 
 @dataclass(frozen=True)
+class Expectation:
+    """
+    A data quality rule or expectation.
+
+    Expectations define declarative data quality rules that can be validated
+    against data. They encapsulate the logic for checking whether data meets
+    certain quality criteria.
+
+    Attributes:
+        name: Unique identifier for this expectation
+        fn: Function that validates data against this expectation
+        description: Optional documentation for the expectation
+        severity: How severe a failure is ('error', 'warning', 'info')
+        metadata: Additional metadata about the expectation
+        config: Expectation-specific configuration
+    """
+
+    name: str
+    fn: Callable[[Any], ValidationResult]
+    description: str | None = None
+    severity: str = "error"
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+    config: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate the expectation configuration."""
+        if not self.name:
+            msg = "Expectation name cannot be empty"
+            raise ValueError(msg)
+        valid_severities = {"error", "warning", "info"}
+        if self.severity not in valid_severities:
+            msg = f"Invalid severity: {self.severity!r}. Must be one of {valid_severities}"
+            raise ValueError(msg)
+
+    def validate(self, data: Any) -> ValidationResult:
+        """
+        Validate data against this expectation.
+
+        Args:
+            data: The data to validate
+
+        Returns:
+            A ValidationResult indicating whether the data meets this expectation
+        """
+        return self.fn(data)
+
+
+@dataclass(frozen=True)
 class PipelineResult:
     """
     Result of a pipeline execution.

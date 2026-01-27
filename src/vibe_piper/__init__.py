@@ -7,7 +7,7 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
-from vibe_piper.decorators import asset
+from vibe_piper.decorators import asset, expect
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.operators import (
     add_field,
@@ -53,12 +53,14 @@ from vibe_piper.types import (
     DataType,
     ErrorStrategy,
     ExecutionResult,
+    Expectation,
     Operator,
     OperatorFn,
     OperatorType,
     Pipeline,
     Schema,
     SchemaField,
+    ValidationResult,
 )
 
 __all__ = [
@@ -79,9 +81,12 @@ __all__ = [
     "ExecutionEngine",
     "DefaultExecutor",
     "ErrorStrategy",
+    "Expectation",
+    "ValidationResult",
     "__version__",
     # Decorators
     "asset",
+    "expect",
     # Pipeline builders
     "PipelineBuilder",
     "PipelineContext",

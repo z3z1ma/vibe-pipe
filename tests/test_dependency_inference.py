@@ -6,8 +6,6 @@ allows assets to automatically detect their dependencies from function
 signatures.
 """
 
-import pytest
-
 from vibe_piper import (
     PipelineBuilder,
     PipelineDefContext,
@@ -20,6 +18,7 @@ class TestInferDependenciesFromSignature:
 
     def test_infer_single_dependency(self) -> None:
         """Test inferring a single dependency from function signature."""
+
         def process_data(raw_data, context):
             return [x * 2 for x in raw_data]
 
@@ -30,6 +29,7 @@ class TestInferDependenciesFromSignature:
 
     def test_infer_multiple_dependencies(self) -> None:
         """Test inferring multiple dependencies from function signature."""
+
         def combine(source1, source2, context):
             return source1 + source2
 
@@ -40,6 +40,7 @@ class TestInferDependenciesFromSignature:
 
     def test_infer_filters_special_parameters(self) -> None:
         """Test that special parameters like 'context' and 'ctx' are filtered out."""
+
         def process(data, context, ctx):
             return data
 
@@ -54,6 +55,7 @@ class TestInferDependenciesFromSignature:
 
         Note: 'data' is NOT excluded as users may have assets named 'data'.
         """
+
         def transform(data, upstream, context):
             return upstream
 
@@ -65,6 +67,7 @@ class TestInferDependenciesFromSignature:
 
     def test_infer_with_no_known_assets(self) -> None:
         """Test inference when no known assets are provided."""
+
         def process(raw_data, context):
             return raw_data
 
@@ -74,30 +77,26 @@ class TestInferDependenciesFromSignature:
 
     def test_infer_with_no_matching_assets(self) -> None:
         """Test inference when no parameters match known assets."""
+
         def process(foo, bar, context):
             return foo
 
-        deps = infer_dependencies_from_signature(
-            process, known_assets={"other_asset"}
-        )
+        deps = infer_dependencies_from_signature(process, known_assets={"other_asset"})
         assert deps == []
 
     def test_infer_with_varargs(self) -> None:
         """Test that *args and **kwargs are excluded from inference."""
+
         def process(*args, **kwargs):
             return args
 
-        deps = infer_dependencies_from_signature(
-            process, known_assets={"something"}
-        )
+        deps = infer_dependencies_from_signature(process, known_assets={"something"})
         assert deps == []
 
     def test_infer_from_lambda(self) -> None:
         """Test inference from lambda functions."""
         lambda_fn = lambda raw_data, context: raw_data
-        deps = infer_dependencies_from_signature(
-            lambda_fn, known_assets={"raw_data"}
-        )
+        deps = infer_dependencies_from_signature(lambda_fn, known_assets={"raw_data"})
         assert deps == ["raw_data"]
 
 
@@ -227,6 +226,7 @@ class TestPipelineDefContextAutoInference:
     def test_auto_infer_in_context_manager(self) -> None:
         """Test automatic inference within PipelineDefContext."""
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def raw_data():
                 return [1, 2, 3]
@@ -242,6 +242,7 @@ class TestPipelineDefContextAutoInference:
     def test_auto_infer_multiple_in_context(self) -> None:
         """Test inferring multiple dependencies in context manager."""
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source1():
                 return [1, 2]
@@ -260,6 +261,7 @@ class TestPipelineDefContextAutoInference:
     def test_explicit_depends_on_in_context(self) -> None:
         """Test explicit depends_on in context manager."""
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def asset1():
                 return [1]
@@ -278,9 +280,11 @@ class TestPipelineDefContextAutoInference:
 
     def test_auto_infer_executes_in_context(self) -> None:
         """Test that auto-inferred context pipelines execute correctly."""
-        from vibe_piper import ExecutionEngine, PipelineContext as PContext
+        from vibe_piper import ExecutionEngine
+        from vibe_piper import PipelineContext as PContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def data(context: PContext):
                 return [10, 20, 30]
@@ -299,6 +303,7 @@ class TestPipelineDefContextAutoInference:
     def test_mixed_explicit_and_inferred_in_context(self) -> None:
         """Test mixing explicit and inferred dependencies in context."""
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source1():
                 return [1]
@@ -369,6 +374,7 @@ class TestEdgeCases:
 
     def test_empty_signature(self) -> None:
         """Test inference from function with no parameters."""
+
         def no_params():
             return [1, 2, 3]
 
