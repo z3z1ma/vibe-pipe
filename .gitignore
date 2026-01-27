@@ -3,3 +3,6 @@
 .tickets/.audit/
 .tickets/.cache/
 .tickets/.locks/
+.murmur/
+.claude/
+.opencode/
