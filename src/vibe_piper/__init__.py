@@ -7,6 +7,7 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
+from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.operators import (
     add_field,
     aggregate_count,
@@ -23,8 +24,12 @@ from vibe_piper.operators import (
 from vibe_piper.types import (
     Asset,
     AssetGraph,
+    AssetResult,
+    AssetType,
     DataRecord,
     DataType,
+    ErrorStrategy,
+    ExecutionResult,
     Operator,
     OperatorFn,
     OperatorType,
@@ -37,6 +42,7 @@ from vibe_piper.types import (
 __all__ = [
     "Asset",
     "AssetGraph",
+    "AssetType",
     "Schema",
     "Pipeline",
     "Operator",
@@ -46,6 +52,11 @@ __all__ = [
     "PipelineContext",
     "DataType",
     "OperatorType",
+    "AssetResult",
+    "ExecutionResult",
+    "ExecutionEngine",
+    "DefaultExecutor",
+    "ErrorStrategy",
     "__version__",
     # Operators
     "map_transform",
