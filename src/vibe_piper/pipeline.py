@@ -6,8 +6,8 @@ using the @asset decorator and pipeline builders.
 """
 
 from collections.abc import Callable
-from contextlib import contextmanager
-from typing import Any, ParamSpec, TypeVar
+from collections.abc import Callable as CallableType
+from typing import Any, ParamSpec, TypeVar, overload
 
 from vibe_piper.types import Asset, AssetGraph, AssetType, Operator, OperatorType
 
@@ -104,7 +104,9 @@ class PipelineBuilder:
                 return fn(data, context)  # type: ignore
 
         # Determine operator type based on dependencies
-        operator_type = OperatorType.SOURCE if not depends_on else OperatorType.TRANSFORM
+        operator_type = (
+            OperatorType.SOURCE if not depends_on else OperatorType.TRANSFORM
+        )
 
         # Create operator from the wrapped function
         operator = Operator(
@@ -202,6 +204,34 @@ class PipelineContext:
         """Exit the context manager."""
         pass
 
+    @overload
+    def asset(
+        self,
+        fn: Callable[P, T],
+        *,
+        name: str | None = None,
+        depends_on: list[str] | tuple[str, ...] | None = None,
+        asset_type: AssetType = AssetType.MEMORY,
+        uri: str | None = None,
+        description: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        config: dict[str, Any] | None = None,
+    ) -> Callable[P, T]: ...
+
+    @overload
+    def asset(
+        self,
+        fn: None = None,
+        *,
+        name: str | None = None,
+        depends_on: list[str] | tuple[str, ...] | None = None,
+        asset_type: AssetType = AssetType.MEMORY,
+        uri: str | None = None,
+        description: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        config: dict[str, Any] | None = None,
+    ) -> CallableType[[Callable[P, T]], Callable[P, T]]: ...
+
     def asset(
         self,
         fn: Callable[P, T] | None = None,
@@ -213,7 +243,7 @@ class PipelineContext:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
-    ) -> Any:
+    ) -> CallableType[[Callable[P, T]], Callable[P, T]] | Callable[P, T]:
         """
         Decorator or method to add an asset to the pipeline.
 
@@ -270,7 +300,9 @@ class PipelineContext:
                     return func(data, context)  # type: ignore
 
             # Determine operator type based on dependencies
-            operator_type = OperatorType.SOURCE if not dependency_names else OperatorType.TRANSFORM
+            operator_type = (
+                OperatorType.SOURCE if not dependency_names else OperatorType.TRANSFORM
+            )
 
             # Generate URI if not provided
             asset_uri = uri or f"memory://{asset_name}"
