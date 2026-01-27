@@ -68,3 +68,5 @@ uv.lock
 .claude/
 .opencode/
 coverage.xml
+src/vibe_piper/pipeline.py
+tests/test_pipeline.py

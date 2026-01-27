@@ -7,7 +7,6 @@ using the @asset decorator and pipeline builders.
 
 import inspect
 from collections.abc import Callable
-from contextlib import contextmanager
 from typing import Any, ParamSpec, TypeVar
 
 from vibe_piper.types import Asset, AssetGraph, AssetType, Operator, OperatorType
@@ -246,6 +245,47 @@ class PipelineBuilder:
             ValueError: If dependency references don't exist or if there
                 are circular dependencies
         """
+        # Validation: Check that all dependencies exist
+        known_assets = set(self._assets.keys())
+        for asset_name, deps in self._dependencies.items():
+            for dep in deps:
+                if dep not in known_assets:
+                    msg = (
+                        f"Asset '{asset_name}' depends on '{dep}' "
+                        f"which is not defined in the pipeline"
+                    )
+                    raise ValueError(msg)
+
+        # Validation: Check for circular dependencies using DFS
+        visited: set[str] = set()
+        rec_stack: set[str] = set()
+        path: list[str] = []
+
+        def dfs(node: str) -> None:
+            """Depth-first search to detect cycles."""
+            visited.add(node)
+            rec_stack.add(node)
+            path.append(node)
+
+            # Check all dependencies of this node
+            for neighbor in self._dependencies.get(node, []):
+                if neighbor not in visited:
+                    dfs(neighbor)
+                elif neighbor in rec_stack:
+                    # Found a cycle - construct the cycle path
+                    cycle_start = path.index(neighbor)
+                    cycle_path = path[cycle_start:] + [neighbor]
+                    msg = f"Circular dependency detected: {' -> '.join(cycle_path)}"
+                    raise ValueError(msg)
+
+            path.pop()
+            rec_stack.remove(node)
+
+        # Run DFS on all assets to detect cycles
+        for asset_name in known_assets:
+            if asset_name not in visited:
+                dfs(asset_name)
+
         # Convert to tuples for immutable AssetGraph
         assets_tuple = tuple(self._assets.values())
         dependencies_tuple = {
@@ -391,7 +431,9 @@ class PipelineContext:
 
             # Determine operator type based on dependencies
             operator_type = (
-                OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
+                OperatorType.SOURCE
+                if not resolved_dependencies
+                else OperatorType.TRANSFORM
             )
 
             # Generate URI if not provided
