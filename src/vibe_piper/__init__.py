@@ -57,7 +57,6 @@ from vibe_piper.types import (
     OperatorFn,
     OperatorType,
     Pipeline,
-    PipelineContext,
     Schema,
     SchemaField,
 )
