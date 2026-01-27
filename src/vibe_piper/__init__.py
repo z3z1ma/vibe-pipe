@@ -7,6 +7,7 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
+from vibe_piper.decorators import asset
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.operators import (
     add_field,
@@ -20,6 +21,15 @@ from vibe_piper.operators import (
     map_field,
     map_transform,
     validate_schema,
+)
+from vibe_piper.pipeline import (
+    PipelineBuilder,
+    PipelineContext,
+    build_pipeline,
+    infer_dependencies_from_signature,
+)
+from vibe_piper.pipeline import (
+    PipelineContext as PipelineDefContext,
 )
 from vibe_piper.schema_definitions import (
     AnyType,
@@ -47,7 +57,6 @@ from vibe_piper.types import (
     OperatorFn,
     OperatorType,
     Pipeline,
-    PipelineContext,
     Schema,
     SchemaField,
 )
@@ -71,6 +80,14 @@ __all__ = [
     "DefaultExecutor",
     "ErrorStrategy",
     "__version__",
+    # Decorators
+    "asset",
+    # Pipeline builders
+    "PipelineBuilder",
+    "PipelineContext",
+    "PipelineDefContext",
+    "build_pipeline",
+    "infer_dependencies_from_signature",
     # Operators
     "map_transform",
     "map_field",
