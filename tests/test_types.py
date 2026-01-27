@@ -820,3 +820,153 @@ class TestAssetGraph:
         assert graph.description == "Test pipeline"
         assert graph.metadata["owner"] == "data-team"
         assert graph.metadata["environment"] == "production"
+
+
+class TestMaterializationStrategy:
+    """Tests for MaterializationStrategy enum."""
+
+    def test_materialization_strategy_enum_values(self) -> None:
+        """Test that MaterializationStrategy enum has all required values."""
+        from vibe_piper.types import MaterializationStrategy
+
+        assert MaterializationStrategy.IN_MEMORY
+        assert MaterializationStrategy.TABLE
+        assert MaterializationStrategy.VIEW
+        assert MaterializationStrategy.FILE
+        assert MaterializationStrategy.INCREMENTAL
+
+    def test_materialization_strategy_auto_values(self) -> None:
+        """Test that enum values are auto-generated."""
+        from vibe_piper.types import MaterializationStrategy
+
+        assert MaterializationStrategy.IN_MEMORY.value == 1
+        assert MaterializationStrategy.TABLE.value == 2
+        assert MaterializationStrategy.VIEW.value == 3
+        assert MaterializationStrategy.FILE.value == 4
+        assert MaterializationStrategy.INCREMENTAL.value == 5
+
+
+class TestAssetNewFields:
+    """Tests for new Asset fields (version, partition_key)."""
+
+    def test_asset_with_default_version(self) -> None:
+        """Test that Asset has default version '1'."""
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+        )
+        assert asset.version == "1"
+
+    def test_asset_with_custom_version(self) -> None:
+        """Test creating an Asset with a custom version."""
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+            version="2.0.0",
+        )
+        assert asset.version == "2.0.0"
+
+    def test_asset_with_partition_key(self) -> None:
+        """Test creating an Asset with a partition key."""
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+            partition_key="date",
+        )
+        assert asset.partition_key == "date"
+
+    def test_asset_without_partition_key(self) -> None:
+        """Test that Asset partition_key defaults to None."""
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+        )
+        assert asset.partition_key is None
+
+    def test_asset_backward_compatibility(self) -> None:
+        """Test that existing Asset creation still works without new fields."""
+        # This test ensures backward compatibility
+        asset = Asset(
+            name="users_table",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://localhost/db/users",
+        )
+        assert asset.name == "users_table"
+        assert asset.asset_type == AssetType.TABLE
+        assert asset.version == "1"  # Default value
+        assert asset.partition_key is None  # Default value
+
+
+class TestPipelineNewFields:
+    """Tests for new Pipeline checkpoints field."""
+
+    @staticmethod
+    def _sample_fn(value: int, ctx: PipelineContext) -> int:
+        """Sample operator function."""
+        _ = ctx  # Unused
+        return value
+
+    def test_pipeline_with_default_checkpoints(self) -> None:
+        """Test that Pipeline has empty checkpoints by default."""
+        pipeline = Pipeline(name="test_pipeline")
+        assert pipeline.checkpoints == ()
+
+    def test_pipeline_with_checkpoints(self) -> None:
+        """Test creating a Pipeline with checkpoints."""
+        checkpoints = ("checkpoint_1", "checkpoint_2")
+        pipeline = Pipeline(
+            name="test_pipeline",
+            checkpoints=checkpoints,
+        )
+        assert pipeline.checkpoints == checkpoints
+        assert len(pipeline.checkpoints) == 2
+
+    def test_pipeline_backward_compatibility(self) -> None:
+        """Test that existing Pipeline creation still works without new field."""
+        pipeline = Pipeline(name="test_pipeline")
+        assert pipeline.name == "test_pipeline"
+        assert pipeline.checkpoints == ()  # Default value
+        assert len(pipeline.operators) == 0
+
+
+class TestExecutionResultNewFields:
+    """Tests for new ExecutionResult lineage field."""
+
+    def test_execution_result_with_default_lineage(self) -> None:
+        """Test that ExecutionResult has empty lineage by default."""
+        from vibe_piper.types import ExecutionResult
+
+        result = ExecutionResult(
+            success=True,
+            asset_results={},
+        )
+        assert result.lineage == {}
+
+    def test_execution_result_with_lineage(self) -> None:
+        """Test creating an ExecutionResult with lineage."""
+        from vibe_piper.types import ExecutionResult
+
+        lineage = {"asset_b": ("asset_a",), "asset_c": ("asset_b",)}
+        result = ExecutionResult(
+            success=True,
+            asset_results={},
+            lineage=lineage,
+        )
+        assert result.lineage == lineage
+        assert len(result.lineage) == 2
+
+    def test_execution_result_backward_compatibility(self) -> None:
+        """Test that existing ExecutionResult creation still works."""
+        from vibe_piper.types import AssetResult, ExecutionResult
+
+        result = ExecutionResult(
+            success=True,
+            asset_results={"asset_a": AssetResult(asset_name="asset_a", success=True)},
+        )
+        assert result.success is True
+        assert result.lineage == {}  # Default value
+        assert len(result.asset_results) == 1

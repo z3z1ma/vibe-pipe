@@ -89,6 +89,7 @@ from vibe_piper.types import (
     ErrorStrategy,
     ExecutionResult,
     Expectation,
+    MaterializationStrategy,
     Operator,
     OperatorFn,
     OperatorType,
@@ -100,9 +101,6 @@ from vibe_piper.types import (
     Schema,
     SchemaField,
     ValidationResult,
-)
-from vibe_piper.types import (
-    PipelineContext as PipelineContext,
 )
 
 __all__ = [
@@ -129,6 +127,7 @@ __all__ = [
     "QualityMetricType",
     "QualityCheckResult",
     "DataQualityReport",
+    "MaterializationStrategy",
     "__version__",
     # Decorators
     "asset",
