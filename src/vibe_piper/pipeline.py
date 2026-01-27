@@ -5,14 +5,80 @@ This module provides a high-level, declarative API for building data pipelines
 using the @asset decorator and pipeline builders.
 """
 
+import inspect
 from collections.abc import Callable
-from collections.abc import Callable as CallableType
-from typing import Any, ParamSpec, TypeVar, overload
+from contextlib import contextmanager
+from typing import Any, ParamSpec, TypeVar
 
 from vibe_piper.types import Asset, AssetGraph, AssetType, Operator, OperatorType
 
 P = ParamSpec("P")
 T = TypeVar("T")
+
+
+# Parameters to exclude from dependency inference
+# Note: We don't exclude "data" because users might have assets named "data"
+_SPECIAL_PARAMS = {"context", "ctx"}
+
+
+def infer_dependencies_from_signature(
+    func: Callable[..., Any],
+    known_assets: set[str] | None = None,
+) -> list[str]:
+    """
+    Infer asset dependencies from a function's signature.
+
+    This function inspects the function signature and extracts parameter names
+    that match known asset names, automatically inferring dependencies.
+
+    Special parameters like 'context' and 'ctx' are excluded from
+    dependency inference. Note that 'data' is NOT excluded as users
+    may legitimately have assets named 'data'.
+
+    Args:
+        func: The function to inspect for dependencies
+        known_assets: Set of known asset names to filter against. If None,
+            all non-special parameters are returned as potential dependencies.
+
+    Returns:
+        A list of inferred asset dependency names
+
+    Example:
+        Infer dependencies from a function::
+
+            def process_data(raw_data, context):
+                return [x * 2 for x in raw_data]
+
+            deps = infer_dependencies_from_signature(
+                process_data,
+                known_assets={"raw_data", "other_asset"}
+            )
+            # Returns: ["raw_data"]
+    """
+    if known_assets is None:
+        known_assets = set()
+
+    try:
+        sig = inspect.signature(func)
+    except (ValueError, TypeError):
+        # Some built-in or C functions can't be inspected
+        return []
+
+    # Get all parameter names except special ones
+    params = [
+        name
+        for name, param in sig.parameters.items()
+        if name not in _SPECIAL_PARAMS
+        and param.kind
+        not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+    ]
+
+    # Filter to only known assets if provided
+    if known_assets:
+        return [p for p in params if p in known_assets]
+    else:
+        # Return all non-special parameters as potential dependencies
+        return params
 
 
 class PipelineBuilder:
@@ -21,6 +87,9 @@ class PipelineBuilder:
 
     PipelineBuilder provides a fluent interface for constructing pipelines
     with assets and their dependencies in a declarative way.
+
+    Dependencies are automatically inferred from function parameter names
+    that match existing asset names.
 
     Example:
         Build a pipeline with multiple assets::
@@ -34,8 +103,8 @@ class PipelineBuilder:
 
             builder.asset(
                 name="processed_data",
-                fn=lambda data: [x * 2 for x in data],
-                depends_on=["raw_data"],
+                fn=lambda raw_data: [x * 2 for x in raw_data],
+                # depends_on is automatically inferred from parameter 'raw_data'
             )
 
             graph = builder.build()
@@ -69,10 +138,17 @@ class PipelineBuilder:
         """
         Add an asset to the pipeline.
 
+        Dependencies are automatically inferred from the function signature
+        if not explicitly provided. Parameter names that match existing
+        asset names are treated as dependencies (except for special
+        parameters like 'context', 'ctx', and 'data').
+
         Args:
             name: The name of the asset
             fn: A callable that produces or transforms data
-            depends_on: List of asset names this asset depends on
+            depends_on: Optional list of asset names this asset depends on.
+                If not provided, dependencies are inferred from function
+                parameter names.
             asset_type: The type of asset (defaults to MEMORY)
             uri: Optional URI for the asset
             description: Optional description of the asset
@@ -84,15 +160,36 @@ class PipelineBuilder:
 
         Raises:
             ValueError: If an asset with the same name already exists
+
+        Example:
+            Add an asset with automatic dependency inference::
+
+                builder.asset("source", fn=lambda ctx: [1, 2, 3])
+                builder.asset(
+                    name="derived",
+                    fn=lambda source, ctx: [x * 2 for x in source],
+                    # depends_on is automatically inferred from parameter 'source'
+                )
         """
         if name in self._assets:
             msg = f"Asset '{name}' already exists in pipeline"
             raise ValueError(msg)
 
+        # Automatically infer dependencies if not explicitly provided
+        resolved_dependencies: list[str] | None = None
+        if depends_on is None:
+            # Infer dependencies from function signature
+            inferred = infer_dependencies_from_signature(
+                fn, known_assets=set(self._assets.keys())
+            )
+            resolved_dependencies = inferred if inferred else None
+        else:
+            resolved_dependencies = list(depends_on)
+
         # Wrap the function to handle data and context parameters
         def wrapped_fn(data: Any, context: Any) -> Any:
             # If this is a source (no dependencies), call with just context
-            if not depends_on:
+            if not resolved_dependencies:
                 # Source functions should be fn(context) -> T
                 try:
                     return fn(context)  # type: ignore
@@ -105,7 +202,7 @@ class PipelineBuilder:
 
         # Determine operator type based on dependencies
         operator_type = (
-            OperatorType.SOURCE if not depends_on else OperatorType.TRANSFORM
+            OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
         )
 
         # Create operator from the wrapped function
@@ -132,9 +229,9 @@ class PipelineBuilder:
 
         self._assets[name] = asset
 
-        # Store dependencies
-        if depends_on:
-            self._dependencies[name] = list(depends_on)
+        # Store dependencies (including inferred ones)
+        if resolved_dependencies:
+            self._dependencies[name] = resolved_dependencies
 
         return self
 
@@ -170,6 +267,9 @@ class PipelineContext:
     This class provides a context for collecting assets defined within
     a 'with' block, enabling a more declarative syntax.
 
+    Dependencies are automatically inferred from function parameter names
+    that match existing asset names.
+
     Example:
         Define a pipeline using context manager syntax::
 
@@ -178,9 +278,9 @@ class PipelineContext:
                 def raw_data():
                     return [1, 2, 3]
 
-                @pipeline.asset(depends_on=[raw_data])
-                def processed_data(data):
-                    return [x * 2 for x in data]
+                @pipeline.asset()  # No need to specify depends_on!
+                def processed_data(raw_data):  # Parameter name matches asset
+                    return [x * 2 for x in raw_data]
 
             graph = pipeline.build()
     """
@@ -204,34 +304,6 @@ class PipelineContext:
         """Exit the context manager."""
         pass
 
-    @overload
-    def asset(
-        self,
-        fn: Callable[P, T],
-        *,
-        name: str | None = None,
-        depends_on: list[str] | tuple[str, ...] | None = None,
-        asset_type: AssetType = AssetType.MEMORY,
-        uri: str | None = None,
-        description: str | None = None,
-        metadata: dict[str, Any] | None = None,
-        config: dict[str, Any] | None = None,
-    ) -> Callable[P, T]: ...
-
-    @overload
-    def asset(
-        self,
-        fn: None = None,
-        *,
-        name: str | None = None,
-        depends_on: list[str] | tuple[str, ...] | None = None,
-        asset_type: AssetType = AssetType.MEMORY,
-        uri: str | None = None,
-        description: str | None = None,
-        metadata: dict[str, Any] | None = None,
-        config: dict[str, Any] | None = None,
-    ) -> CallableType[[Callable[P, T]], Callable[P, T]]: ...
-
     def asset(
         self,
         fn: Callable[P, T] | None = None,
@@ -243,7 +315,7 @@ class PipelineContext:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
-    ) -> CallableType[[Callable[P, T]], Callable[P, T]] | Callable[P, T]:
+    ) -> Any:
         """
         Decorator or method to add an asset to the pipeline.
 
@@ -252,11 +324,18 @@ class PipelineContext:
         - A decorator with params: @pipeline.asset(depends_on=[other_asset])
         - A method call: pipeline.asset(fn=func, name="my_asset")
 
+        Dependencies are automatically inferred from the function signature
+        if not explicitly provided. Parameter names that match existing
+        asset names are treated as dependencies (except for special
+        parameters like 'context', 'ctx', and 'data').
+
         Args:
             fn: The function to convert to an asset (when used as a decorator)
             name: Optional name for the asset (defaults to function name)
-            depends_on: List of asset names this asset depends on. Can be strings
-                or callable objects (whose __name__ will be used)
+            depends_on: Optional list of asset names this asset depends on.
+                Can be strings or callable objects (whose __name__ will be used).
+                If not provided, dependencies are inferred from function
+                parameter names.
             asset_type: The type of asset (defaults to MEMORY)
             uri: Optional URI for the asset
             description: Optional description of the asset
@@ -267,17 +346,17 @@ class PipelineContext:
             Either a decorator function or the decorated function
         """
 
-        # Convert callable dependencies to names
-        dependency_names: list[str] | None = None
+        # Convert callable dependencies to names (if explicitly provided)
+        explicit_dependencies: list[str] | None = None
         if depends_on is not None:
-            dependency_names = []
+            explicit_dependencies = []
             for dep in depends_on:
                 if isinstance(dep, str):
-                    dependency_names.append(dep)
+                    explicit_dependencies.append(dep)
                 else:
                     # Check if it's callable (mypy reports this as unreachable but it's not)
                     if callable(dep):  # type: ignore[unreachable]
-                        dependency_names.append(dep.__name__)
+                        explicit_dependencies.append(dep.__name__)
                     else:
                         msg = f"Invalid dependency: {dep!r}. Must be string or callable"
                         raise TypeError(msg)
@@ -285,10 +364,21 @@ class PipelineContext:
         def decorator(func: Callable[P, T]) -> Callable[P, T]:
             asset_name = name or func.__name__
 
+            # Infer dependencies if not explicitly provided
+            resolved_dependencies: list[str] | None = None
+            if explicit_dependencies is not None:
+                resolved_dependencies = explicit_dependencies
+            else:
+                # Automatically infer from function signature
+                inferred = infer_dependencies_from_signature(
+                    func, known_assets=set(self._builder._assets.keys())
+                )
+                resolved_dependencies = inferred if inferred else None
+
             # Wrap the function to handle data and context parameters
             def wrapped_fn(data: Any, context: Any) -> Any:
                 # If this is a source (no dependencies), call with just context
-                if not dependency_names:
+                if not resolved_dependencies:
                     # Source functions should be fn(context) -> T
                     try:
                         return func(context)  # type: ignore
@@ -301,7 +391,7 @@ class PipelineContext:
 
             # Determine operator type based on dependencies
             operator_type = (
-                OperatorType.SOURCE if not dependency_names else OperatorType.TRANSFORM
+                OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
             )
 
             # Generate URI if not provided
@@ -327,8 +417,8 @@ class PipelineContext:
 
             # Add to builder's internal state
             self._builder._assets[asset_name] = asset
-            if dependency_names:
-                self._builder._dependencies[asset_name] = dependency_names
+            if resolved_dependencies:
+                self._builder._dependencies[asset_name] = resolved_dependencies
 
             # Store for potential dependency reference
             self._assets[asset_name] = asset

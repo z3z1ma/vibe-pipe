@@ -24,7 +24,9 @@ from vibe_piper.operators import (
 )
 from vibe_piper.pipeline import (
     PipelineBuilder,
+    PipelineContext,
     build_pipeline,
+    infer_dependencies_from_signature,
 )
 from vibe_piper.pipeline import (
     PipelineContext as PipelineDefContext,
@@ -83,8 +85,10 @@ __all__ = [
     "asset",
     # Pipeline builders
     "PipelineBuilder",
+    "PipelineContext",
     "PipelineDefContext",
     "build_pipeline",
+    "infer_dependencies_from_signature",
     # Operators
     "map_transform",
     "map_field",

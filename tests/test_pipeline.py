@@ -48,11 +48,12 @@ class TestPipelineBuilder:
 
     def test_add_multiple_assets(self) -> None:
         """Test adding multiple assets to the pipeline."""
+        from vibe_piper import PipelineContext
 
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source", fn=lambda _: [1, 2, 3])
-        builder.asset(name="derived", fn=lambda data, _: [x * 2 for x in data])
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
+        builder.asset(name="derived", fn=lambda data, ctx: [x * 2 for x in data])
 
         graph = builder.build()
         assert len(graph.assets) == 2
@@ -62,10 +63,10 @@ class TestPipelineBuilder:
         """Test adding assets with dependencies."""
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source", fn=lambda _: [1, 2, 3])
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
         builder.asset(
             name="derived",
-            fn=lambda data, _: [x * 2 for x in data],
+            fn=lambda data, ctx: [x * 2 for x in data],
             depends_on=["source"],
         )
 
@@ -76,11 +77,11 @@ class TestPipelineBuilder:
         """Test adding an asset with multiple dependencies."""
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source1", fn=lambda _: [1, 2, 3])
-        builder.asset(name="source2", fn=lambda _: [4, 5, 6])
+        builder.asset(name="source1", fn=lambda ctx: [1, 2, 3])
+        builder.asset(name="source2", fn=lambda ctx: [4, 5, 6])
         builder.asset(
             name="combined",
-            fn=lambda data, _: data,
+            fn=lambda data, ctx: data,
             depends_on=["source1", "source2"],
         )
 
@@ -91,7 +92,7 @@ class TestPipelineBuilder:
         """Test that asset() returns self for method chaining."""
         builder = PipelineBuilder("test_pipeline")
 
-        result = builder.asset(name="asset1", fn=lambda _: [1, 2, 3])
+        result = builder.asset(name="asset1", fn=lambda ctx: [1, 2, 3])
 
         assert result is builder
 
@@ -99,10 +100,10 @@ class TestPipelineBuilder:
         """Test using fluent interface to build a pipeline."""
         graph = (
             PipelineBuilder("test_pipeline")
-            .asset(name="source", fn=lambda _: [1, 2, 3])
+            .asset(name="source", fn=lambda ctx: [1, 2, 3])
             .asset(
                 name="derived",
-                fn=lambda data, _: [x * 2 for x in data],
+                fn=lambda data, ctx: [x * 2 for x in data],
                 depends_on=["source"],
             )
             .build()
@@ -115,16 +116,16 @@ class TestPipelineBuilder:
         """Test that adding a duplicate asset name raises an error."""
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source", fn=lambda _: [1, 2, 3])
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
 
         with pytest.raises(ValueError, match="already exists"):
-            builder.asset(name="source", fn=lambda _: [4, 5, 6])
+            builder.asset(name="source", fn=lambda ctx: [4, 5, 6])
 
     def test_build_creates_asset_graph(self) -> None:
         """Test that build() creates an AssetGraph."""
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source", fn=lambda _: [1, 2, 3])
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
 
         graph = builder.build()
         assert isinstance(graph, AssetGraph)
@@ -136,7 +137,7 @@ class TestPipelineBuilder:
 
         builder.asset(
             name="source",
-            fn=lambda _: [1, 2, 3],
+            fn=lambda ctx: [1, 2, 3],
             asset_type=AssetType.STREAM,
         )
 
@@ -150,7 +151,7 @@ class TestPipelineBuilder:
         custom_uri = "custom://my_asset"
         builder.asset(
             name="source",
-            fn=lambda _: [1, 2, 3],
+            fn=lambda ctx: [1, 2, 3],
             uri=custom_uri,
         )
 
@@ -164,7 +165,7 @@ class TestPipelineBuilder:
         metadata = {"owner": "data_team", "tags": ["important"]}
         builder.asset(
             name="source",
-            fn=lambda _: [1, 2, 3],
+            fn=lambda ctx: [1, 2, 3],
             metadata=metadata,
         )
 
@@ -173,13 +174,14 @@ class TestPipelineBuilder:
 
     def test_execute_pipeline_built_with_builder(self) -> None:
         """Test executing a pipeline built with PipelineBuilder."""
+        from vibe_piper import PipelineContext
 
         builder = PipelineBuilder("test_pipeline")
 
-        builder.asset(name="source", fn=lambda _: [1, 2, 3])
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
         builder.asset(
             name="derived",
-            fn=lambda data, _: [x * 2 for x in data],
+            fn=lambda data, ctx: [x * 2 for x in data],
             depends_on=["source"],
         )
 
@@ -209,10 +211,10 @@ class TestBuildPipelineFunction:
         """Test building a complete pipeline with build_pipeline()."""
         graph = (
             build_pipeline("data_processing")
-            .asset("raw_data", lambda _: [1, 2, 3])
+            .asset("raw_data", lambda ctx: [1, 2, 3])
             .asset(
                 "processed_data",
-                lambda data, _: [x * 2 for x in data],
+                lambda data, ctx: [x * 2 for x in data],
                 depends_on=["raw_data"],
             )
             .build()
@@ -241,7 +243,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -255,7 +256,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext as PCtx
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset(name="custom_name")
             def source(ctx: PCtx) -> list[int]:
                 return [1, 2, 3]
@@ -268,7 +268,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -286,7 +285,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset()
             def source1(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -308,7 +306,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -322,7 +319,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset(asset_type=AssetType.FILE)
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -337,7 +333,6 @@ class TestPipelineDefContext:
         metadata = {"owner": "team"}
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset(metadata=metadata)
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -350,7 +345,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -364,7 +358,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
-
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -385,7 +378,6 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("complex_pipeline") as pipeline:
-
             @pipeline.asset()
             def raw(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3, 4, 5]
@@ -419,12 +411,8 @@ class TestIntegration:
         # Build with builder
         builder_graph = (
             build_pipeline("test")
-            .asset("source", lambda _: [1, 2, 3])
-            .asset(
-                "derived",
-                lambda data, _: [x * 2 for x in data],
-                depends_on=["source"],
-            )
+            .asset("source", lambda ctx: [1, 2, 3])
+            .asset("derived", lambda data, ctx: [x * 2 for x in data], depends_on=["source"])
             .build()
         )
 
@@ -432,7 +420,6 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test") as pipeline:
-
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -457,7 +444,6 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("diamond") as pipeline:
-
             @pipeline.asset()
             def a(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -486,7 +472,6 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("independent") as pipeline:
-
             @pipeline.asset()
             def asset1(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -510,12 +495,12 @@ class TestIntegration:
     def test_declarative_vs_imperative_comparison(self) -> None:
         """Compare declarative syntax with imperative construction."""
         # Imperative (original) way
-        from vibe_piper import Operator
+        from vibe_piper import Operator, PipelineContext
 
         source_op = Operator(
             name="source",
             operator_type=OperatorType.SOURCE,
-            fn=lambda _, __: [1, 2, 3],
+            fn=lambda data, ctx: [1, 2, 3],
         )
         source_asset = Asset(
             name="source",
@@ -527,7 +512,7 @@ class TestIntegration:
         derived_op = Operator(
             name="derived",
             operator_type=OperatorType.TRANSFORM,
-            fn=lambda data, _: [x * 2 for x in data],
+            fn=lambda data, ctx: [x * 2 for x in data],
         )
         derived_asset = Asset(
             name="derived",
@@ -545,12 +530,8 @@ class TestIntegration:
         # Declarative way
         declarative_graph = (
             build_pipeline("test")
-            .asset("source", lambda _: [1, 2, 3])
-            .asset(
-                "derived",
-                lambda data, _: [x * 2 for x in data],
-                depends_on=["source"],
-            )
+            .asset("source", lambda ctx: [1, 2, 3])
+            .asset("derived", lambda data, ctx: [x * 2 for x in data], depends_on=["source"])
             .build()
         )
 
