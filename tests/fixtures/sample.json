@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "value": 100.5,
+    "category": "electronics",
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "value": 250.0,
+    "category": "books",
+    "timestamp": "2024-01-15T11:45:00Z"
+  },
+  {
+    "id": 3,
+    "name": "Charlie",
+    "value": 75.25,
+    "category": "clothing",
+    "timestamp": "2024-01-15T12:00:00Z"
+  },
+  {
+    "id": 4,
+    "name": "Diana",
+    "value": 350.75,
+    "category": "electronics",
+    "timestamp": "2024-01-15T13:15:00Z"
+  },
+  {
+    "id": 5,
+    "name": "Eve",
+    "value": 125.0,
+    "category": "books",
+    "timestamp": "2024-01-15T14:30:00Z"
+  },
+  {
+    "id": 6,
+    "name": "Frank",
+    "value": 200.0,
+    "category": "clothing",
+    "timestamp": "2024-01-15T15:45:00Z"
+  },
+  {
+    "id": 7,
+    "name": "Grace",
+    "value": 175.5,
+    "category": "electronics",
+    "timestamp": "2024-01-15T16:00:00Z"
+  },
+  {
+    "id": 8,
+    "name": "Henry",
+    "value": 300.0,
+    "category": "books",
+    "timestamp": "2024-01-15T17:15:00Z"
+  }
+]
