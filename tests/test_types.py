@@ -9,6 +9,7 @@ import pytest
 
 from vibe_piper.types import (
     Asset,
+    AssetGraph,
     AssetType,
     DataRecord,
     DataType,
@@ -556,3 +557,266 @@ class TestEnums:
         assert OperatorType.SOURCE.value == 1
         assert OperatorType.TRANSFORM.value == 2
         assert OperatorType.CUSTOM.value == 8
+
+
+class TestAssetGraph:
+    """Tests for AssetGraph type."""
+
+    def test_create_basic_graph(self) -> None:
+        """Test creating a basic asset graph."""
+        asset1 = Asset(
+            name="raw_data",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/raw_data",
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset1,))
+        assert graph.name == "test_graph"
+        assert len(graph.assets) == 1
+        assert graph.assets[0].name == "raw_data"
+
+    def test_graph_with_dependencies(self) -> None:
+        """Test creating a graph with asset dependencies."""
+        source = Asset(
+            name="source_table",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/source",
+        )
+        derived = Asset(
+            name="derived_table",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/derived",
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(source, derived),
+            dependencies={"derived_table": ("source_table",)},
+        )
+        assert len(graph.assets) == 2
+        assert graph.dependencies["derived_table"] == ("source_table",)
+
+    def test_graph_empty_name_raises_error(self) -> None:
+        """Test that empty graph name raises ValueError."""
+        with pytest.raises(ValueError, match="AssetGraph name cannot be empty"):
+            AssetGraph(name="")
+
+    def test_graph_duplicate_asset_names_raises_error(self) -> None:
+        """Test that duplicate asset names raise ValueError."""
+        asset1 = Asset(
+            name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        asset2 = Asset(
+            name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
+        )
+        with pytest.raises(ValueError, match="Duplicate asset names"):
+            AssetGraph(name="test_graph", assets=(asset1, asset2))
+
+    def test_dependency_asset_not_in_graph_raises_error(self) -> None:
+        """Test that dependencies must reference assets in the graph."""
+        asset = Asset(
+            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
+        )
+        with pytest.raises(ValueError, match="not found in assets"):
+            AssetGraph(
+                name="test_graph",
+                assets=(asset,),
+                dependencies={"test": ("nonexistent",)},
+            )
+
+    def test_dependency_reference_not_found_raises_error(self) -> None:
+        """Test that dependency references must exist."""
+        asset1 = Asset(
+            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        with pytest.raises(ValueError, match="not found in assets"):
+            AssetGraph(
+                name="test_graph",
+                assets=(asset1,),
+                dependencies={"asset1": ("missing_asset",)},
+            )
+
+    def test_circular_dependency_raises_error(self) -> None:
+        """Test that circular dependencies are detected."""
+        asset1 = Asset(name="a", asset_type=AssetType.TABLE, uri="postgresql://db/a")
+        asset2 = Asset(name="b", asset_type=AssetType.TABLE, uri="postgresql://db/b")
+        with pytest.raises(ValueError, match="Circular dependency"):
+            AssetGraph(
+                name="test_graph",
+                assets=(asset1, asset2),
+                dependencies={"a": ("b",), "b": ("a",)},
+            )
+
+    def test_complex_circular_dependency_raises_error(self) -> None:
+        """Test that complex circular dependencies are detected."""
+        a = Asset(name="a", asset_type=AssetType.TABLE, uri="postgresql://db/a")
+        b = Asset(name="b", asset_type=AssetType.TABLE, uri="postgresql://db/b")
+        c = Asset(name="c", asset_type=AssetType.TABLE, uri="postgresql://db/c")
+        with pytest.raises(ValueError, match="Circular dependency"):
+            AssetGraph(
+                name="test_graph",
+                assets=(a, b, c),
+                dependencies={"a": ("b",), "b": ("c",), "c": ("a",)},
+            )
+
+    def test_get_asset(self) -> None:
+        """Test getting an asset by name."""
+        asset1 = Asset(
+            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        asset2 = Asset(
+            name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset1, asset2))
+        assert graph.get_asset("asset1") == asset1
+        assert graph.get_asset("asset2") == asset2
+        assert graph.get_asset("nonexistent") is None
+
+    def test_get_dependencies(self) -> None:
+        """Test getting upstream dependencies."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        aggregated = Asset(
+            name="aggregated",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/aggregated",
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned, aggregated),
+            dependencies={"cleaned": ("raw",), "aggregated": ("cleaned",)},
+        )
+        assert graph.get_dependencies("aggregated") == (cleaned,)
+        assert graph.get_dependencies("cleaned") == (raw,)
+        assert graph.get_dependencies("raw") == ()
+
+    def test_get_dependents(self) -> None:
+        """Test getting downstream dependents."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        aggregated = Asset(
+            name="aggregated",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/aggregated",
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned, aggregated),
+            dependencies={"cleaned": ("raw",), "aggregated": ("cleaned",)},
+        )
+        assert graph.get_dependents("cleaned") == (aggregated,)
+        assert graph.get_dependents("raw") == (cleaned,)
+        assert graph.get_dependents("aggregated") == ()
+
+    def test_topological_order_simple(self) -> None:
+        """Test topological sorting with simple chain."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned),
+            dependencies={"cleaned": ("raw",)},
+        )
+        order = graph.topological_order()
+        assert order == ("raw", "cleaned")
+
+    def test_topological_order_complex(self) -> None:
+        """Test topological sorting with complex DAG."""
+        a = Asset(name="a", asset_type=AssetType.TABLE, uri="postgresql://db/a")
+        b = Asset(name="b", asset_type=AssetType.TABLE, uri="postgresql://db/b")
+        c = Asset(name="c", asset_type=AssetType.TABLE, uri="postgresql://db/c")
+        d = Asset(name="d", asset_type=AssetType.TABLE, uri="postgresql://db/d")
+        # Structure: d depends on b and c, both b and c depend on a
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(a, b, c, d),
+            dependencies={"b": ("a",), "c": ("a",), "d": ("b", "c")},
+        )
+        order = graph.topological_order()
+        # a must come before b and c, which must come before d
+        assert order.index("a") < order.index("b")
+        assert order.index("a") < order.index("c")
+        assert order.index("b") < order.index("d")
+        assert order.index("c") < order.index("d")
+
+    def test_topological_order_independent_assets(self) -> None:
+        """Test topological sorting with independent assets."""
+        asset1 = Asset(
+            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        asset2 = Asset(
+            name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
+        )
+        asset3 = Asset(
+            name="asset3", asset_type=AssetType.TABLE, uri="postgresql://db/a3"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset1, asset2, asset3))
+        order = graph.topological_order()
+        # All should be present
+        assert set(order) == {"asset1", "asset2", "asset3"}
+
+    def test_add_asset_no_dependencies(self) -> None:
+        """Test adding an asset without dependencies."""
+        asset1 = Asset(
+            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset1,))
+        asset2 = Asset(
+            name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv"
+        )
+        new_graph = graph.add_asset(asset2)
+        assert len(new_graph.assets) == 2
+        assert len(graph.assets) == 1  # Original unchanged
+
+    def test_add_asset_with_dependencies(self) -> None:
+        """Test adding an asset with dependencies."""
+        source = Asset(
+            name="source", asset_type=AssetType.TABLE, uri="postgresql://db/source"
+        )
+        derived = Asset(
+            name="derived", asset_type=AssetType.TABLE, uri="postgresql://db/derived"
+        )
+        graph = AssetGraph(name="test_graph", assets=(source,))
+        new_graph = graph.add_asset(derived, depends_on=("source",))
+        assert len(new_graph.assets) == 2
+        assert new_graph.dependencies["derived"] == ("source",)
+
+    def test_add_asset_nonexistent_dependency_raises_error(self) -> None:
+        """Test that adding an asset with missing dependencies raises error."""
+        asset1 = Asset(
+            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset1,))
+        asset2 = Asset(
+            name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
+        )
+        with pytest.raises(ValueError, match="not found in graph"):
+            graph.add_asset(asset2, depends_on=("nonexistent",))
+
+    def test_graph_is_frozen(self) -> None:
+        """Test that AssetGraph is immutable."""
+        asset = Asset(
+            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset,))
+        with pytest.raises(Exception):  # FrozenInstanceError
+            graph.name = "changed"  # type: ignore[misc]
+
+    def test_graph_with_metadata(self) -> None:
+        """Test creating a graph with metadata."""
+        asset = Asset(
+            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(asset,),
+            description="Test pipeline",
+            metadata={"owner": "data-team", "environment": "production"},
+        )
+        assert graph.description == "Test pipeline"
+        assert graph.metadata["owner"] == "data-team"
+        assert graph.metadata["environment"] == "production"
