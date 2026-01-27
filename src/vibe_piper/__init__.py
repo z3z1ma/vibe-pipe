@@ -36,6 +36,10 @@ from vibe_piper.operators import (
     aggregate_count,
     aggregate_group_by,
     aggregate_sum,
+    check_quality_completeness,
+    check_quality_freshness,
+    check_quality_uniqueness,
+    check_quality_validity,
     custom_operator,
     filter_field_equals,
     filter_field_not_null,
@@ -53,6 +57,13 @@ from vibe_piper.pipeline import (
 )
 from vibe_piper.pipeline import (
     PipelineContext as PipelineDefContext,
+)
+from vibe_piper.quality import (
+    check_completeness,
+    check_freshness,
+    check_uniqueness,
+    check_validity,
+    generate_quality_report,
 )
 from vibe_piper.schema_definitions import (
     AnyType,
@@ -72,6 +83,7 @@ from vibe_piper.types import (
     AssetGraph,
     AssetResult,
     AssetType,
+    DataQualityReport,
     DataRecord,
     DataType,
     ErrorStrategy,
@@ -81,6 +93,10 @@ from vibe_piper.types import (
     OperatorFn,
     OperatorType,
     Pipeline,
+    PipelineContext,
+    QualityCheckResult,
+    QualityMetric,
+    QualityMetricType,
     Schema,
     SchemaField,
     ValidationResult,
@@ -109,6 +125,10 @@ __all__ = [
     "ErrorStrategy",
     "Expectation",
     "ValidationResult",
+    "QualityMetric",
+    "QualityMetricType",
+    "QualityCheckResult",
+    "DataQualityReport",
     "__version__",
     # Decorators
     "asset",
@@ -140,6 +160,17 @@ __all__ = [
     "validate_expectation",
     "validate_expectation_suite",
     "custom_operator",
+    # Quality metrics
+    "check_completeness",
+    "check_validity",
+    "check_uniqueness",
+    "check_freshness",
+    "generate_quality_report",
+    # Quality check operators
+    "check_quality_completeness",
+    "check_quality_validity",
+    "check_quality_uniqueness",
+    "check_quality_freshness",
     # Declarative Schema API
     "define_schema",
     "String",
