@@ -1,6 +1,6 @@
 ---
 "id": "vp-42ae"
-"status": "open"
+"status": "closed"
 "deps":
 - "vp-538e"
 - "vp-f3d6"
