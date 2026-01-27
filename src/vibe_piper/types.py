@@ -17,7 +17,6 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import (
     Any,
-    Generic,
     Protocol,
     TypeAlias,
     TypeVar,
@@ -389,6 +388,84 @@ class Pipeline:
             metadata=self.metadata,
             config=self.config,
         )
+
+    def execute(
+        self,
+        data: Any,
+        context: PipelineContext | None = None,
+    ) -> Any:
+        """
+        Execute the pipeline with the given input data.
+
+        Operators are executed in sequence, with the output of each operator
+        becoming the input to the next.
+
+        Args:
+            data: Input data to process through the pipeline
+            context: Optional pipeline execution context. If None, a default
+                    context will be created.
+
+        Returns:
+            The final output after all operators have been executed.
+
+        Raises:
+            Exception: If any operator raises an exception during execution.
+
+        Example:
+            Execute a pipeline with data::
+
+                ctx = PipelineContext(pipeline_id="my_pipe", run_id="run_1")
+                result = pipeline.execute(input_data, context=ctx)
+        """
+        # Create default context if not provided
+        if context is None:
+            context = PipelineContext(
+                pipeline_id=self.name,
+                run_id=f"{self.name}_{datetime.now().isoformat()}",
+            )
+
+        # Validate input schema if present
+        if self.input_schema is not None:
+            if isinstance(data, DataRecord):
+                # DataRecord validates itself in __post_init__
+                pass
+            elif isinstance(data, list) and data and isinstance(data[0], DataRecord):
+                # List of DataRecords - each validates itself
+                pass
+            elif isinstance(data, dict):
+                # Raw dict - create DataRecord to validate
+                try:
+                    DataRecord(data=data, schema=self.input_schema)
+                except ValueError as e:
+                    msg = f"Input data validation failed: {e}"
+                    raise ValueError(msg) from e
+
+        # Execute operators in sequence
+        result = data
+        for operator in self.operators:
+            result = operator.fn(result, context)
+
+        # Validate output schema if present
+        if self.output_schema is not None:
+            if isinstance(result, DataRecord):
+                # DataRecord validates itself in __post_init__
+                pass
+            elif (
+                isinstance(result, list)
+                and result
+                and isinstance(result[0], DataRecord)
+            ):
+                # List of DataRecords - each validates itself
+                pass
+            elif isinstance(result, dict):
+                # Raw dict - create DataRecord to validate
+                try:
+                    DataRecord(data=result, schema=self.output_schema)
+                except ValueError as e:
+                    msg = f"Output data validation failed: {e}"
+                    raise ValueError(msg) from e
+
+        return result
 
 
 # =============================================================================

@@ -256,6 +256,205 @@ extended_pipeline = pipeline.add_operator(additional_op)
 - Pipelines are composable (can be nested)
 - Immutable structure
 
+#### Pipeline Execution
+
+Pipelines can be executed with the `execute()` method:
+
+```python
+from vibe_piper import Pipeline, PipelineContext
+
+# Create a pipeline with operators
+pipeline = Pipeline(
+    name="data_processing",
+    operators=(filter_op, transform_op, aggregate_op),
+)
+
+# Execute the pipeline
+ctx = PipelineContext(
+    pipeline_id="data_processing",
+    run_id="run_001",
+    config={"batch_size": 100}
+)
+
+result = pipeline.execute(input_data, context=ctx)
+```
+
+The `execute()` method:
+- Accepts input data and an optional `PipelineContext`
+- Creates a default context if none is provided
+- Executes operators in sequence, passing output to input
+- Validates input/output schemas if present
+- Returns the final output
+
+### Built-in Operators
+
+Vibe Piper provides a library of common transformation operators that can be used directly in pipelines.
+
+#### Map Operators
+
+**`map_transform`** - Apply a custom function to each record:
+
+```python
+from vibe_piper import map_transform
+
+def uppercase_email(record: DataRecord, ctx: PipelineContext) -> DataRecord:
+    new_data = dict(record.data)
+    if "email" in new_data:
+        new_data["email"] = new_data["email"].upper()
+    return DataRecord(data=new_data, schema=record.schema)
+
+map_op = map_transform(
+    name="uppercase_emails",
+    transform_fn=uppercase_email,
+    description="Convert email addresses to uppercase"
+)
+```
+
+**`map_field`** - Transform a specific field:
+
+```python
+from vibe_piper import map_field
+
+map_op = map_field(
+    name="uppercase_name",
+    field_name="name",
+    transform_fn=str.upper,
+    description="Convert name field to uppercase"
+)
+```
+
+**`add_field`** - Add a computed field:
+
+```python
+from vibe_piper import add_field
+
+def compute_full_name(record: DataRecord, ctx: PipelineContext) -> str:
+    return f"{record.get('first_name')} {record.get('last_name')}"
+
+add_op = add_field(
+    name="add_full_name",
+    field_name="full_name",
+    field_type=DataType.STRING,
+    value_fn=compute_full_name,
+    description="Add full name field"
+)
+```
+
+#### Filter Operators
+
+**`filter_operator`** - Filter records with a predicate:
+
+```python
+from vibe_piper import filter_operator
+
+def is_adult(record: DataRecord, ctx: PipelineContext) -> bool:
+    return record.get("age", 0) >= 18
+
+filter_op = filter_operator(
+    name="filter_adults",
+    predicate=is_adult,
+    description="Keep only adult records"
+)
+```
+
+**`filter_field_equals`** - Filter by field equality:
+
+```python
+from vibe_piper import filter_field_equals
+
+filter_op = filter_field_equals(
+    name="filter_active",
+    field_name="status",
+    value="active",
+    description="Keep only active records"
+)
+```
+
+**`filter_field_not_null`** - Remove null/missing fields:
+
+```python
+from vibe_piper import filter_field_not_null
+
+filter_op = filter_field_not_null(
+    name="filter_has_email",
+    field_name="email",
+    description="Remove records without email"
+)
+```
+
+#### Aggregate Operators
+
+**`aggregate_count`** - Count records:
+
+```python
+from vibe_piper import aggregate_count
+
+count_op = aggregate_count(
+    name="count_records",
+    description="Count total records"
+)
+```
+
+**`aggregate_sum`** - Sum a field:
+
+```python
+from vibe_piper import aggregate_sum
+
+sum_op = aggregate_sum(
+    name="sum_amount",
+    field_name="amount",
+    description="Sum all amounts"
+)
+```
+
+**`aggregate_group_by`** - Group and aggregate:
+
+```python
+from vibe_piper import aggregate_group_by
+
+def count_group(records: list[DataRecord]) -> int:
+    return len(records)
+
+group_op = aggregate_group_by(
+    name="group_by_category",
+    group_field="category",
+    aggregate_fn=count_group,
+    description="Group by category and count"
+)
+```
+
+#### Validate Operators
+
+**`validate_schema`** - Validate records against a schema:
+
+```python
+from vibe_piper import validate_schema
+
+validate_op = validate_schema(
+    name="validate_user_schema",
+    schema=user_schema,
+    description="Validate user records"
+)
+```
+
+#### Custom Operators
+
+**`custom_operator`** - Create a custom operator:
+
+```python
+from vibe_piper import custom_operator
+
+def custom_transform(data: list[DataRecord], ctx: PipelineContext) -> list[DataRecord]:
+    # Your custom logic here
+    return data
+
+custom_op = custom_operator(
+    name="my_custom_transform",
+    fn=custom_transform,
+    description="My custom transformation"
+)
+```
+
 ### PipelineContext
 
 Execution context for pipeline operations:
@@ -469,7 +668,61 @@ new_pipeline = pipeline.add_operator(new_op)
 new_record = DataRecord(data={**record.data, "new_field": value}, schema=new_schema)
 ```
 
-### 4. Implement Protocols for Custom Components
+### 4. Use Built-in Operators
+
+Prefer built-in operators over custom implementations when possible:
+
+```python
+from vibe_piper import (
+    Pipeline,
+    PipelineContext,
+    filter_field_equals,
+    map_field,
+    aggregate_count,
+    Schema,
+    SchemaField,
+    DataType,
+)
+
+# Create a schema
+schema = Schema(
+    name="transactions",
+    fields=(
+        SchemaField(name="id", data_type=DataType.INTEGER),
+        SchemaField(name="amount", data_type=DataType.FLOAT),
+        SchemaField(name="status", data_type=DataType.STRING),
+    ),
+)
+
+# Build a pipeline with built-in operators
+pipeline = Pipeline(
+    name="process_transactions",
+    operators=(
+        filter_field_equals(
+            name="filter_completed",
+            field_name="status",
+            value="completed",
+            description="Keep only completed transactions"
+        ),
+        map_field(
+            name="normalize_amount",
+            field_name="amount",
+            transform_fn=lambda x: round(x, 2),
+            description="Round amounts to 2 decimal places"
+        ),
+        aggregate_count(
+            name="count_transactions",
+            description="Count completed transactions"
+        ),
+    ),
+)
+
+# Execute the pipeline
+ctx = PipelineContext(pipeline_id="process_transactions", run_id="run_001")
+result = pipeline.execute(input_data, context=ctx)
+```
+
+### 5. Implement Protocols for Custom Components
 
 When creating custom components, implement the relevant protocols:
 
@@ -486,7 +739,7 @@ def process_data(source: Source[list[DataRecord]]) -> None:
     data = source.read(ctx)
 ```
 
-### 5. Use Metadata for Documentation
+### 6. Use Metadata for Documentation
 
 Add metadata to schemas, assets, and pipelines:
 
