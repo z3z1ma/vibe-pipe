@@ -9,6 +9,22 @@ __version__ = "0.1.0"
 
 from vibe_piper.decorators import asset, expect
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
+from vibe_piper.expectations import (
+    expect_column_constraint_to_equal,
+    expect_column_to_be_non_nullable,
+    expect_column_to_be_nullable,
+    expect_column_to_be_optional,
+    expect_column_to_be_required,
+    expect_column_to_exist,
+    expect_column_to_have_constraint,
+    expect_column_to_not_exist,
+    expect_column_type_to_be,
+    expect_table_column_count_to_be_between,
+    expect_table_column_count_to_equal,
+    expect_table_columns_to_contain,
+    expect_table_columns_to_match_set,
+    expect_table_columns_to_not_contain,
+)
 from vibe_piper.operators import (
     add_field,
     aggregate_count,
@@ -117,4 +133,19 @@ __all__ = [
     "Object",
     "AnyType",
     "DeclarativeSchema",
+    # Built-in Expectations
+    "expect_column_to_exist",
+    "expect_column_to_not_exist",
+    "expect_column_type_to_be",
+    "expect_table_column_count_to_equal",
+    "expect_table_column_count_to_be_between",
+    "expect_table_columns_to_match_set",
+    "expect_table_columns_to_contain",
+    "expect_table_columns_to_not_contain",
+    "expect_column_to_be_required",
+    "expect_column_to_be_optional",
+    "expect_column_to_be_nullable",
+    "expect_column_to_be_non_nullable",
+    "expect_column_to_have_constraint",
+    "expect_column_constraint_to_equal",
 ]
