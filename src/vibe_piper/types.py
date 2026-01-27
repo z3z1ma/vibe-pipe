@@ -468,6 +468,224 @@ class Pipeline:
         return result
 
 
+@dataclass(frozen=True)
+class AssetGraph:
+    """
+    A directed acyclic graph (DAG) of assets with dependencies.
+
+    An AssetGraph manages a collection of assets and tracks their dependencies.
+    Each asset can depend on zero or more other assets, forming a DAG that
+    represents data lineage and transformation flow.
+
+    The graph validates that:
+    - All asset dependencies exist in the graph
+    - No circular dependencies exist (it's a true DAG)
+    - Asset names are unique
+
+    Attributes:
+        name: Unique identifier for this asset graph
+        assets: Collection of assets in the graph
+        dependencies: Mapping of asset name to its dependencies (asset names)
+        description: Optional documentation
+        metadata: Additional metadata (tags, owner, etc.)
+        config: Graph-specific configuration
+
+    Example:
+        Create a simple asset graph with dependencies::
+
+            source_asset = Asset(
+                name="raw_users",
+                asset_type=AssetType.TABLE,
+                uri="postgresql://db/raw_users"
+            )
+
+            derived_asset = Asset(
+                name="clean_users",
+                asset_type=AssetType.TABLE,
+                uri="postgresql://db/clean_users"
+            )
+
+            graph = AssetGraph(
+                name="user_pipeline",
+                assets=(source_asset, derived_asset),
+                dependencies={"clean_users": ("raw_users",)}
+            )
+
+            # Get execution order
+            order = graph.topological_order()
+            # Returns: ["raw_users", "clean_users"]
+    """
+
+    name: str
+    assets: tuple[Asset, ...] = field(default_factory=tuple)
+    dependencies: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    description: str | None = None
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+    config: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate the asset graph configuration."""
+        if not self.name:
+            msg = "AssetGraph name cannot be empty"
+            raise ValueError(msg)
+
+        # Check for duplicate asset names
+        asset_names = {asset.name for asset in self.assets}
+        if len(asset_names) != len(self.assets):
+            msg = f"Duplicate asset names in graph {self.name!r}"
+            raise ValueError(msg)
+
+        # Validate all dependencies reference existing assets
+        for asset_name, deps in self.dependencies.items():
+            if asset_name not in asset_names:
+                msg = f"Asset {asset_name!r} in dependencies but not in assets"
+                raise ValueError(msg)
+            for dep in deps:
+                if dep not in asset_names:
+                    msg = f"Dependency {dep!r} of {asset_name!r} not found in assets"
+                    raise ValueError(msg)
+
+        # Validate no circular dependencies
+        self._validate_no_cycles()
+
+    def _validate_no_cycles(self) -> None:
+        """Detect circular dependencies using DFS."""
+        asset_names = {asset.name for asset in self.assets}
+        visited: set[str] = set()
+        rec_stack: set[str] = set()
+
+        def dfs(node: str) -> None:
+            visited.add(node)
+            rec_stack.add(node)
+
+            for neighbor in self.dependencies.get(node, ()):
+                if neighbor not in visited:
+                    dfs(neighbor)
+                elif neighbor in rec_stack:
+                    msg = f"Circular dependency detected involving {node!r} and {neighbor!r}"
+                    raise ValueError(msg)
+
+            rec_stack.remove(node)
+
+        for asset_name in asset_names:
+            if asset_name not in visited:
+                dfs(asset_name)
+
+    def get_asset(self, name: str) -> Asset | None:
+        """Get an asset by name."""
+        for asset in self.assets:
+            if asset.name == name:
+                return asset
+        return None
+
+    def get_dependencies(self, asset_name: str) -> tuple[Asset, ...]:
+        """Get all assets that the given asset depends on (upstream)."""
+        if asset_name not in self.dependencies:
+            return ()
+        dep_names = self.dependencies[asset_name]
+        deps: list[Asset] = []
+        for asset in self.assets:
+            if asset.name in dep_names:
+                deps.append(asset)
+        return tuple(deps)
+
+    def get_dependents(self, asset_name: str) -> tuple[Asset, ...]:
+        """Get all assets that depend on the given asset (downstream)."""
+        dependents: list[Asset] = []
+        for asset in self.assets:
+            if asset_name in self.dependencies.get(asset.name, ()):
+                dependents.append(asset)
+        return tuple(dependents)
+
+    def topological_order(self) -> tuple[str, ...]:
+        """
+        Compute topological ordering of assets for execution.
+
+        Assets are ordered such that all dependencies appear before
+        the assets that depend on them.
+
+        Returns:
+            Tuple of asset names in topological order.
+
+        Raises:
+            ValueError: If the graph contains cycles (should not happen
+                if validation passed).
+        """
+        # Kahn's algorithm for topological sorting
+        asset_names = {asset.name for asset in self.assets}
+        in_degree: dict[str, int] = {name: 0 for name in asset_names}
+
+        # Calculate in-degrees
+        for asset_name, deps in self.dependencies.items():
+            in_degree[asset_name] = len(deps)
+
+        # Initialize queue with assets that have no dependencies
+        from collections import deque
+
+        queue: deque[str] = deque()
+        for name in asset_names:
+            if in_degree[name] == 0:
+                queue.append(name)
+
+        result: list[str] = []
+
+        while queue:
+            node = queue.popleft()
+            result.append(node)
+
+            # Reduce in-degree for all dependents
+            for dependent_asset in self.get_dependents(node):
+                in_degree[dependent_asset.name] -= 1
+                if in_degree[dependent_asset.name] == 0:
+                    queue.append(dependent_asset.name)
+
+        if len(result) != len(asset_names):
+            msg = "Graph contains cycles - cannot compute topological order"
+            raise ValueError(msg)
+
+        return tuple(result)
+
+    def add_asset(
+        self,
+        asset: Asset,
+        depends_on: tuple[str, ...] = (),
+    ) -> "AssetGraph":
+        """
+        Return a new asset graph with an asset added.
+
+        Args:
+            asset: The asset to add
+            depends_on: Names of assets this new asset depends on
+
+        Returns:
+            A new AssetGraph with the asset added
+
+        Raises:
+            ValueError: If dependency names don't exist in the current graph
+        """
+        # Validate dependencies exist in current graph
+        current_asset_names = {a.name for a in self.assets}
+        for dep in depends_on:
+            if dep not in current_asset_names:
+                msg = f"Cannot add asset: dependency {dep!r} not found in graph"
+                raise ValueError(msg)
+
+        new_assets = (*self.assets, asset)
+        new_deps = dict(self.dependencies)
+        if depends_on:
+            new_deps = dict(new_deps)  # Make mutable copy
+            new_deps[asset.name] = depends_on
+
+        return AssetGraph(
+            name=self.name,
+            assets=new_assets,
+            dependencies=new_deps,
+            description=self.description,
+            metadata=self.metadata,
+            config=self.config,
+        )
+
+
 # =============================================================================
 # Protocols for Extensibility
 # =============================================================================

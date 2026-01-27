@@ -22,6 +22,7 @@ from vibe_piper.operators import (
 )
 from vibe_piper.types import (
     Asset,
+    AssetGraph,
     DataRecord,
     DataType,
     Operator,
@@ -35,6 +36,7 @@ from vibe_piper.types import (
 
 __all__ = [
     "Asset",
+    "AssetGraph",
     "Schema",
     "Pipeline",
     "Operator",
