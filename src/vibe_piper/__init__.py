@@ -101,9 +101,6 @@ from vibe_piper.types import (
     SchemaField,
     ValidationResult,
 )
-from vibe_piper.types import (
-    PipelineContext as PipelineContext,
-)
 
 __all__ = [
     "Asset",
