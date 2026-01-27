@@ -315,6 +315,7 @@ class Asset:
         asset_type: The type of asset (table, file, etc.)
         uri: Location/identifier for the asset
         schema: The schema of data in this asset
+        operator: Optional operator to transform data for this asset
         description: Optional documentation
         metadata: Additional metadata (owner, tags, etc.)
         config: Asset-specific configuration
@@ -324,6 +325,7 @@ class Asset:
     asset_type: AssetType
     uri: str
     schema: Schema | None = None
+    operator: "Operator | None" = None
     description: str | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
     config: Mapping[str, Any] = field(default_factory=dict)
@@ -825,6 +827,34 @@ class Observable(Protocol):
         ...
 
 
+class Executor(Protocol):
+    """
+    Protocol for executing assets.
+
+    This protocol defines the interface for objects that can execute
+    assets within the context of an asset graph.
+    """
+
+    def execute(
+        self,
+        asset: "Asset",
+        context: "PipelineContext",
+        upstream_results: Mapping[str, Any],
+    ) -> "AssetResult":
+        """
+        Execute an asset and return the result.
+
+        Args:
+            asset: The asset to execute
+            context: The pipeline execution context
+            upstream_results: Results from upstream assets
+
+        Returns:
+            AssetResult containing execution outcome
+        """
+        ...
+
+
 # =============================================================================
 # Utility Types
 # =============================================================================
@@ -864,3 +894,104 @@ class PipelineResult:
     error: str | None = None
     metrics: Mapping[str, int | float] = field(default_factory=dict)
     context: PipelineContext | None = None
+
+
+# =============================================================================
+# Execution Engine Types
+# =============================================================================
+
+
+class ErrorStrategy(Enum):
+    """Strategies for handling execution errors."""
+
+    FAIL_FAST = auto()  # Stop execution on first error
+    CONTINUE = auto()  # Continue execution, collect all errors
+    RETRY = auto()  # Retry failed assets (with max_retries)
+
+
+@dataclass(frozen=True)
+class AssetResult:
+    """
+    Result of executing a single asset.
+
+    Attributes:
+        asset_name: Name of the asset that was executed
+        success: Whether execution succeeded
+        data: The output data (if successful)
+        error: Error message (if failed)
+        metrics: Execution metrics for this asset
+        duration_ms: Execution time in milliseconds
+        timestamp: When the asset was executed
+        lineage: upstream asset names that contributed to this result
+    """
+
+    asset_name: str
+    success: bool
+    data: Any | None = None
+    error: str | None = None
+    metrics: Mapping[str, int | float] = field(default_factory=dict)
+    duration_ms: float = 0.0
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    lineage: tuple[str, ...] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class ExecutionResult:
+    """
+    Result of executing an AssetGraph.
+
+    Attributes:
+        success: Whether overall execution succeeded
+        asset_results: Mapping of asset name to its execution result
+        errors: List of all errors encountered during execution
+        metrics: Aggregated execution metrics
+        duration_ms: Total execution time in milliseconds
+        timestamp: When execution started
+        assets_executed: Number of assets that were executed
+        assets_succeeded: Number of assets that succeeded
+        assets_failed: Number of assets that failed
+    """
+
+    success: bool
+    asset_results: Mapping[str, AssetResult]
+    errors: tuple[str, ...] = field(default_factory=tuple)
+    metrics: Mapping[str, int | float] = field(default_factory=dict)
+    duration_ms: float = 0.0
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    assets_executed: int = 0
+    assets_succeeded: int = 0
+    assets_failed: int = 0
+
+    def get_asset_result(self, asset_name: str) -> AssetResult | None:
+        """
+        Get the result for a specific asset.
+
+        Args:
+            asset_name: Name of the asset to look up
+
+        Returns:
+            AssetResult if found, None otherwise
+        """
+        return self.asset_results.get(asset_name)
+
+    def get_failed_assets(self) -> tuple[str, ...]:
+        """
+        Get names of all assets that failed.
+
+        Returns:
+            Tuple of asset names that failed execution
+        """
+        return tuple(
+            name for name, result in self.asset_results.items() if not result.success
+        )
+
+    def get_succeeded_assets(self) -> tuple[str, ...]:
+        """
+        Get names of all assets that succeeded.
+
+        Returns:
+            Tuple of asset names that succeeded
+        """
+        return tuple(
+            name for name, result in self.asset_results.items() if result.success
+        )
