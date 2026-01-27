@@ -1,6 +1,6 @@
 ---
 "id": "vp-2ceb"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-27T07:50:41Z"
