@@ -1,24 +1,31 @@
 """
-Vibe Piper - Declarative Data Pipeline Library.
+Vibe Piper - Declarative Data Pipeline Library
 
-Vibe Piper is a robust Python-based declarative data pipeline, integration,
-quality, transformation, and activation library designed for simplicity,
-expressiveness, and composability.
-
-Example:
-    Basic usage example::
-
-        from vibe_piper import Pipeline
-
-        pipeline = Pipeline(name="my_pipeline")
-        # Add your pipeline stages here
-        result = pipeline.run(data)
-
-This library is currently in early development (Phase 0: Foundation).
+A robust, composable framework for building data pipelines with type safety
+and extensibility at its core.
 """
 
 __version__ = "0.1.0"
 
-from vibe_piper.core import Pipeline, Stage
+from vibe_piper.types import (
+    Asset,
+    DataRecord,
+    Operator,
+    OperatorFn,
+    Pipeline,
+    PipelineContext,
+    Schema,
+    SchemaField,
+)
 
-__all__ = ["Pipeline", "Stage", "__version__"]
+__all__ = [
+    "Asset",
+    "Schema",
+    "Pipeline",
+    "Operator",
+    "OperatorFn",
+    "DataRecord",
+    "SchemaField",
+    "PipelineContext",
+    "__version__",
+]

@@ -5,66 +5,94 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vibe-piper"
 version = "0.1.0"
-description = "A robust Python-based declarative data pipeline, integration, quality, transformation, and activation library"
+description = "Declarative data pipeline, integration, quality, transformation, and activation library"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
-    {name = "vibe-piper contributors"}
+    {name = "Vibe Piper Team"}
 ]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "black>=23.7.0",
-    "ruff>=0.0.280",
-    "mypy>=1.5.0",
-]
-
-docs = [
-    "sphinx>=7.1.0",
-    "sphinx-autodoc-typehints>=1.24.0",
-    "sphinx-rtd-theme>=1.3.0",
-    "myst-parser>=2.0.0",
-    "sphinx-autobuild>=2021.3.14",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "mypy>=1.10.0",
+    "ruff>=0.5.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.black]
-line-length = 100
-target-version = ['py310', 'py311', 'py312']
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+strict_equality = true
+pretty = true
+show_error_context = true
+show_column_numbers = true
+show_error_codes = true
 
 [tool.ruff]
+target-version = "py312"
 line-length = 100
-target-version = "py310"
-select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
 ignore = []
 
-[tool.mypy]
-python_version = "3.10"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["ARG001"]
 
-[dependency-groups]
-dev = [
-    "myst-parser>=4.0.1",
-    "sphinx>=8.1.3",
-    "sphinx-autobuild>=2024.10.3",
-    "sphinx-autodoc-typehints>=3.0.1",
-    "sphinx-rtd-theme>=3.1.0",
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
 ]
