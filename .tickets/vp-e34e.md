@@ -1,6 +1,6 @@
 ---
 "id": "vp-e34e"
-"status": "open"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-27T07:53:02Z"
