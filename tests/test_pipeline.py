@@ -48,7 +48,6 @@ class TestPipelineBuilder:
 
     def test_add_multiple_assets(self) -> None:
         """Test adding multiple assets to the pipeline."""
-        from vibe_piper import PipelineContext
 
         builder = PipelineBuilder("test_pipeline")
 
@@ -174,7 +173,6 @@ class TestPipelineBuilder:
 
     def test_execute_pipeline_built_with_builder(self) -> None:
         """Test executing a pipeline built with PipelineBuilder."""
-        from vibe_piper import PipelineContext
 
         builder = PipelineBuilder("test_pipeline")
 
@@ -243,6 +241,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -256,6 +255,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext as PCtx
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset(name="custom_name")
             def source(ctx: PCtx) -> list[int]:
                 return [1, 2, 3]
@@ -268,6 +268,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -285,6 +286,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source1(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -306,6 +308,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -319,6 +322,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset(asset_type=AssetType.FILE)
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -333,6 +337,7 @@ class TestPipelineDefContext:
         metadata = {"owner": "team"}
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset(metadata=metadata)
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -345,6 +350,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -358,6 +364,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test_pipeline") as pipeline:
+
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -378,6 +385,7 @@ class TestPipelineDefContext:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("complex_pipeline") as pipeline:
+
             @pipeline.asset()
             def raw(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3, 4, 5]
@@ -412,7 +420,11 @@ class TestIntegration:
         builder_graph = (
             build_pipeline("test")
             .asset("source", lambda ctx: [1, 2, 3])
-            .asset("derived", lambda data, ctx: [x * 2 for x in data], depends_on=["source"])
+            .asset(
+                "derived",
+                lambda data, ctx: [x * 2 for x in data],
+                depends_on=["source"],
+            )
             .build()
         )
 
@@ -420,6 +432,7 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("test") as pipeline:
+
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -444,6 +457,7 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("diamond") as pipeline:
+
             @pipeline.asset()
             def a(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -472,6 +486,7 @@ class TestIntegration:
         from vibe_piper import PipelineContext
 
         with PipelineDefContext("independent") as pipeline:
+
             @pipeline.asset()
             def asset1(ctx: PipelineContext) -> list[int]:
                 return [1, 2, 3]
@@ -495,7 +510,7 @@ class TestIntegration:
     def test_declarative_vs_imperative_comparison(self) -> None:
         """Compare declarative syntax with imperative construction."""
         # Imperative (original) way
-        from vibe_piper import Operator, PipelineContext
+        from vibe_piper import Operator
 
         source_op = Operator(
             name="source",
@@ -531,10 +546,194 @@ class TestIntegration:
         declarative_graph = (
             build_pipeline("test")
             .asset("source", lambda ctx: [1, 2, 3])
-            .asset("derived", lambda data, ctx: [x * 2 for x in data], depends_on=["source"])
+            .asset(
+                "derived",
+                lambda data, ctx: [x * 2 for x in data],
+                depends_on=["source"],
+            )
             .build()
         )
 
         # Both should produce similar structure
         assert len(imperative_graph.assets) == len(declarative_graph.assets)
         assert imperative_graph.dependencies == declarative_graph.dependencies
+
+
+class TestPipelineValidation:
+    """Tests for pipeline definition validation."""
+
+    def test_missing_dependency_raises_error(self) -> None:
+        """Test that referencing a non-existent dependency raises an error."""
+        builder = PipelineBuilder("test_pipeline")
+
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
+
+        # Reference a non-existent asset
+        builder.asset(
+            name="derived",
+            fn=lambda data, ctx: [x * 2 for x in data],
+            depends_on=["nonexistent"],
+        )
+
+        with pytest.raises(
+            ValueError, match="depends on 'nonexistent' which is not defined"
+        ):
+            builder.build()
+
+    def test_multiple_missing_dependencies_raises_error(self) -> None:
+        """Test that error message shows the first missing dependency."""
+        builder = PipelineBuilder("test_pipeline")
+
+        builder.asset(name="source", fn=lambda ctx: [1, 2, 3])
+
+        # Reference multiple non-existent assets
+        builder.asset(
+            name="derived",
+            fn=lambda data, ctx: data,
+            depends_on=["missing1", "missing2"],
+        )
+
+        # Should raise on the first missing dependency
+        with pytest.raises(
+            ValueError, match="depends on 'missing1' which is not defined"
+        ):
+            builder.build()
+
+    def test_self_dependency_raises_error(self) -> None:
+        """Test that an asset depending on itself raises an error."""
+        builder = PipelineBuilder("test_pipeline")
+
+        builder.asset(
+            name="self_dep",
+            fn=lambda data, ctx: data,
+            depends_on=["self_dep"],
+        )
+
+        with pytest.raises(
+            ValueError, match="Circular dependency detected: self_dep -> self_dep"
+        ):
+            builder.build()
+
+    def test_simple_circular_dependency_raises_error(self) -> None:
+        """Test that a simple circular dependency is detected."""
+        builder = PipelineBuilder("test_pipeline")
+
+        builder.asset(
+            name="a",
+            fn=lambda data, ctx: data,
+            depends_on=["b"],
+        )
+        builder.asset(
+            name="b",
+            fn=lambda data, ctx: data,
+            depends_on=["c"],
+        )
+        builder.asset(
+            name="c",
+            fn=lambda data, ctx: data,
+            depends_on=["a"],
+        )
+
+        with pytest.raises(ValueError, match=r"Circular dependency detected"):
+            builder.build()
+
+    def test_complex_circular_dependency_raises_error(self) -> None:
+        """Test that a complex circular dependency is detected."""
+        builder = PipelineBuilder("test_pipeline")
+
+        builder.asset(
+            name="a",
+            fn=lambda data, ctx: data,
+            depends_on=["d"],
+        )
+        builder.asset(
+            name="b",
+            fn=lambda data, ctx: data,
+            depends_on=["a"],
+        )
+        builder.asset(
+            name="c",
+            fn=lambda data, ctx: data,
+            depends_on=["b"],
+        )
+        builder.asset(
+            name="d",
+            fn=lambda data, ctx: data,
+            depends_on=["c"],
+        )
+
+        with pytest.raises(ValueError, match=r"Circular dependency detected"):
+            builder.build()
+
+    def test_diamond_pattern_is_valid(self) -> None:
+        """Test that a diamond dependency pattern (no cycle) is valid."""
+        #     a
+        #    / \
+        #   b   c
+        #    \ /
+        #     d
+        builder = PipelineBuilder("diamond")
+
+        builder.asset(name="a", fn=lambda ctx: [1, 2, 3])
+        builder.asset(
+            name="b",
+            fn=lambda data, ctx: data,
+            depends_on=["a"],
+        )
+        builder.asset(
+            name="c",
+            fn=lambda data, ctx: data,
+            depends_on=["a"],
+        )
+        builder.asset(
+            name="d",
+            fn=lambda data, ctx: data,
+            depends_on=["b", "c"],
+        )
+
+        # Should not raise any errors
+        graph = builder.build()
+        assert len(graph.assets) == 4
+        assert set(graph.dependencies.keys()) == {"b", "c", "d"}
+
+    def test_valid_pipeline_builds_successfully(self) -> None:
+        """Test that a valid pipeline with all dependencies builds successfully."""
+        builder = PipelineBuilder("valid_pipeline")
+
+        builder.asset(name="source1", fn=lambda ctx: [1, 2, 3])
+        builder.asset(name="source2", fn=lambda ctx: [4, 5, 6])
+        builder.asset(
+            name="intermediate",
+            fn=lambda data, ctx: [x * 2 for x in data],
+            depends_on=["source1"],
+        )
+        builder.asset(
+            name="final",
+            fn=lambda data, ctx: data,
+            depends_on=["intermediate", "source2"],
+        )
+
+        # Should build without errors
+        graph = builder.build()
+        assert len(graph.assets) == 4
+        assert graph.dependencies["intermediate"] == ("source1",)
+        assert set(graph.dependencies["final"]) == {"intermediate", "source2"}
+
+    def test_validation_with_context_manager(self) -> None:
+        """Test that validation works with PipelineContext as well."""
+        from vibe_piper import PipelineContext
+
+        with PipelineDefContext("test_pipeline") as pipeline:
+
+            @pipeline.asset()
+            def source(ctx: PipelineContext) -> list[int]:
+                return [1, 2, 3]
+
+            @pipeline.asset(depends_on=["nonexistent"])
+            def derived(data: list[int], ctx: PipelineContext) -> list[int]:
+                return data
+
+        with pytest.raises(
+            ValueError, match="depends on 'nonexistent' which is not defined"
+        ):
+            pipeline.build()
