@@ -20,6 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.venv/
 
 # Testing
 .pytest_cache/
@@ -46,34 +47,9 @@ dmypy.json
 *.log
 .poetry-installer-error-*.log
 
-# Murmur
-.memos/index.sqlite3*
-.memos/personal/
-.tickets/.audit/
-.tickets/.cache/
-.tickets/.locks/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-.venv/
-*.egg
-
 # Documentation
 docs/build/
 docs/_build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
 
 # OS
 .DS_Store
@@ -81,3 +57,14 @@ docs/_build/
 # UV
 .uv/
 uv.lock
+
+# Murmur
+.memos/index.sqlite3*
+.memos/personal/
+.tickets/.audit/
+.tickets/.cache/
+.tickets/.locks/
+.murmur/
+.claude/
+.opencode/
+coverage.xml
