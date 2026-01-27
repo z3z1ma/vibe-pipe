@@ -20,6 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.venv/
 
 # Testing
 .pytest_cache/
@@ -46,6 +47,17 @@ dmypy.json
 *.log
 .poetry-installer-error-*.log
 
+# Documentation
+docs/build/
+docs/_build/
+
+# OS
+.DS_Store
+
+# UV
+.uv/
+uv.lock
+
 # Murmur
 .memos/index.sqlite3*
 .memos/personal/
@@ -56,4 +68,3 @@ dmypy.json
 .claude/
 .opencode/
 coverage.xml
-htmlcov/

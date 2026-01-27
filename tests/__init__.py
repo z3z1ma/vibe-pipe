@@ -1,1 +1,1 @@
-"""Test suite for vibe-piper."""
+"""Tests for vibe_piper package."""

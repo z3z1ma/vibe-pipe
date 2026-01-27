@@ -1,57 +1,101 @@
 # Vibe Piper
 
-A robust Python-based declarative data pipeline, integration, quality, transformation, and activation library.
+A robust Python-based declarative data pipeline, integration, quality, transformation, and activation library designed for simplicity, expressiveness, and composability.
 
-## Vision
+> **Status:** Early Development (Phase 0: Foundation)
+>
+> This project is in active development. APIs may change as we evolve the architecture.
 
-Vibe Piper aims to be the most comprehensive and elegant data framework ever created. Our philosophy is built on four pillars:
+## Features
 
-- **Simplicity**: Intuitive APIs that make complex data operations feel natural
-- **Expressiveness**: Powerful declarative syntax that makes intent clear
-- **Composability**: Build complex pipelines from simple, reusable components
-- **Function**: Everything must work—robustness is not optional
+- **Declarative Pipeline Definition**: Build data pipelines using a clean, declarative syntax
+- **Composable Stages**: Chain transformations together in a flexible, reusable way
+- **Type Safety**: Full type hint support for better IDE integration and fewer runtime errors
+- **Simple and Expressive**: Intuitive API that makes complex data transformations easy
+
+## Quick Start
+
+```python
+from vibe_piper import Pipeline, Stage
+
+# Create a pipeline
+pipeline = Pipeline(name="data_processor")
+
+# Add stages
+pipeline.add_stage(
+    Stage(name="clean", transform=lambda x: x.strip())
+)
+pipeline.add_stage(
+    Stage(name="uppercase", transform=lambda x: x.upper())
+)
+
+# Run the pipeline
+result = pipeline.run("  hello  ")  # Returns "HELLO"
+```
 
 ## Installation
 
 ```bash
-poetry install
+pip install vibe-piper
+```
+
+## Documentation
+
+Full documentation is available at: [https://your-org.github.io/vibe-piper](https://your-org.github.io/vibe-piper)
+
+### Building Documentation Locally
+
+```bash
+# Install dependencies
+uv sync --dev
+
+# Build documentation
+cd docs
+uv run sphinx-build -b html source build/html
+
+# View documentation
+open build/html/index.html  # On macOS
+# or
+xdg-open build/html/index.html  # On Linux
+```
+
+For development with live reload:
+
+```bash
+cd docs
+uv run sphinx-autobuild source build/html
 ```
 
 ## Development
 
-### Setup
-
 ```bash
-# Install dependencies
-poetry install
+# Clone repository
+git clone https://github.com/your-org/vibe-piper.git
+cd vibe-piper
 
-# Install pre-commit hooks
-poetry run pre-commit install
-```
+# Install development dependencies
+uv sync --dev
 
-### Running Tests
+# Run tests
+uv run pytest
 
-```bash
-poetry run pytest
-```
-
-### Code Quality
-
-```bash
 # Format code
-poetry run black src tests
-
-# Lint
-poetry run ruff check src tests
+uv run black src/ tests/
 
 # Type check
-poetry run mypy src
+uv run mypy src/
 ```
 
-## Project Status
+## Contributing
 
-This project is in early development (Phase 0). We are building the foundation for what will become the industry's most ambitious data framework.
+We welcome contributions! Please see [CONTRIBUTING.md](docs/source/contributing.rst) for guidelines.
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License - see LICENSE file for details
+
+## Project Status
+
+This project is currently in **Phase 0: Foundation**. We are establishing the core architecture and infrastructure. Features are being added rapidly as we build toward a stable release.
+
+See our documentation for the roadmap and development plans.
