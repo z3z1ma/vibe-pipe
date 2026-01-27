@@ -230,8 +230,7 @@ class DataRecord:
 # =============================================================================
 
 
-@final
-@dataclass(frozen=True)
+@dataclass
 class PipelineContext:
     """
     Execution context for pipeline operations.
