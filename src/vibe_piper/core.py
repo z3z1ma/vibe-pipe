@@ -5,8 +5,9 @@ This module provides the fundamental building blocks for creating
 declarative data pipelines.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 R = TypeVar("R")

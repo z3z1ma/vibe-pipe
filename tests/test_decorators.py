@@ -4,9 +4,8 @@ Tests for Vibe Piper decorators.
 This module tests the @asset decorator and related decorator functionality.
 """
 
-import pytest
 
-from vibe_piper import Asset, AssetType, Schema, SchemaField, DataType
+from vibe_piper import Asset, AssetType, DataType, Schema, SchemaField
 from vibe_piper.decorators import asset
 
 

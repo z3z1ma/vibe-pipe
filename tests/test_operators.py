@@ -4,14 +4,12 @@ Unit tests for built-in operators.
 Tests all transformation operators in the operators module.
 """
 
-from datetime import datetime
 
 import pytest
 
 from vibe_piper import (
     DataRecord,
     DataType,
-    Operator,
     OperatorType,
     PipelineContext,
     Schema,
@@ -231,7 +229,12 @@ class TestFilterFieldNotNull:
         schema = Schema(
             name="test",
             fields=(
-                SchemaField(name="email", data_type=DataType.STRING, required=False, nullable=True),
+                SchemaField(
+                    name="email",
+                    data_type=DataType.STRING,
+                    required=False,
+                    nullable=True,
+                ),
             ),
         )
 
@@ -344,9 +347,7 @@ class TestValidateSchema:
         """Test validation with valid records."""
         schema = Schema(
             name="test",
-            fields=(
-                SchemaField(name="id", data_type=DataType.INTEGER, required=True),
-            ),
+            fields=(SchemaField(name="id", data_type=DataType.INTEGER, required=True),),
         )
 
         op = validate_schema(name="validate", schema=schema)
@@ -365,9 +366,7 @@ class TestValidateSchema:
         """Test validation with invalid records."""
         schema = Schema(
             name="test",
-            fields=(
-                SchemaField(name="id", data_type=DataType.INTEGER, required=True),
-            ),
+            fields=(SchemaField(name="id", data_type=DataType.INTEGER, required=True),),
         )
 
         op = validate_schema(name="validate", schema=schema)
@@ -447,7 +446,10 @@ class TestOperatorIntegration:
         # Map: double the value
         def double_value(record: DataRecord, ctx: PipelineContext) -> DataRecord:
             return DataRecord(
-                data={"value": record.get("value") * 2, "category": record.get("category")},
+                data={
+                    "value": record.get("value") * 2,
+                    "category": record.get("category"),
+                },
                 schema=record.schema,
             )
 

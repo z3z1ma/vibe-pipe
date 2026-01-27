@@ -6,7 +6,7 @@ objects in a declarative way.
 """
 
 from collections.abc import Callable
-from typing import Any, ParamSpec, TypeVar, cast
+from typing import Any, ParamSpec, TypeVar
 
 from vibe_piper.types import Asset, AssetType, Schema
 
