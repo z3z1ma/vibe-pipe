@@ -794,3 +794,105 @@ The Vibe Piper type system provides:
 - **Documentation**: Types serve as documentation
 
 This foundation enables building robust, maintainable data pipelines with confidence.
+
+## Declarative Schema API
+
+In addition to the imperative API shown above, Vibe Piper provides a **declarative syntax** for defining schemas, inspired by Pydantic and Pandera. This API offers a more Pythonic, class-based approach to schema definition.
+
+### Basic Usage
+
+```python
+from vibe_piper import define_schema, String, Integer, Boolean
+
+@define_schema
+class UserSchema:
+    """User account schema"""
+
+    id: Integer = Integer()
+    email: String = String(max_length=255)
+    age: Integer = Integer(min_value=0, max_value=120, nullable=True)
+    is_active: Boolean = Boolean(default=True)
+
+# Convert to Schema object
+schema = UserSchema.to_schema()
+
+# Validate data
+user_data = {"id": 1, "email": "user@example.com", "age": 25}
+record = UserSchema.validate(user_data)
+```
+
+### Field Types
+
+All standard data types are supported as field classes:
+
+- `String` - Text data with optional length/pattern constraints
+- `Integer` - Whole numbers with min/max value constraints
+- `Float` - Decimal numbers with min/max value constraints
+- `Boolean` - True/false values
+- `DateTime` - Date and time values
+- `Date` - Date values (no time component)
+- `Array` - Arrays/lists
+- `Object` - Nested objects/dictionaries
+- `AnyType` - Any data type
+
+### Schema Inheritance
+
+Compose and extend schemas using inheritance:
+
+```python
+@define_schema
+class BaseSchema:
+    id: Integer = Integer()
+    created_at: DateTime = DateTime()
+
+@define_schema
+class UserSchema(BaseSchema):
+    email: String = String(max_length=255)
+    name: String = String(max_length=100)
+```
+
+### Schema Metadata
+
+Add metadata at schema and field levels:
+
+```python
+@define_schema(
+    name="user_v2",
+    description="User account schema v2.0",
+    metadata={"owner": "data-team", "pii": True}
+)
+class UserSchema:
+    id: Integer = Integer(description="Unique user identifier")
+    email: String = String(
+        max_length=255,
+        metadata={"sensitive": True, "searchable": True}
+    )
+```
+
+### Field Constraints
+
+Each field type supports relevant constraints:
+
+```python
+@define_schema
+class ProductSchema:
+    name: String = String(min_length=1, max_length=200)
+    price: Float = Float(min_value=0.0, max_value=1000000.0)
+    quantity: Integer = Integer(ge=0, le=10000)  # aliases for min/max
+    sku: String = String(pattern=r'^[A-Z]{2}-\d{4}$')  # regex
+```
+
+### Choosing Between APIs
+
+**Imperative API** (Schema/SchemaField):
+- More explicit and verbose
+- Better for dynamic schema generation
+- Works well when schema structure is computed at runtime
+
+**Declarative API** (@define_schema):
+- More concise and readable
+- Better for static schema definitions
+- Supports inheritance naturally
+- IDE-friendly with better autocomplete
+
+Both APIs are fully compatible and can be used together in the same project.
