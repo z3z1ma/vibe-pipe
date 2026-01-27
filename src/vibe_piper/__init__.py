@@ -9,9 +9,12 @@ __version__ = "0.1.0"
 
 from vibe_piper.types import (
     Asset,
+    AssetType,
     DataRecord,
+    DataType,
     Operator,
     OperatorFn,
+    OperatorType,
     Pipeline,
     PipelineContext,
     Schema,
@@ -20,12 +23,15 @@ from vibe_piper.types import (
 
 __all__ = [
     "Asset",
+    "AssetType",
     "Schema",
+    "SchemaField",
+    "DataType",
     "Pipeline",
+    "PipelineContext",
     "Operator",
     "OperatorFn",
+    "OperatorType",
     "DataRecord",
-    "SchemaField",
-    "PipelineContext",
     "__version__",
 ]
