@@ -5,8 +5,6 @@ Tests all core types, their validation rules, and ensure type safety
 with mypy strict mode.
 """
 
-from datetime import datetime
-
 import pytest
 
 from vibe_piper.types import (
@@ -173,7 +171,12 @@ class TestDataRecord:
         """Test that nullable fields can be None."""
         fields = (
             SchemaField(name="id", data_type=DataType.INTEGER),
-            SchemaField(name="optional", data_type=DataType.STRING, required=False, nullable=True),
+            SchemaField(
+                name="optional",
+                data_type=DataType.STRING,
+                required=False,
+                nullable=True,
+            ),
         )
         schema = Schema(name="test", fields=fields)
         record = DataRecord(data={"id": 1, "optional": None}, schema=schema)
@@ -294,7 +297,9 @@ class TestOperator:
 
     def test_operator_is_frozen(self) -> None:
         """Test that Operator is immutable."""
-        op = Operator(name="test", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
+        op = Operator(
+            name="test", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
+        )
         with pytest.raises(Exception):  # FrozenInstanceError
             op.name = "changed"  # type: ignore[misc]
 
@@ -379,7 +384,9 @@ class TestPipeline:
     def test_pipeline_with_operators(self) -> None:
         """Test creating a pipeline with operators."""
         op1 = Operator(name="op1", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
-        op2 = Operator(name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
+        op2 = Operator(
+            name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
+        )
         pipeline = Pipeline(name="test_pipeline", operators=(op1, op2))
         assert len(pipeline.operators) == 2
 
@@ -402,19 +409,107 @@ class TestPipeline:
 
     def test_pipeline_duplicate_operators_raises_error(self) -> None:
         """Test that duplicate operator names raise ValueError."""
-        op1 = Operator(name="duplicate", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
-        op2 = Operator(name="duplicate", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
+        op1 = Operator(
+            name="duplicate", operator_type=OperatorType.SOURCE, fn=self.sample_fn
+        )
+        op2 = Operator(
+            name="duplicate", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
+        )
         with pytest.raises(ValueError, match="Duplicate operator names"):
             Pipeline(name="test_pipeline", operators=(op1, op2))
 
     def test_add_operator(self) -> None:
         """Test adding an operator to a pipeline."""
         op1 = Operator(name="op1", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
-        op2 = Operator(name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
+        op2 = Operator(
+            name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
+        )
         pipeline = Pipeline(name="test_pipeline", operators=(op1,))
         new_pipeline = pipeline.add_operator(op2)
         assert len(new_pipeline.operators) == 2
         assert len(pipeline.operators) == 1  # Original unchanged
+
+    def test_execute_single_operator(self) -> None:
+        """Test executing a pipeline with a single operator."""
+
+        def double_fn(value: int, ctx: PipelineContext) -> int:
+            return value * 2
+
+        op = Operator(name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn)
+        pipeline = Pipeline(name="test_pipeline", operators=(op,))
+        ctx = PipelineContext(pipeline_id="test_pipeline", run_id="run_1")
+
+        result = pipeline.execute(5, context=ctx)
+        assert result == 10
+
+    def test_execute_multiple_operators(self) -> None:
+        """Test executing a pipeline with multiple operators."""
+
+        def double_fn(value: int, ctx: PipelineContext) -> int:
+            return value * 2
+
+        def add_ten_fn(value: int, ctx: PipelineContext) -> int:
+            return value + 10
+
+        op1 = Operator(
+            name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn
+        )
+        op2 = Operator(
+            name="add_ten", operator_type=OperatorType.TRANSFORM, fn=add_ten_fn
+        )
+        pipeline = Pipeline(name="test_pipeline", operators=(op1, op2))
+        ctx = PipelineContext(pipeline_id="test_pipeline", run_id="run_1")
+
+        result = pipeline.execute(5, context=ctx)
+        assert result == 20  # (5 * 2) + 10
+
+    def test_execute_without_context(self) -> None:
+        """Test executing a pipeline without providing a context."""
+
+        def identity_fn(value: str, ctx: PipelineContext) -> str:
+            return value
+
+        op = Operator(
+            name="identity", operator_type=OperatorType.TRANSFORM, fn=identity_fn
+        )
+        pipeline = Pipeline(name="test_pipeline", operators=(op,))
+
+        result = pipeline.execute("test")
+        assert result == "test"
+
+    def test_execute_with_data_records(self) -> None:
+        """Test executing a pipeline with DataRecord objects."""
+        schema = Schema(
+            name="test",
+            fields=(SchemaField(name="value", data_type=DataType.INTEGER),),
+        )
+
+        def double_records(
+            records: list[DataRecord], ctx: PipelineContext
+        ) -> list[DataRecord]:
+            return [
+                DataRecord(
+                    data={"value": r.get("value") * 2},
+                    schema=r.schema,
+                )
+                for r in records
+            ]
+
+        op = Operator(
+            name="double", operator_type=OperatorType.TRANSFORM, fn=double_records
+        )
+        pipeline = Pipeline(name="test_pipeline", operators=(op,))
+        ctx = PipelineContext(pipeline_id="test_pipeline", run_id="run_1")
+
+        input_records = [
+            DataRecord(data={"value": 1}, schema=schema),
+            DataRecord(data={"value": 2}, schema=schema),
+        ]
+        result = pipeline.execute(input_records, context=ctx)
+
+        assert len(result) == 2
+        assert result[0].get("value") == 2
+        assert result[1].get("value") == 4
 
     def test_pipeline_is_frozen(self) -> None:
         """Test that Pipeline is immutable."""
