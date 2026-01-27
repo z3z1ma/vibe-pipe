@@ -1042,3 +1042,96 @@ class ExecutionResult:
         return tuple(
             name for name, result in self.asset_results.items() if result.success
         )
+
+
+# =============================================================================
+# Data Quality Types
+# =============================================================================
+
+
+class QualityMetricType(Enum):
+    """Types of quality metrics."""
+
+    COMPLETENESS = auto()  # Missing values, null counts
+    VALIDITY = auto()  # Schema validation, type violations
+    UNIQUENESS = auto()  # Duplicate detection
+    FRESHNESS = auto()  # Data age, timestamp checks
+    CONSISTENCY = auto()  # Cross-field consistency
+    ACCURACY = auto()  # Business rule validation
+    CUSTOM = auto()  # User-defined quality metrics
+
+
+@dataclass(frozen=True)
+class QualityMetric:
+    """
+    A single quality metric measurement.
+
+    Attributes:
+        name: Name of the metric (e.g., "null_count", "duplicate_pct")
+        metric_type: Type of quality metric
+        value: The measured value
+        threshold: Optional threshold for the metric
+        passed: Whether the metric meets the threshold
+        description: Optional description
+        metadata: Additional metadata
+    """
+
+    name: str
+    metric_type: QualityMetricType
+    value: int | float
+    threshold: int | float | None = None
+    passed: bool | None = None  # None if no threshold
+    description: str | None = None
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class QualityCheckResult:
+    """
+    Result of a quality check on data.
+
+    Attributes:
+        check_name: Name of the quality check
+        passed: Whether the check passed
+        metrics: Individual metrics collected
+        errors: List of error messages
+        warnings: List of warning messages
+        timestamp: When the check was performed
+        duration_ms: Time taken to perform the check
+    """
+
+    check_name: str
+    passed: bool
+    metrics: tuple[QualityMetric, ...] = field(default_factory=tuple)
+    errors: tuple[str, ...] = field(default_factory=tuple)
+    warnings: tuple[str, ...] = field(default_factory=tuple)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    duration_ms: float = 0.0
+
+
+@dataclass(frozen=True)
+class DataQualityReport:
+    """
+    Comprehensive data quality report.
+
+    Attributes:
+        total_records: Total number of records checked
+        valid_records: Number of records that passed validation
+        invalid_records: Number of records that failed validation
+        completeness_score: Completeness score (0-1)
+        validity_score: Validity score (0-1)
+        overall_score: Overall quality score (0-1)
+        checks: List of quality check results
+        timestamp: When the report was generated
+        duration_ms: Time taken to generate the report
+    """
+
+    total_records: int
+    valid_records: int
+    invalid_records: int
+    completeness_score: float
+    validity_score: float
+    overall_score: float
+    checks: tuple[QualityCheckResult, ...] = field(default_factory=tuple)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    duration_ms: float = 0.0

@@ -7,7 +7,7 @@ error handling, and observability.
 """
 
 import time
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -16,6 +16,7 @@ from vibe_piper.types import (
     Asset,
     AssetGraph,
     AssetResult,
+    DataRecord,
     ErrorStrategy,
     ExecutionResult,
     Executor,
@@ -70,10 +71,14 @@ class DefaultExecutor:
                 # Execute the operator's function with upstream data and context
                 result_data = asset.operator.fn(upstream_data, context)
 
+                # Collect quality metrics if output is a list of DataRecords
+                metrics = self._collect_quality_metrics(result_data)
+
                 return AssetResult(
                     asset_name=asset.name,
                     success=True,
                     data=result_data,
+                    metrics=metrics,
                     duration_ms=(time.time() - start_time) * 1000,
                     timestamp=datetime.now(),
                     lineage=tuple(upstream_results.keys()),
@@ -98,6 +103,33 @@ class DefaultExecutor:
                 timestamp=datetime.now(),
                 lineage=tuple(upstream_results.keys()),
             )
+
+    def _collect_quality_metrics(self, result_data: Any) -> Mapping[str, int | float]:
+        """
+        Collect quality metrics from asset execution result.
+
+        Args:
+            result_data: The output data from execution
+
+        Returns:
+            Mapping of metric names to values
+        """
+        metrics: dict[str, int | float] = {}
+
+        # Check if result is a list of DataRecords
+        if (
+            isinstance(result_data, Sequence)
+            and result_data
+            and isinstance(result_data[0], DataRecord)
+        ):
+            # Add row count
+            metrics["row_count"] = len(result_data)
+
+            # Add schema information
+            if result_data[0].schema:
+                metrics["field_count"] = len(result_data[0].schema.fields)
+
+        return metrics
 
 
 # =============================================================================
@@ -317,12 +349,24 @@ class ExecutionEngine:
         """
         total_duration = sum(r.duration_ms for r in asset_results.values())
 
+        # Count rows across all assets
+        total_rows = 0
+        for result in asset_results.values():
+            if (
+                result.data
+                and isinstance(result.data, Sequence)
+                and len(result.data) > 0
+                and isinstance(result.data[0], DataRecord)
+            ):
+                total_rows += len(result.data)
+
         metrics = {
             "total_assets": len(asset_results),
             "total_duration_ms": total_duration,
             "avg_duration_ms": (
                 total_duration / len(asset_results) if asset_results else 0
             ),
+            "total_rows": total_rows,
         }
 
         return metrics
