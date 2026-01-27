@@ -12,12 +12,20 @@ from typing import Any, TypeVar
 from vibe_piper.types import (
     DataRecord,
     DataType,
+    Expectation,
     Operator,
     OperatorFn,
     OperatorType,
     PipelineContext,
     Schema,
 )
+
+try:
+    from vibe_piper.expectations import ExpectationSuite, SuiteResult
+except ImportError:
+    # expectations module not available yet
+    ExpectationSuite = None  # type: ignore
+    SuiteResult = None  # type: ignore
 
 T = TypeVar("T")
 
@@ -441,6 +449,141 @@ def validate_schema(
         input_schema=schema,
         output_schema=schema,
         description=description or f"Validate against schema '{schema.name}'",
+    )
+
+
+def validate_expectation(
+    name: str,
+    expectation: Expectation,
+    on_failure: str = "fail",
+    description: str | None = None,
+) -> Operator:
+    """
+    Create a validation operator that validates data against a single expectation.
+
+    Args:
+        name: Unique identifier for this operator
+        expectation: The expectation to validate against
+        on_failure: Action to take on validation failure ('fail', 'warn', 'ignore')
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Validate that all emails contain '@'::
+
+            @expect
+            def expect_valid_email(data: Any) -> bool:
+                if isinstance(data, str):
+                    return "@" in data
+                return False
+
+            validate_op = validate_expectation(
+                name="validate_email_format",
+                expectation=expect_valid_email,
+                on_failure="fail",
+                description="Ensure email addresses are valid"
+            )
+    """
+    if on_failure not in ("fail", "warn", "ignore"):
+        msg = f"Invalid on_failure value: {on_failure!r}"
+        raise ValueError(msg)
+
+    def validate_fn(data: Any, ctx: PipelineContext) -> Any:
+        result = expectation.validate(data)
+
+        if not result.is_valid:
+            error_msg = f"Expectation '{expectation.name}' failed: {result.errors}"
+            if on_failure == "fail":
+                raise ValueError(error_msg)
+            elif on_failure == "warn":
+                # Log warning to context metadata
+                warnings = ctx.get_state("validation_warnings", [])
+                warnings.extend(result.errors)
+                ctx.set_state("validation_warnings", warnings)
+            # If 'ignore', do nothing
+
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=validate_fn,
+        description=description or f"Validate expectation '{expectation.name}'",
+        config={"expectation": expectation.name, "on_failure": on_failure},
+    )
+
+
+def validate_expectation_suite(
+    name: str,
+    suite: "ExpectationSuite",
+    on_failure: str = "fail",
+    store_results: bool = True,
+    description: str | None = None,
+) -> Operator:
+    """
+    Create a validation operator that validates data against an expectation suite.
+
+    Args:
+        name: Unique identifier for this operator
+        suite: The ExpectationSuite to validate against
+        on_failure: Action to take on validation failure ('fail', 'warn', 'ignore')
+        store_results: Whether to store validation results in context state
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Validate data against a suite of expectations::
+
+            suite = ExpectationSuite(name="data_quality")
+            suite.add_expectation(expect_not_null)
+            suite.add_expectation(expect_positive)
+
+            validate_op = validate_expectation_suite(
+                name="validate_data_quality",
+                suite=suite,
+                on_failure="fail",
+                description="Run data quality checks"
+            )
+    """
+    if on_failure not in ("fail", "warn", "ignore"):
+        msg = f"Invalid on_failure value: {on_failure!r}"
+        raise ValueError(msg)
+
+    def validate_fn(data: Any, ctx: PipelineContext) -> Any:
+        result: SuiteResult = suite.validate(data)
+
+        if store_results:
+            # Store results in context state
+            ctx.set_state(f"validation_results_{name}", result)
+
+        if not result.success:
+            error_msg = f"Expectation suite '{suite.name}' failed: {result.errors}"
+            if on_failure == "fail":
+                raise ValueError(error_msg)
+            elif on_failure == "warn":
+                # Log warning to context metadata
+                warnings = ctx.get_state("validation_warnings", [])
+                warnings.extend(result.errors)
+                ctx.set_state("validation_warnings", warnings)
+            # If 'ignore', do nothing
+
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=validate_fn,
+        description=description or f"Validate expectation suite '{suite.name}'",
+        config={
+            "suite": suite.name,
+            "expectation_count": len(suite),
+            "on_failure": on_failure,
+            "store_results": store_results,
+        },
     )
 
 
