@@ -48,7 +48,6 @@ from vibe_piper.operators import (
 )
 from vibe_piper.pipeline import (
     PipelineBuilder,
-    PipelineContext,
     build_pipeline,
     infer_dependencies_from_signature,
 )
@@ -85,6 +84,9 @@ from vibe_piper.types import (
     Schema,
     SchemaField,
     ValidationResult,
+)
+from vibe_piper.types import (
+    PipelineContext as PipelineContext,
 )
 
 __all__ = [
