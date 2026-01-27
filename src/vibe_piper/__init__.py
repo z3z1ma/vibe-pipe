@@ -14,6 +14,10 @@ from vibe_piper.operators import (
     aggregate_count,
     aggregate_group_by,
     aggregate_sum,
+    check_quality_completeness,
+    check_quality_freshness,
+    check_quality_uniqueness,
+    check_quality_validity,
     custom_operator,
     filter_field_equals,
     filter_field_not_null,
@@ -121,6 +125,11 @@ __all__ = [
     "check_uniqueness",
     "check_freshness",
     "generate_quality_report",
+    # Quality check operators
+    "check_quality_completeness",
+    "check_quality_validity",
+    "check_quality_uniqueness",
+    "check_quality_freshness",
     # Declarative Schema API
     "define_schema",
     "String",

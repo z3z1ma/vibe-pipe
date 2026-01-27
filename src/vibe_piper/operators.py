@@ -496,3 +496,221 @@ def custom_operator(
         description=description,
         config=config or {},
     )
+
+
+# =============================================================================
+# Quality Check Operators
+# =============================================================================
+
+
+def check_quality_completeness(
+    name: str,
+    threshold: float = 1.0,
+    description: str | None = None,
+) -> Operator:
+    """
+    Create an operator that checks data completeness.
+
+    Args:
+        name: Unique identifier for this operator
+        threshold: Minimum completeness score (0-1) to pass
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Check data completeness::
+
+            from vibe_piper import check_quality_completeness
+
+            quality_op = check_quality_completeness(
+                name="check_completeness",
+                threshold=0.95,
+                description="Ensure 95% of fields are populated"
+            )
+    """
+    from vibe_piper.quality import check_completeness
+
+    def completeness_fn(
+        data: list[DataRecord],
+        ctx: PipelineContext,  # noqa: ARG001
+    ) -> list[DataRecord]:
+        # Run completeness check
+        result = check_completeness(data, threshold=threshold)
+
+        # Store result in context for later retrieval
+        ctx.set_state(f"{name}_result", result)
+
+        # Return data unchanged (check is non-blocking)
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=completeness_fn,
+        description=description or f"Check completeness (threshold: {threshold})",
+    )
+
+
+def check_quality_validity(
+    name: str,
+    threshold: float = 1.0,
+    description: str | None = None,
+) -> Operator:
+    """
+    Create an operator that checks data validity against schema.
+
+    Args:
+        name: Unique identifier for this operator
+        threshold: Minimum validity score (0-1) to pass
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Check data validity::
+
+            from vibe_piper import check_quality_validity
+
+            quality_op = check_quality_validity(
+                name="check_validity",
+                threshold=0.98,
+                description="Ensure 98% of records pass schema validation"
+            )
+    """
+    from vibe_piper.quality import check_validity
+
+    def validity_fn(
+        data: list[DataRecord],
+        ctx: PipelineContext,  # noqa: ARG001
+    ) -> list[DataRecord]:
+        # Run validity check
+        result = check_validity(data, threshold=threshold)
+
+        # Store result in context for later retrieval
+        ctx.set_state(f"{name}_result", result)
+
+        # Return data unchanged (check is non-blocking)
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=validity_fn,
+        description=description or f"Check validity (threshold: {threshold})",
+    )
+
+
+def check_quality_uniqueness(
+    name: str,
+    unique_fields: tuple[str, ...] = (),
+    threshold: float = 1.0,
+    description: str | None = None,
+) -> Operator:
+    """
+    Create an operator that checks data uniqueness.
+
+    Args:
+        name: Unique identifier for this operator
+        unique_fields: Fields that should be unique
+        threshold: Minimum uniqueness score (0-1) to pass
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Check uniqueness of email field::
+
+            from vibe_piper import check_quality_uniqueness
+
+            quality_op = check_quality_uniqueness(
+                name="check_unique_emails",
+                unique_fields=("email",),
+                threshold=1.0,
+                description="Ensure all emails are unique"
+            )
+    """
+    from vibe_piper.quality import check_uniqueness
+
+    def uniqueness_fn(
+        data: list[DataRecord],
+        ctx: PipelineContext,  # noqa: ARG001
+    ) -> list[DataRecord]:
+        # Run uniqueness check
+        result = check_uniqueness(
+            data, unique_fields=unique_fields, threshold=threshold
+        )
+
+        # Store result in context for later retrieval
+        ctx.set_state(f"{name}_result", result)
+
+        # Return data unchanged (check is non-blocking)
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=uniqueness_fn,
+        description=description
+        or f"Check uniqueness of {unique_fields if unique_fields else 'all fields'} "
+        f"(threshold: {threshold})",
+    )
+
+
+def check_quality_freshness(
+    name: str,
+    timestamp_field: str,
+    max_age_hours: float = 24.0,
+    description: str | None = None,
+) -> Operator:
+    """
+    Create an operator that checks data freshness.
+
+    Args:
+        name: Unique identifier for this operator
+        timestamp_field: Name of the timestamp field to check
+        max_age_hours: Maximum acceptable age in hours
+        description: Optional description
+
+    Returns:
+        An Operator instance that can be added to a Pipeline
+
+    Example:
+        Check data freshness::
+
+            from vibe_piper import check_quality_freshness
+
+            quality_op = check_quality_freshness(
+                name="check_freshness",
+                timestamp_field="created_at",
+                max_age_hours=24.0,
+                description="Ensure data is not older than 24 hours"
+            )
+    """
+    from vibe_piper.quality import check_freshness
+
+    def freshness_fn(
+        data: list[DataRecord],
+        ctx: PipelineContext,  # noqa: ARG001
+    ) -> list[DataRecord]:
+        # Run freshness check
+        result = check_freshness(
+            data, timestamp_field=timestamp_field, max_age_hours=max_age_hours
+        )
+
+        # Store result in context for later retrieval
+        ctx.set_state(f"{name}_result", result)
+
+        # Return data unchanged (check is non-blocking)
+        return data
+
+    return Operator(
+        name=name,
+        operator_type=OperatorType.VALIDATE,
+        fn=freshness_fn,
+        description=description
+        or f"Check freshness of '{timestamp_field}' (max age: {max_age_hours}h)",
+    )

@@ -6,7 +6,6 @@ allows assets to automatically detect their dependencies from function
 signatures.
 """
 
-
 from vibe_piper import (
     PipelineBuilder,
     PipelineDefContext,

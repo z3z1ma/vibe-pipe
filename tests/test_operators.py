@@ -4,7 +4,6 @@ Unit tests for built-in operators.
 Tests all transformation operators in the operators module.
 """
 
-
 import pytest
 
 from vibe_piper import (

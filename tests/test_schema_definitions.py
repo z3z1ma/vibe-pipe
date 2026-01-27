@@ -5,7 +5,6 @@ This module tests the declarative schema API, including field types,
 schema conversion, validation, and inheritance.
 """
 
-
 import pytest
 
 from vibe_piper import (
