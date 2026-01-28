@@ -123,13 +123,17 @@ class Join:
         # Prepare join parameters
         left_on, right_on = self._prepare_join_columns(left_df, right_df)
 
+        # Map JoinType to pandas merge how parameter
+        # pandas uses "outer" for full outer join
+        pandas_how = "outer" if self.how == JoinType.FULL else self.how.value
+
         # Perform the join
         merged_df = pd.merge(
             left_df,
             right_df,
             left_on=left_on,
             right_on=right_on,
-            how=self.how.value,
+            how=pandas_how,
             suffixes=(self.left_suffix, self.right_suffix),
         )
 
@@ -193,12 +197,28 @@ class Join:
             dtype = self._infer_data_type(df[col].dtype)
             field = original_schema.get_field(col)
             if field:
-                new_fields.append(field)
-            else:
-                # Create new field
+                # Make field nullable for joins (can introduce NULLs)
                 from vibe_piper.types import SchemaField
 
-                new_fields.append(SchemaField(name=col, data_type=dtype))
+                new_fields.append(
+                    SchemaField(
+                        name=field.name,
+                        data_type=field.data_type,
+                        required=False,  # Joins can introduce NULLs
+                        nullable=True,  # Allow NULL values from joins
+                        description=field.description,
+                        constraints=field.constraints,
+                    )
+                )
+            else:
+                # Create new field (nullable for joins)
+                from vibe_piper.types import SchemaField
+
+                new_fields.append(
+                    SchemaField(
+                        name=col, data_type=dtype, required=False, nullable=True
+                    )
+                )
 
         new_schema = Schema(
             name=f"{original_schema.name}_joined",

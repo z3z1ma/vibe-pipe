@@ -20,7 +20,7 @@ from vibe_piper.transformations.aggregations import (
     Sum,
 )
 from vibe_piper.transformations.builder import TransformationBuilder, transform
-from vibe_piper.transformations.joins import Join, JoinType
+from vibe_piper.transformations.joins import Join, JoinType, join
 from vibe_piper.transformations.pivot import Pivot, Unpivot
 from vibe_piper.transformations.windows import Window, window_function
 
@@ -28,6 +28,7 @@ __all__ = [
     # Joins
     "Join",
     "JoinType",
+    "join",
     # Aggregations
     "GroupBy",
     "Sum",
