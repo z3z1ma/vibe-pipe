@@ -43,7 +43,7 @@ dev = [
     "vibe-piper[files]",
 ]
 all = [
-    "vibe-piper[files,dev]",
+    "vibe-piper[files,dev,postgres,mysql,snowflake,bigquery]",
 ]
 postgres = [
     "psycopg2-binary>=2.9.0",
@@ -56,12 +56,6 @@ snowflake = [
 ]
 bigquery = [
     "google-cloud-bigquery>=3.0.0",
-]
-all = [
-    "vibe-piper[postgres]",
-    "vibe-piper[mysql]",
-    "vibe-piper[snowflake]",
-    "vibe-piper[bigquery]",
 ]
 
 [tool.setuptools.packages.find]
