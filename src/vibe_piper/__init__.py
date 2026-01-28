@@ -31,6 +31,13 @@ from vibe_piper.expectations import (
     expect_table_columns_to_match_set,
     expect_table_columns_to_not_contain,
 )
+from vibe_piper.materialization import (
+    FileStrategy,
+    IncrementalStrategy,
+    MaterializationStrategyBase,
+    TableStrategy,
+    ViewStrategy,
+)
 from vibe_piper.operators import (
     add_field,
     aggregate_count,
@@ -129,6 +136,11 @@ __all__ = [
     "QualityCheckResult",
     "DataQualityReport",
     "MaterializationStrategy",
+    "MaterializationStrategyBase",
+    "TableStrategy",
+    "ViewStrategy",
+    "FileStrategy",
+    "IncrementalStrategy",
     "__version__",
     # Decorators
     "asset",

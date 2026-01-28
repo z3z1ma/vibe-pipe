@@ -326,6 +326,8 @@ class Asset:
         schema: The schema of data in this asset
         operator: Optional operator to transform data for this asset
         io_manager: Name of the IO manager to use for materialization (default: "memory")
+        materialization: Materialization strategy for controlling how data is
+                         stored (default: "table")
         description: Optional documentation
         metadata: Additional metadata (owner, tags, etc.)
         config: Asset-specific configuration
@@ -342,6 +344,7 @@ class Asset:
     schema: Schema | None = None
     operator: "Operator | None" = None
     io_manager: str = "memory"
+    materialization: str | MaterializationStrategy = MaterializationStrategy.TABLE
     description: str | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
     config: Mapping[str, Any] = field(default_factory=dict)
