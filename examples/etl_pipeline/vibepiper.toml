@@ -1,0 +1,105 @@
+# Vibe Piper ETL Pipeline Configuration
+# This file configures the PostgreSQL to Parquet ETL pipeline example
+
+[pipeline]
+name = "customer_etl"
+description = "ETL pipeline from PostgreSQL to partitioned Parquet files"
+version = "1.0.0"
+
+# Pipeline scheduling
+[pipeline.schedule]
+enabled = false
+interval_minutes = 60
+cron_expression = null
+
+# Data source configuration
+[source]
+type = "postgresql"
+host = "localhost"
+port = 5432
+database = "source_db"
+user = "etl_user"
+password = "etl_password"
+table = "customers"
+pool_size = 5
+
+# Connection timeout settings
+connect_timeout = 10
+retry_attempts = 3
+retry_delay = 5
+
+# Incremental loading configuration
+[source.incremental]
+enabled = true
+watermark_column = "updated_at"
+watermark_file = "watermark.txt"
+
+# Batch settings
+batch_size = 10000
+
+# Output configuration
+[output]
+type = "parquet"
+directory = "output"
+compression = "snappy"  # Options: snappy, gzip, brotli, lz4, zstd
+
+# Partitioning
+[output.partitioning]
+enabled = true
+columns = ["year", "month"]
+partition_by = "date"  # date or custom
+
+# Data quality configuration
+[quality]
+enabled = true
+min_row_count = 100
+max_null_proportion = 0.1
+
+# Quality thresholds
+[quality.thresholds]
+email_valid_pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+status_allowed_values = ["active", "inactive", "pending"]
+customer_id_required = true
+
+# Validation failure handling
+[quality.on_failure]
+action = "warn"  # Options: warn, error, skip
+continue_on_error = false
+
+# Logging configuration
+[logging]
+level = "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+file = null  # Log to file if specified
+
+# Performance settings
+[performance]
+max_parallel_loads = 4
+memory_limit_mb = 1024
+use_chunked_writing = true
+chunk_size = 10000
+
+# Error handling
+[error_handling]
+max_retries = 3
+retry_backoff_multiplier = 2
+timeout_seconds = 300
+dead_letter_queue = "output/errors"
+
+# Notification settings (optional)
+[notifications]
+enabled = false
+email_on_failure = false
+email_on_success = false
+webhook_url = null
+
+# Environment-specific overrides
+# These can be overridden by environment variables
+[environments.development]
+source.host = "localhost"
+output.directory = "output/dev"
+
+[environments.production]
+source.host = "prod-db.example.com"
+output.directory = "/data/etl/output"
+logging.level = "WARNING"
