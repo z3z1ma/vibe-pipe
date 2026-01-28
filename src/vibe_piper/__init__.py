@@ -251,4 +251,16 @@ __all__ = [
     "MySQLConnector",
     "SnowflakeConnector",
     "BigQueryConnector",
+    # File I/O Connectors
+    "FileReader",
+    "FileWriter",
+    "CSVReader",
+    "CSVWriter",
+    "JSONReader",
+    "JSONWriter",
+    "ParquetReader",
+    "ParquetWriter",
+    "ExcelReader",
+    "ExcelWriter",
+    "infer_schema_from_file",
 ]

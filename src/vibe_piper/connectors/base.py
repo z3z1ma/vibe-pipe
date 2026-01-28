@@ -1,15 +1,24 @@
 """
-Base Database Connector Protocol and Query Builder
+Base Connector Protocols for Vibe Piper
 
-Defines the interface for all database connectors and provides query building utilities.
+This module provides base protocols for both database and file I/O connectors.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from pathlib import Path
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from pydantic import BaseModel
+
+from vibe_piper.types import DataRecord, Schema
+
+
+# =============================================================================
+# Database Connector Protocol
+# =============================================================================
 
 
 @dataclass
@@ -48,354 +57,316 @@ class DatabaseConnector(ABC):
     consistent interface across different database backends.
     """
 
-    def __init__(self, config: ConnectionConfig) -> None:
-        """
-        Initialize the database connector.
-
-        Args:
-            config: Connection configuration
-        """
-        self.config = config
-        self._connection: Any = None
-        self._is_connected = False
-
     @abstractmethod
-    def connect(self) -> None:
-        """
-        Establish connection to the database.
-
-        Raises:
-            ConnectionError: If connection fails
-        """
-        ...
+    def connect(self) -> Any:
+        """Establish a database connection."""
+        pass
 
     @abstractmethod
     def disconnect(self) -> None:
-        """Close the database connection and cleanup resources."""
-        ...
-
-    @abstractmethod
-    def query(self, query: str, params: dict[str, Any] | None = None) -> QueryResult:
-        """
-        Execute a query and return results.
-
-        Args:
-            query: SQL query string
-            params: Optional query parameters for parameterized queries
-
-        Returns:
-            QueryResult containing rows, metadata
-
-        Raises:
-            RuntimeError: If not connected
-            Exception: For database-specific errors
-        """
-        ...
-
-    @abstractmethod
-    def execute(self, query: str, params: dict[str, Any] | None = None) -> int:
-        """
-        Execute a statement without returning results (INSERT, UPDATE, DELETE).
-
-        Args:
-            query: SQL statement
-            params: Optional query parameters
-
-        Returns:
-            Number of affected rows
-
-        Raises:
-            RuntimeError: If not connected
-            Exception: For database-specific errors
-        """
-        ...
+        """Close the database connection."""
+        pass
 
     @abstractmethod
     @contextmanager
-    def transaction(self):
-        """
-        Context manager for database transactions.
+    def get_connection(self):
+        """Get a database connection context manager."""
+        pass
 
-        Yields:
-            Transaction context
+    @abstractmethod
+    def execute_query(self, query: str, params: dict[str, Any] | None = None) -> QueryResult:
+        """Execute a SQL query and return results."""
+        pass
 
-        Example:
-            with connector.transaction():
-                connector.execute(...)
-                connector.query(...)
-        """
-        ...
+    @abstractmethod
+    def execute(self, command: str, params: dict[str, Any] | None = None) -> None:
+        """Execute a SQL command (INSERT, UPDATE, DELETE, etc.)."""
+        pass
 
-    def is_connected(self) -> bool:
-        """Check if the connector is currently connected."""
-        return self._is_connected
+    @abstractmethod
+    def table_exists(self, table_name: str) -> bool:
+        """Check if a table exists in the database."""
+        pass
 
-    def map_to_schema(self, result: QueryResult, schema: type[T]) -> list[T]:
-        """
-        Map query results to a Pydantic schema.
+    @abstractmethod
+    def get_table_schema(self, table_name: str) -> Schema:
+        """Get the schema of a database table."""
+        pass
 
-        Args:
-            result: Query result from database
-            schema: Pydantic model class
-
-        Returns:
-            List of validated schema instances
-
-        Raises:
-            ValidationError: If data doesn't match schema
-        """
-        return [schema.model_validate(row) for row in result.rows]
-
-    def __enter__(self):
-        """Context manager entry."""
-        self.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.disconnect()
+    def test_connection(self) -> bool:
+        """Test if the database connection is working."""
+        try:
+            with self.get_connection() as conn:
+                return conn is not None
+        except Exception:
+            return False
 
 
 class QueryBuilder:
     """
-    Query builder for common SQL operations.
+    Query builder for constructing SQL queries programmatically.
 
-    Provides a fluent interface for building SQL queries programmatically
-    while preventing SQL injection through parameterization.
+    Provides a fluent interface for building SELECT, INSERT, UPDATE,
+    and DELETE queries without writing raw SQL.
     """
 
-    def __init__(self, table: str) -> None:
-        """
-        Initialize query builder for a table.
-
-        Args:
-            table: Table name to query
-        """
-        self.table = table
-        self._select_columns: list[str] = ["*"]
-        self._where_clauses: list[str] = []
-        self._params: dict[str, Any] = {}
-        self._order_by: list[str] = []
-        self._limit_value: int | None = None
-        self._offset_value: int | None = None
-        self._joins: list[str] = []
+    def __init__(self) -> None:
+        self._select: list[str] = []
+        self._from: str | None = None
+        self._where: list[str] = []
+        self._join: list[tuple[str, str, str]] = []
         self._group_by: list[str] = []
+        self._order_by: list[tuple[str, bool]] = []
+        self._limit: int | None = None
+        self._offset: int | None = None
 
     def select(self, *columns: str) -> "QueryBuilder":
-        """
-        Specify columns to select.
-
-        Args:
-            *columns: Column names
-
-        Returns:
-            Self for chaining
-        """
-        if columns:
-            self._select_columns = list(columns)
+        """Set columns to select."""
+        self._select = list(columns)
         return self
 
-    def where(self, clause: str, **params: Any) -> "QueryBuilder":
-        """
-        Add a WHERE clause.
+    def from_table(self, table: str) -> "QueryBuilder":
+        """Set table to select from."""
+        self._from = table
+        return self
 
-        Args:
-            clause: WHERE clause (use named parameters like :name)
-            **params: Parameter values
-
-        Returns:
-            Self for chaining
-
-        Example:
-            builder.where("status = :status", status="active")
-        """
-        self._where_clauses.append(clause)
-        self._params.update(params)
+    def where(self, condition: str) -> "QueryBuilder":
+        """Add WHERE clause."""
+        self._where.append(condition)
         return self
 
     def join(self, table: str, on: str, join_type: str = "INNER") -> "QueryBuilder":
-        """
-        Add a JOIN clause.
-
-        Args:
-            table: Table to join
-            on: JOIN condition
-            join_type: Type of join (INNER, LEFT, RIGHT, FULL)
-
-        Returns:
-            Self for chaining
-        """
-        self._joins.append(f"{join_type} JOIN {table} ON {on}")
-        return self
-
-    def order_by(self, *columns: str) -> "QueryBuilder":
-        """
-        Add ORDER BY clause.
-
-        Args:
-            *columns: Column names (append DESC for descending)
-
-        Returns:
-            Self for chaining
-        """
-        self._order_by.extend(columns)
+        """Add JOIN clause."""
+        self._join.append((table, on, join_type))
         return self
 
     def group_by(self, *columns: str) -> "QueryBuilder":
-        """
-        Add GROUP BY clause.
+        """Add GROUP BY clause."""
+        self._group_by = list(columns)
+        return self
 
-        Args:
-            *columns: Column names to group by
-
-        Returns:
-            Self for chaining
-        """
-        self._group_by.extend(columns)
+    def order_by(self, column: str, ascending: bool = True) -> "QueryBuilder":
+        """Add ORDER BY clause."""
+        self._order_by.append((column, ascending))
         return self
 
     def limit(self, count: int) -> "QueryBuilder":
-        """
-        Add LIMIT clause.
-
-        Args:
-            count: Maximum number of rows
-
-        Returns:
-            Self for chaining
-        """
-        self._limit_value = count
+        """Set LIMIT clause."""
+        self._limit = count
         return self
 
     def offset(self, count: int) -> "QueryBuilder":
-        """
-        Add OFFSET clause.
-
-        Args:
-            count: Number of rows to skip
-
-        Returns:
-            Self for chaining
-        """
-        self._offset_value = count
+        """Set OFFSET clause."""
+        self._offset = count
         return self
 
-    def build_select(self) -> tuple[str, dict[str, Any]]:
-        """
-        Build the SELECT query.
+    def build(self) -> str:
+        """Build the SQL query string."""
+        if not self._select or not self._from:
+            msg = "SELECT and FROM clauses are required"
+            raise ValueError(msg)
 
-        Returns:
-            Tuple of (query_string, parameters)
-        """
-        query_parts: list[str] = []
+        query_parts = [f"SELECT {', '.join(self._select)}", f"FROM {self._from}"]
 
-        # SELECT clause
-        select_clause = ", ".join(self._select_columns)
-        query_parts.append(f"SELECT {select_clause}")
+        if self._join:
+            for table, on, join_type in self._join:
+                query_parts.append(f"{join_type} JOIN {table} ON {on}")
 
-        # FROM clause
-        query_parts.append(f"FROM {self.table}")
+        if self._where:
+            query_parts.append(f"WHERE {' AND '.join(self._where)}")
 
-        # JOINs
-        if self._joins:
-            query_parts.extend(self._joins)
-
-        # WHERE clause
-        if self._where_clauses:
-            where_clause = " AND ".join(self._where_clauses)
-            query_parts.append(f"WHERE {where_clause}")
-
-        # GROUP BY
         if self._group_by:
             query_parts.append(f"GROUP BY {', '.join(self._group_by)}")
 
-        # ORDER BY
         if self._order_by:
-            query_parts.append(f"ORDER BY {', '.join(self._order_by)}")
+            order_parts = [f"{col} {'ASC' if asc else 'DESC'}" for col, asc in self._order_by]
+            query_parts.append(f"ORDER BY {', '.join(order_parts)}")
 
-        # LIMIT and OFFSET
-        if self._limit_value is not None:
-            query_parts.append(f"LIMIT {self._limit_value}")
-            if self._offset_value is not None:
-                query_parts.append(f"OFFSET {self._offset_value}")
+        if self._limit is not None:
+            query_parts.append(f"LIMIT {self._limit}")
 
-        query = " ".join(query_parts)
-        return query, self._params
+        if self._offset is not None:
+            query_parts.append(f"OFFSET {self._offset}")
 
-    @staticmethod
-    def build_insert(
-        table: str, data: dict[str, Any] | list[dict[str, Any]]
-    ) -> tuple[str, dict[str, Any]]:
+        return " ".join(query_parts)
+
+
+# =============================================================================
+# File I/O Connector Protocol
+# =============================================================================
+
+
+@runtime_checkable
+class FileReader(Protocol):
+    """
+    Protocol for reading data from files.
+
+    All file readers must implement this protocol to ensure a consistent
+    interface across different file formats.
+    """
+
+    path: str | Path
+    """Path to the file to read."""
+
+    def read(
+        self,
+        schema: Schema | None = None,
+        chunk_size: int | None = None,
+        **kwargs: Any,
+    ) -> Sequence[DataRecord] | "FileReaderIterator":
         """
-        Build an INSERT query.
+        Read data from the file.
 
         Args:
-            table: Table name
-            data: Dictionary or list of dictionaries to insert
+            schema: Optional schema to validate data against.
+                   If None, schema will be inferred from the file.
+            chunk_size: If provided, returns an iterator that yields
+                       chunks of records. Otherwise, returns all records.
+            **kwargs: Format-specific options (e.g., delimiter for CSV).
 
         Returns:
-            Tuple of (query_string, parameters)
+            Either a sequence of DataRecord objects or an iterator
+            that yields chunks of records.
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist.
+            ValueError: If the file format is invalid.
+            SchemaError: If data doesn't match the provided schema.
         """
-        if isinstance(data, dict):
-            data = [data]
+        ...
 
-        if not data:
-            raise ValueError("Cannot build INSERT query with no data")
-
-        columns = list(data[0].keys())
-        placeholders = ", ".join([f":{col}" for col in columns])
-        column_list = ", ".join(columns)
-
-        query = f"INSERT INTO {table} ({column_list}) VALUES ({placeholders})"
-        params = data[0]
-
-        return query, params
-
-    @staticmethod
-    def build_update(
-        table: str,
-        data: dict[str, Any],
-        where_clause: str,
-        where_params: dict[str, Any] | None = None,
-    ) -> tuple[str, dict[str, Any]]:
+    def infer_schema(self, **kwargs: Any) -> Schema:
         """
-        Build an UPDATE query.
+        Infer the schema from the file.
 
         Args:
-            table: Table name
-            data: Column values to update
-            where_clause: WHERE clause
-            where_params: Parameters for WHERE clause
+            **kwargs: Format-specific options.
 
         Returns:
-            Tuple of (query_string, parameters)
+            The inferred schema.
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist.
+            ValueError: If the schema cannot be inferred.
         """
-        if not data:
-            raise ValueError("Cannot build UPDATE query with no data")
+        ...
 
-        set_clauses = [f"{col} = :update_{col}" for col in data]
-        params = {f"update_{col}": val for col, val in data.items()}
-
-        if where_params:
-            params.update(where_params)
-
-        query = f"UPDATE {table} SET {', '.join(set_clauses)} WHERE {where_clause}"
-        return query, params
-
-    @staticmethod
-    def build_delete(
-        table: str, where_clause: str, params: dict[str, Any]
-    ) -> tuple[str, dict[str, Any]]:
+    def get_row_count(self, **kwargs: Any) -> int:
         """
-        Build a DELETE query.
+        Get the number of rows in the file.
 
         Args:
-            table: Table name
-            where_clause: WHERE clause
-            params: Parameters for WHERE clause
+            **kwargs: Format-specific options.
 
         Returns:
-            Tuple of (query_string, parameters)
+            Number of rows in the file.
         """
-        query = f"DELETE FROM {table} WHERE {where_clause}"
-        return query, params
+        ...
+
+
+@runtime_checkable
+class FileWriter(Protocol):
+    """
+    Protocol for writing data to files.
+
+    All file writers must implement this protocol to ensure a consistent
+    interface across different file formats.
+    """
+
+    path: str | Path
+    """Path to the file to write."""
+
+    def write(
+        self,
+        data: Sequence[DataRecord],
+        schema: Schema | None = None,
+        **kwargs: Any,
+    ) -> int:
+        """
+        Write data to the file.
+
+        Args:
+            data: Sequence of DataRecord objects to write.
+            schema: Optional schema for the output file.
+                   If None, schema is inferred from the first record.
+            **kwargs: Format-specific options (e.g., compression for Parquet).
+
+        Returns:
+            Number of records written.
+
+        Raises:
+            ValueError: If the data is invalid or cannot be written.
+            IOError: If the file cannot be written.
+        """
+        ...
+
+    def append(
+        self,
+        data: Sequence[DataRecord],
+        schema: Schema | None = None,
+        **kwargs: Any,
+    ) -> int:
+        """
+        Append data to an existing file.
+
+        Args:
+            data: Sequence of DataRecord objects to append.
+            schema: Optional schema for the data.
+            **kwargs: Format-specific options.
+
+        Returns:
+            Number of records appended.
+
+        Raises:
+            FileNotFoundError: If the file doesn't exist.
+            ValueError: If the data cannot be appended (format doesn't support it).
+            IOError: If the file cannot be written.
+        """
+        ...
+
+
+class FileReaderIterator:
+    """
+    Iterator for reading large files in chunks.
+
+    This iterator yields sequences of DataRecord objects, allowing
+    memory-efficient processing of files that don't fit in memory.
+    """
+
+    def __init__(
+        self,
+        reader: FileReader,
+        chunk_size: int,
+        schema: Schema | None = None,
+        **kwargs: Any,
+    ):
+        """
+        Initialize the iterator.
+
+        Args:
+            reader: The file reader to use.
+            chunk_size: Number of records per chunk.
+            schema: Optional schema for validation.
+            **kwargs: Additional reader options.
+        """
+        self.reader = reader
+        self.chunk_size = chunk_size
+        self.schema = schema
+        self.kwargs = kwargs
+
+    def __iter__(self) -> "FileReaderIterator":
+        """Return the iterator object."""
+        return self
+
+    def __next__(self) -> Sequence[DataRecord]:
+        """
+        Get the next chunk of records.
+
+        Returns:
+            A sequence of DataRecord objects.
+
+        Raises:
+            StopIteration: When there are no more records.
+        """
+        # Implementation is format-specific
+        raise NotImplementedError

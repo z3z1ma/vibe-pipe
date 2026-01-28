@@ -1,1 +1,1 @@
-"""Tests for database connectors."""
+"""Tests for database and file connectors."""
