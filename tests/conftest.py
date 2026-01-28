@@ -65,7 +65,7 @@ def user_schema() -> Schema:
                 name="is_active",
                 data_type=DataType.BOOLEAN,
                 required=False,
-                default=True,
+                nullable=True,
             ),
         ),
         description="User account schema",

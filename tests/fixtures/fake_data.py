@@ -2,6 +2,7 @@
 
 import random
 import string
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -114,7 +115,7 @@ class FakeDataGenerator:
         length = random.randint(min_length, max_length)
 
         # Mix of different string types
-        string_types: list[() -> str] = [
+        string_types: list[Callable[[], str]] = [
             lambda: "".join(random.choices(string.ascii_lowercase, k=length)),
             lambda: "".join(random.choices(string.ascii_uppercase, k=length)),
             lambda: "".join(random.choices(string.ascii_letters, k=length)),

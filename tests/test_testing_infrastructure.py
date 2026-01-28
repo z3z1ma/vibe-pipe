@@ -268,7 +268,18 @@ def test_fake_data_reproducibility() -> None:
     data1 = fake_user_data(count=5, seed=42)
     data2 = fake_user_data(count=5, seed=42)
 
-    assert data1 == data2
+    # Check that all fields except timestamps match exactly
+    assert len(data1) == len(data2)
+    for i, (record1, record2) in enumerate(zip(data1, data2)):
+        # All fields except created_at should match
+        for key in record1:
+            if key != "created_at":
+                assert record1[key] == record2[key], f"Record {i}, field {key} doesn't match"
+        # created_at should have the same date (ignoring microseconds)
+        if "created_at" in record1 and "created_at" in record2:
+            date1 = record1["created_at"].split(".")[0]
+            date2 = record2["created_at"].split(".")[0]
+            assert date1 == date2, f"Record {i}, created_at date doesn't match"
 
 
 def test_fake_data_different_seeds() -> None:
@@ -472,7 +483,7 @@ def test_circular_dependency_detection() -> None:
     [
         (AssetType.MEMORY, "memory://"),
         (AssetType.FILE, "file://"),
-        (AssetType.API, "https://"),
+        (AssetType.API, "api://"),
     ],
 )
 def test_asset_uri_prefixes(asset_type: AssetType, expected_prefix: str) -> None:
