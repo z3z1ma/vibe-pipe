@@ -3,17 +3,23 @@ Execution engine for Vibe Piper.
 
 This module provides the core execution engine that orchestrates
 the execution of asset graphs with support for dependencies,
-error handling, and observability.
+error handling, checkpointing, and observability.
 """
 
 import hashlib
 import json
+import logging
 import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from vibe_piper.error_handling import (
+    CheckpointManager,
+    CheckpointState,
+    capture_error_context,
+)
 from vibe_piper.io_managers import get_io_manager
 from vibe_piper.materialization import (
     FileStrategy,
@@ -33,6 +39,12 @@ from vibe_piper.types import (
     MaterializationStrategy,
     PipelineContext,
 )
+
+# =============================================================================
+# Logger
+# =============================================================================
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Utility Functions
