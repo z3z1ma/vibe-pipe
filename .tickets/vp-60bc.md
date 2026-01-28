@@ -1,6 +1,6 @@
 ---
 "id": "vp-60bc"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-28T01:55:55Z"
