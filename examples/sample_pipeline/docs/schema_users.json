@@ -1,0 +1,43 @@
+{
+  "name": "users",
+  "description": "User account information schema",
+  "fields": [
+    {
+      "name": "user_id",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "Unique user identifier",
+      "constraints": {}
+    },
+    {
+      "name": "username",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "Username",
+      "constraints": {}
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "User email",
+      "constraints": {}
+    },
+    {
+      "name": "created_at",
+      "type": "datetime",
+      "required": true,
+      "nullable": false,
+      "description": "Account creation timestamp",
+      "constraints": {}
+    }
+  ],
+  "metadata": {},
+  "used_by": [
+    "users"
+  ],
+  "field_count": 4
+}

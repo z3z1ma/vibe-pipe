@@ -1,0 +1,63 @@
+{
+  "assets": [
+    {
+      "name": "user_analytics",
+      "type": "table",
+      "description": "User-level analytics with order summaries",
+      "url": "assets/user_analytics.html"
+    },
+    {
+      "name": "active_users_view",
+      "type": "view",
+      "description": "View of active users (users with orders in last 30 days)",
+      "url": "assets/active_users_view.html"
+    },
+    {
+      "name": "high_value_customers",
+      "type": "table",
+      "description": "Table of high-value customers (top 10% by spend)",
+      "url": "assets/high_value_customers.html"
+    },
+    {
+      "name": "raw_orders",
+      "type": "file",
+      "description": "Raw order data from source system",
+      "url": "assets/raw_orders.html"
+    },
+    {
+      "name": "raw_users",
+      "type": "file",
+      "description": "Raw user data from CSV file source",
+      "url": "assets/raw_users.html"
+    },
+    {
+      "name": "orders",
+      "type": "table",
+      "description": "Cleaned orders table with validated data",
+      "url": "assets/orders.html"
+    },
+    {
+      "name": "users",
+      "type": "table",
+      "description": "Cleaned and validated users table",
+      "url": "assets/users.html"
+    }
+  ],
+  "schemas": [
+    {
+      "name": "users",
+      "description": "User account information schema",
+      "url": "schemas/users.html"
+    },
+    {
+      "name": "user_analytics",
+      "description": "User analytics schema",
+      "url": "schemas/user_analytics.html"
+    },
+    {
+      "name": "orders",
+      "description": "Order information schema",
+      "url": "schemas/orders.html"
+    }
+  ]
+}

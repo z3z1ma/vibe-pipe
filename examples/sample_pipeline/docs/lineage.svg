@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+    <text x="400" y="300" text-anchor="middle" font-size="20" font-family="Arial">
+        Lineage Visualization
+    </text>
+    <text x="400" y="340" text-anchor="middle" font-size="14" font-family="Arial" fill="#666">
+        Use Mermaid CLI to render lineage.mmd to SVG
+    </text>
+</svg>

@@ -1,0 +1,11 @@
+graph TD
+    user_analytics["user_analytics\nUser-level analytics with order summaries"]
+    active_users_view["active_users_view\nView of active users (users with orders in last 30"]
+    high_value_customers["high_value_customers\nTable of high-value customers (top 10% by spend)"]
+    raw_orders["raw_orders\nRaw order data from source system"]
+    raw_users["raw_users\nRaw user data from CSV file source"]
+    orders["orders\nCleaned orders table with validated data"]
+    users["users\nCleaned and validated users table"]
+
+    classDef asset fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    class user_analytics,active_users_view,high_value_customers,raw_orders,raw_users,orders,users asset;
