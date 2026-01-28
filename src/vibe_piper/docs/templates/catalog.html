@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Asset Catalog - Vibe Piper Documentation{% endblock %}
+
+{% block content %}
+<div class="catalog">
+    <h1>Asset Catalog</h1>
+
+    <div class="catalog-summary">
+        <h2>Summary</h2>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <strong>{{ summary.total_assets }}</strong> Total Assets
+            </div>
+            {% for type, count in summary.by_type.items() %}
+            <div class="stat-item">
+                <strong>{{ count }}</strong> {{ type|title }} Assets
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <section class="asset-list">
+        <h2>All Assets</h2>
+        <div class="assets-grid">
+            {% for asset in assets %}
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/{{ asset.name }}.html">{{ asset.name }}</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-{{ asset.type }}">{{ asset.type|title }}</span>
+                    <span class="asset-mat">{{ asset.materialization|title }}</span>
+                </div>
+                {% if asset.description %}
+                <p class="asset-description">{{ asset.description }}</p>
+                {% endif %}
+                {% if asset.schema %}
+                <div class="asset-schema">
+                    Schema: <a href="schemas/{{ asset.schema.name }}.html">{{ asset.schema.name }}</a>
+                    ({{ asset.schema.field_count }} fields)
+                </div>
+                {% endif %}
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>{{ asset.uri }}</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>{{ asset.io_manager }}</dd>
+                    </dl>
+                </div>
+                {% if asset.metadata %}
+                <div class="asset-tags">
+                    {% for key, value in asset.metadata.items() %}
+                    <span class="tag">{{ key }}: {{ value }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

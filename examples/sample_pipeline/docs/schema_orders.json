@@ -1,0 +1,51 @@
+{
+  "name": "orders",
+  "description": "Order information schema",
+  "fields": [
+    {
+      "name": "order_id",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "Unique order identifier",
+      "constraints": {}
+    },
+    {
+      "name": "user_id",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "User who placed the order",
+      "constraints": {}
+    },
+    {
+      "name": "total_amount",
+      "type": "float",
+      "required": true,
+      "nullable": false,
+      "description": "Total order amount",
+      "constraints": {}
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "Order status",
+      "constraints": {}
+    },
+    {
+      "name": "order_date",
+      "type": "datetime",
+      "required": true,
+      "nullable": false,
+      "description": "Order date",
+      "constraints": {}
+    }
+  ],
+  "metadata": {},
+  "used_by": [
+    "orders"
+  ],
+  "field_count": 5
+}

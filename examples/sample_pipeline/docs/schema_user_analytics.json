@@ -1,0 +1,51 @@
+{
+  "name": "user_analytics",
+  "description": "User analytics schema",
+  "fields": [
+    {
+      "name": "user_id",
+      "type": "string",
+      "required": true,
+      "nullable": false,
+      "description": "User identifier",
+      "constraints": {}
+    },
+    {
+      "name": "total_orders",
+      "type": "integer",
+      "required": true,
+      "nullable": false,
+      "description": "Total number of orders",
+      "constraints": {}
+    },
+    {
+      "name": "total_spent",
+      "type": "float",
+      "required": true,
+      "nullable": false,
+      "description": "Total amount spent",
+      "constraints": {}
+    },
+    {
+      "name": "avg_order_value",
+      "type": "float",
+      "required": true,
+      "nullable": false,
+      "description": "Average order value",
+      "constraints": {}
+    },
+    {
+      "name": "last_order_date",
+      "type": "datetime",
+      "required": false,
+      "nullable": false,
+      "description": "Last order date",
+      "constraints": {}
+    }
+  ],
+  "metadata": {},
+  "used_by": [
+    "user_analytics"
+  ],
+  "field_count": 5
+}

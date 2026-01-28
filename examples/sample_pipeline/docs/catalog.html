@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Catalog - Vibe Piper Documentation</title>
+    <link rel="stylesheet" href="./static/css/style.css">
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vibe Piper Documentation</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="./index.html">Home</a></li>
+                    <li><a href="./catalog.html">Asset Catalog</a></li>
+                    <li><a href="./lineage.html">Lineage</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+
+<div class="catalog">
+    <h1>Asset Catalog</h1>
+
+    <div class="catalog-summary">
+        <h2>Summary</h2>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <strong>7</strong> Total Assets
+            </div>
+
+            <div class="stat-item">
+                <strong>4</strong> Table Assets
+            </div>
+
+            <div class="stat-item">
+                <strong>1</strong> View Assets
+            </div>
+
+            <div class="stat-item">
+                <strong>2</strong> File Assets
+            </div>
+
+        </div>
+    </div>
+
+    <section class="asset-list">
+        <h2>All Assets</h2>
+        <div class="assets-grid">
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/user_analytics.html">user_analytics</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-table">Table</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">User-level analytics with order summaries</p>
+
+
+                <div class="asset-schema">
+                    Schema: <a href="schemas/user_analytics.html">user_analytics</a>
+                    (5 fields)
+                </div>
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>table://user_analytics</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">owner: analytics-team</span>
+
+                    <span class="tag">refresh_strategy: incremental</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/active_users_view.html">active_users_view</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-view">View</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">View of active users (users with orders in last 30 days)</p>
+
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>view://active_users_view</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">owner: analytics-team</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/high_value_customers.html">high_value_customers</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-table">Table</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">Table of high-value customers (top 10% by spend)</p>
+
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>table://high_value_customers</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">owner: analytics-team</span>
+
+                    <span class="tag">sensitivity: high</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/raw_orders.html">raw_orders</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-file">File</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">Raw order data from source system</p>
+
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>file://raw_orders</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">source: api</span>
+
+                    <span class="tag">owner: data-team</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/raw_users.html">raw_users</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-file">File</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">Raw user data from CSV file source</p>
+
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>file://raw_users</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">source: csv</span>
+
+                    <span class="tag">owner: data-team</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/orders.html">orders</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-table">Table</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">Cleaned orders table with validated data</p>
+
+
+                <div class="asset-schema">
+                    Schema: <a href="schemas/orders.html">orders</a>
+                    (5 fields)
+                </div>
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>table://orders</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">owner: data-team</span>
+
+                    <span class="tag">update_frequency: hourly</span>
+
+                </div>
+
+            </div>
+
+            <div class="asset-card">
+                <h3>
+                    <a href="assets/users.html">users</a>
+                </h3>
+                <div class="asset-meta">
+                    <span class="asset-type-badge type-table">Table</span>
+                    <span class="asset-mat">Table</span>
+                </div>
+
+                <p class="asset-description">Cleaned and validated users table</p>
+
+
+                <div class="asset-schema">
+                    Schema: <a href="schemas/users.html">users</a>
+                    (4 fields)
+                </div>
+
+                <div class="asset-details">
+                    <dl>
+                        <dt>URI</dt>
+                        <dd><code>table://users</code></dd>
+                        <dt>I/O Manager</dt>
+                        <dd>memory</dd>
+                    </dl>
+                </div>
+
+                <div class="asset-tags">
+
+                    <span class="tag">owner: data-team</span>
+
+                    <span class="tag">pii: true</span>
+
+                    <span class="tag">update_frequency: daily</span>
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+</div>
+
+        </main>
+
+        <footer>
+            <p>Generated by Vibe Piper Documentation Generator</p>
+            <p class="timestamp">Generated on: 2026-01-27T20:08:06.866087</p>
+        </footer>
+    </div>
+
+
+    <script src="./static/js/search.js"></script>
+
+</body>
+</html>

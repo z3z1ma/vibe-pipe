@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Vibe Piper Documentation{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h2>{{ pipeline_name|default("Data Pipeline") }} Documentation</h2>
+    <p class="subtitle">{{ description|default("Comprehensive documentation for your data pipeline") }}</p>
+</div>
+
+<div class="search-container">
+    <input
+        type="text"
+        id="search-input"
+        placeholder="Search assets, schemas, and documentation..."
+        class="search-input"
+    >
+    <div id="search-results" class="search-results"></div>
+</div>
+
+<section class="stats">
+    <h3>Overview</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>{{ total_assets }}</h4>
+            <p>Total Assets</p>
+        </div>
+        <div class="stat-card">
+            <h4>{{ total_schemas }}</h4>
+            <p>Unique Schemas</p>
+        </div>
+        <div class="stat-card">
+            <h4>{{ asset_types|length }}</h4>
+            <p>Asset Types</p>
+        </div>
+    </div>
+</section>
+
+<section class="quick-links">
+    <h3>Quick Links</h3>
+    <div class="links-grid">
+        <a href="catalog.html" class="link-card">
+            <h4>Asset Catalog</h4>
+            <p>Browse all assets in your pipeline</p>
+        </a>
+        <a href="lineage.html" class="link-card">
+            <h4>Data Lineage</h4>
+            <p>Visualize data flow and dependencies</p>
+        </a>
+        <a href="schemas.html" class="link-card">
+            <h4>Schema Documentation</h4>
+            <p>View data structure definitions</p>
+        </a>
+    </div>
+</section>
+
+{% if recent_assets %}
+<section class="recent">
+    <h3>Recent Assets</h3>
+    <ul class="asset-list">
+        {% for asset in recent_assets %}
+        <li>
+            <a href="assets/{{ asset.name }}.html">{{ asset.name }}</a>
+            <span class="asset-type">{{ asset.type }}</span>
+            {% if asset.description %}
+            <p class="asset-desc">{{ asset.description[:100] }}...</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% endblock %}

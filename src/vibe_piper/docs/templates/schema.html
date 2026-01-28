@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Schema: {{ schema.name }} - Vibe Piper Documentation{% endblock %}
+
+{% block content %}
+<div class="schema-doc">
+    <h1>Schema: {{ schema.name }}</h1>
+
+    {% if schema.description %}
+    <div class="description">
+        <h2>Description</h2>
+        <p>{{ schema.description }}</p>
+    </div>
+    {% endif %}
+
+    <section class="schema-fields">
+        <h2>Fields ({{ schema.fields|length }})</h2>
+        <table class="fields-table">
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Nullable</th>
+                    <th>Description</th>
+                    <th>Constraints</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field in schema.fields %}
+                <tr>
+                    <td><code>{{ field.name }}</code></td>
+                    <td><span class="type-badge type-{{ field.type }}">{{ field.type }}</span></td>
+                    <td>{% if field.required %}✓{% else %}-{% endif %}</td>
+                    <td>{% if field.nullable %}✓{% else %}-{% endif %}</td>
+                    <td>{{ field.description|default("") }}</td>
+                    <td>
+                        {% if field.constraints %}
+                        <ul class="constraints-list">
+                            {% for key, value in field.constraints.items() %}
+                            <li>{{ key }}: {{ value }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    {% if schema.metadata %}
+    <section class="schema-metadata">
+        <h2>Metadata</h2>
+        <table class="metadata-table">
+            {% for key, value in schema.metadata.items() %}
+            <tr>
+                <th>{{ key }}</th>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+    {% endif %}
+
+    {% if used_by %}
+    <section class="used-by">
+        <h2>Used By</h2>
+        <ul class="asset-links">
+            {% for asset_name in used_by %}
+            <li><a href="../assets/{{ asset_name }}.html">{{ asset_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

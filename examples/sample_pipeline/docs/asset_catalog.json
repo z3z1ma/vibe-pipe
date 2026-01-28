@@ -1,0 +1,114 @@
+{
+  "assets": [
+    {
+      "name": "user_analytics",
+      "type": "table",
+      "uri": "table://user_analytics",
+      "description": "User-level analytics with order summaries",
+      "metadata": {
+        "owner": "analytics-team",
+        "refresh_strategy": "incremental"
+      },
+      "materialization": "table",
+      "io_manager": "memory",
+      "schema": {
+        "name": "user_analytics",
+        "field_count": 5,
+        "description": "User analytics schema"
+      }
+    },
+    {
+      "name": "active_users_view",
+      "type": "view",
+      "uri": "view://active_users_view",
+      "description": "View of active users (users with orders in last 30 days)",
+      "metadata": {
+        "owner": "analytics-team"
+      },
+      "materialization": "table",
+      "io_manager": "memory"
+    },
+    {
+      "name": "high_value_customers",
+      "type": "table",
+      "uri": "table://high_value_customers",
+      "description": "Table of high-value customers (top 10% by spend)",
+      "metadata": {
+        "owner": "analytics-team",
+        "sensitivity": "high"
+      },
+      "materialization": "table",
+      "io_manager": "memory"
+    },
+    {
+      "name": "raw_orders",
+      "type": "file",
+      "uri": "file://raw_orders",
+      "description": "Raw order data from source system",
+      "metadata": {
+        "source": "api",
+        "owner": "data-team"
+      },
+      "materialization": "table",
+      "io_manager": "memory"
+    },
+    {
+      "name": "raw_users",
+      "type": "file",
+      "uri": "file://raw_users",
+      "description": "Raw user data from CSV file source",
+      "metadata": {
+        "source": "csv",
+        "owner": "data-team"
+      },
+      "materialization": "table",
+      "io_manager": "memory"
+    },
+    {
+      "name": "orders",
+      "type": "table",
+      "uri": "table://orders",
+      "description": "Cleaned orders table with validated data",
+      "metadata": {
+        "owner": "data-team",
+        "update_frequency": "hourly"
+      },
+      "materialization": "table",
+      "io_manager": "memory",
+      "schema": {
+        "name": "orders",
+        "field_count": 5,
+        "description": "Order information schema"
+      }
+    },
+    {
+      "name": "users",
+      "type": "table",
+      "uri": "table://users",
+      "description": "Cleaned and validated users table",
+      "metadata": {
+        "owner": "data-team",
+        "pii": "true",
+        "update_frequency": "daily"
+      },
+      "materialization": "table",
+      "io_manager": "memory",
+      "schema": {
+        "name": "users",
+        "field_count": 4,
+        "description": "User account information schema"
+      }
+    }
+  ],
+  "summary": {
+    "total_assets": 7,
+    "by_type": {
+      "table": 4,
+      "view": 1,
+      "file": 2
+    },
+    "by_materialization": {
+      "table": 7
+    }
+  }
+}
