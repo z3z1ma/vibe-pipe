@@ -26,3 +26,4 @@ repos:
       - id: mypy
         additional_dependencies:
           - pydantic>=2.10.0
+        exclude: ^(tests/|docs/)
