@@ -81,6 +81,16 @@ class AssetType(Enum):
     MEMORY = auto()
 
 
+class MaterializationStrategy(Enum):
+    """Strategies for materializing data assets."""
+
+    IN_MEMORY = auto()  # Keep data in memory
+    TABLE = auto()  # Materialize as a physical table
+    VIEW = auto()  # Create as a virtual view
+    FILE = auto()  # Store as files
+    INCREMENTAL = auto()  # Incrementally update existing data
+
+
 class OperatorType(Enum):
     """Categories of operators."""
 
@@ -318,6 +328,8 @@ class Asset:
         description: Optional documentation
         metadata: Additional metadata (owner, tags, etc.)
         config: Asset-specific configuration
+        version: Version identifier for the asset (default: "1")
+        partition_key: Optional partition key for large datasets (default: None)
     """
 
     name: str
@@ -328,6 +340,8 @@ class Asset:
     description: str | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
     config: Mapping[str, Any] = field(default_factory=dict)
+    version: str = "1"
+    partition_key: str | None = None
 
     def __post_init__(self) -> None:
         """Validate the asset configuration."""
@@ -356,6 +370,7 @@ class Pipeline:
         description: Optional documentation
         metadata: Additional metadata (tags, owner, etc.)
         config: Pipeline-specific configuration
+        checkpoints: Checkpoint data for pipeline recovery (default: empty tuple)
     """
 
     name: str
@@ -365,6 +380,7 @@ class Pipeline:
     description: str | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
     config: Mapping[str, Any] = field(default_factory=dict)
+    checkpoints: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         """Validate the pipeline configuration."""
@@ -997,6 +1013,7 @@ class ExecutionResult:
         assets_executed: Number of assets that were executed
         assets_succeeded: Number of assets that succeeded
         assets_failed: Number of assets that failed
+        lineage: Complete lineage mapping of all assets (default: empty dict)
     """
 
     success: bool
@@ -1008,6 +1025,7 @@ class ExecutionResult:
     assets_executed: int = 0
     assets_succeeded: int = 0
     assets_failed: int = 0
+    lineage: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
 
     def get_asset_result(self, asset_name: str) -> AssetResult | None:
         """

@@ -9,6 +9,7 @@ src/vibe_piper/expectations.py
 src/vibe_piper/operators.py
 src/vibe_piper/pipeline.py
 src/vibe_piper/py.typed
+src/vibe_piper/quality.py
 src/vibe_piper/schema_definitions.py
 src/vibe_piper/types.py
 src/vibe_piper.egg-info/PKG-INFO
@@ -24,5 +25,6 @@ tests/test_expectations.py
 tests/test_operators.py
 tests/test_pipeline.py
 tests/test_protocols.py
+tests/test_quality.py
 tests/test_schema_definitions.py
 tests/test_types.py

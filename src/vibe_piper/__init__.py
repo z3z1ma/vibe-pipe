@@ -89,6 +89,7 @@ from vibe_piper.types import (
     ErrorStrategy,
     ExecutionResult,
     Expectation,
+    MaterializationStrategy,
     Operator,
     OperatorFn,
     OperatorType,
@@ -126,6 +127,7 @@ __all__ = [
     "QualityMetricType",
     "QualityCheckResult",
     "DataQualityReport",
+    "MaterializationStrategy",
     "__version__",
     # Decorators
     "asset",
