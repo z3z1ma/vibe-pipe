@@ -16,8 +16,18 @@ src/vibe_piper/types.py
 src/vibe_piper.egg-info/PKG-INFO
 src/vibe_piper.egg-info/SOURCES.txt
 src/vibe_piper.egg-info/dependency_links.txt
+src/vibe_piper.egg-info/entry_points.txt
 src/vibe_piper.egg-info/requires.txt
 src/vibe_piper.egg-info/top_level.txt
+src/vibe_piper/cli/__init__.py
+src/vibe_piper/cli/main.py
+src/vibe_piper/cli/commands/__init__.py
+src/vibe_piper/cli/commands/docs.py
+src/vibe_piper/cli/commands/init.py
+src/vibe_piper/cli/commands/run.py
+src/vibe_piper/cli/commands/test.py
+src/vibe_piper/cli/commands/validate.py
+src/vibe_piper/cli/commands/version.py
 src/vibe_piper/connectors/__init__.py
 src/vibe_piper/connectors/base.py
 src/vibe_piper/connectors/bigquery.py
@@ -49,12 +59,6 @@ src/vibe_piper/io_managers/registry.py
 src/vibe_piper/io_managers/s3.py
 src/vibe_piper/materialization/__init__.py
 src/vibe_piper/materialization/strategies.py
-src/vibe_piper/transformations/__init__.py
-src/vibe_piper/transformations/aggregations.py
-src/vibe_piper/transformations/builder.py
-src/vibe_piper/transformations/joins.py
-src/vibe_piper/transformations/pivot.py
-src/vibe_piper/transformations/windows.py
 src/vibe_piper/validation/__init__.py
 src/vibe_piper/validation/checks.py
 src/vibe_piper/validation/decorators.py
@@ -76,5 +80,4 @@ tests/test_protocols.py
 tests/test_quality.py
 tests/test_schema_definitions.py
 tests/test_testing_infrastructure.py
-tests/test_transformations.py
 tests/test_types.py
