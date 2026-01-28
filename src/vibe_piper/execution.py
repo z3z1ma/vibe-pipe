@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from vibe_piper.io_managers import get_io_manager
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -70,6 +71,23 @@ class DefaultExecutor:
 
                 # Execute the operator's function with upstream data and context
                 result_data = asset.operator.fn(upstream_data, context)
+
+                # Materialize data using IO manager
+                io_manager_name = asset.io_manager or "memory"
+                io_manager = get_io_manager(io_manager_name)
+
+                # Create a modified context for the IO manager
+                # Use asset name as pipeline_id for proper isolation
+                io_context = PipelineContext(
+                    pipeline_id=asset.name,
+                    run_id=context.run_id,
+                    config=context.config,
+                    state=context.state,
+                    metadata=context.metadata,
+                )
+
+                # Store the output data
+                io_manager.handle_output(io_context, result_data)
 
                 # Collect quality metrics if output is a list of DataRecords
                 metrics = self._collect_quality_metrics(result_data)
