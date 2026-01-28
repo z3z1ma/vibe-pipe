@@ -17,6 +17,12 @@ src/vibe_piper.egg-info/SOURCES.txt
 src/vibe_piper.egg-info/dependency_links.txt
 src/vibe_piper.egg-info/requires.txt
 src/vibe_piper.egg-info/top_level.txt
+src/vibe_piper/connectors/__init__.py
+src/vibe_piper/connectors/base.py
+src/vibe_piper/connectors/bigquery.py
+src/vibe_piper/connectors/mysql.py
+src/vibe_piper/connectors/postgres.py
+src/vibe_piper/connectors/snowflake.py
 tests/test_basic.py
 tests/test_decorators.py
 tests/test_dependency_inference.py

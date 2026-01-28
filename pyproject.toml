@@ -30,6 +30,24 @@ dev = [
     "mypy>=1.10.0",
     "ruff>=0.5.0",
 ]
+postgres = [
+    "psycopg2-binary>=2.9.0",
+]
+mysql = [
+    "mysql-connector-python>=8.0.0",
+]
+snowflake = [
+    "snowflake-connector-python>=3.0.0",
+]
+bigquery = [
+    "google-cloud-bigquery>=3.0.0",
+]
+all = [
+    "vibe-piper[postgres]",
+    "vibe-piper[mysql]",
+    "vibe-piper[snowflake]",
+    "vibe-piper[bigquery]",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -87,6 +105,9 @@ addopts = [
     "--cov=src",
     "--cov-report=term-missing",
     "--cov-report=html",
+]
+markers = [
+    "integration: marks tests as integration tests (requires database)",
 ]
 
 [tool.coverage.run]

@@ -103,6 +103,21 @@ from vibe_piper.types import (
     ValidationResult,
 )
 
+# Database connectors (imported but not exported in __all__ for optional feature)
+try:
+    from vibe_piper.connectors import (
+        BigQueryConnector,
+        DatabaseConnector,
+        MySQLConnector,
+        PostgreSQLConnector,
+        QueryBuilder,
+        SnowflakeConnector,
+    )
+
+    _CONNECTORS_AVAILABLE = True
+except ImportError:
+    _CONNECTORS_AVAILABLE = False
+
 __all__ = [
     "Asset",
     "AssetGraph",
@@ -197,4 +212,11 @@ __all__ = [
     "expect_column_to_be_non_nullable",
     "expect_column_to_have_constraint",
     "expect_column_constraint_to_equal",
+    # Database connectors
+    "DatabaseConnector",
+    "QueryBuilder",
+    "PostgreSQLConnector",
+    "MySQLConnector",
+    "SnowflakeConnector",
+    "BigQueryConnector",
 ]

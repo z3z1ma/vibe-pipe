@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for integration tests
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: vp-postgres-test
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - vp-test-network
+
+  # MySQL for integration tests
+  mysql-test:
+    image: mysql:8.0
+    container_name: vp-mysql-test
+    environment:
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    networks:
+      - vp-test-network
+
+volumes:
+  postgres_test_data:
+  mysql_test_data:
+
+networks:
+  vp-test-network:
+    driver: bridge
