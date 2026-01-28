@@ -1,0 +1,10 @@
+# Minimal Vibe Piper Configuration
+# This is the simplest possible configuration file
+
+[project]
+name = "my-pipeline"
+version = "0.1.0"
+
+[environments.dev]
+io_manager = "memory"
+log_level = "info"

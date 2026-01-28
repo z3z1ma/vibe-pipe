@@ -1,6 +1,6 @@
 ---
 "id": "vp-02cc"
-"status": "open"
+"status": "in_progress"
 "deps": []
 "links": []
 "created": "2026-01-28T01:27:17Z"
