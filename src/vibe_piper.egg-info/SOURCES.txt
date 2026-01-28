@@ -4,6 +4,7 @@ pyproject.toml
 src/vibe_piper/__init__.py
 src/vibe_piper/core.py
 src/vibe_piper/decorators.py
+src/vibe_piper/error_handling.py
 src/vibe_piper/execution.py
 src/vibe_piper/expectations.py
 src/vibe_piper/operators.py
@@ -20,6 +21,7 @@ src/vibe_piper.egg-info/top_level.txt
 tests/test_basic.py
 tests/test_decorators.py
 tests/test_dependency_inference.py
+tests/test_error_handling.py
 tests/test_execution.py
 tests/test_expectations.py
 tests/test_operators.py

@@ -8,6 +8,16 @@ and extensibility at its core.
 __version__ = "0.1.0"
 
 from vibe_piper.decorators import asset, expect
+from vibe_piper.error_handling import (
+    BackoffStrategy,
+    Checkpoint,
+    CheckpointManager,
+    CheckpointState,
+    ErrorContext,
+    RetryConfig,
+    capture_error_context,
+    retry_with_backoff,
+)
 from vibe_piper.execution import DefaultExecutor, ExecutionEngine
 from vibe_piper.expectations import (
     ExpectationLibrary,
@@ -132,6 +142,15 @@ __all__ = [
     # Decorators
     "asset",
     "expect",
+    # Error Handling & Recovery
+    "BackoffStrategy",
+    "Checkpoint",
+    "CheckpointManager",
+    "CheckpointState",
+    "ErrorContext",
+    "RetryConfig",
+    "capture_error_context",
+    "retry_with_backoff",
     # Expectations
     "ExpectationLibrary",
     "ExpectationSuite",

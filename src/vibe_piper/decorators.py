@@ -23,6 +23,8 @@ def _create_asset_from_function(
     description: str | None,
     metadata: dict[str, Any] | None,
     config: dict[str, Any] | None,
+    retries: int | None = None,
+    backoff: str | None = None,
 ) -> Asset:
     """Helper function to create an Asset from a function."""
     # Determine asset name
@@ -40,6 +42,15 @@ def _create_asset_from_function(
     if asset_description is None and func.__doc__:
         asset_description = func.__doc__.strip()
 
+    # Build config with retry settings
+    asset_config = config or {}
+    if retries is not None:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["retries"] = retries
+    if backoff is not None:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["backoff"] = backoff
+
     # Create the Asset instance
     return Asset(
         name=asset_name,
@@ -48,7 +59,7 @@ def _create_asset_from_function(
         schema=schema,
         description=asset_description,
         metadata=metadata or {},
-        config=config or {},
+        config=asset_config,
     )
 
 
@@ -86,6 +97,10 @@ class AssetDecorator:
         config = kwargs.pop("config", None)
         name_param = kwargs.pop("name", None)
 
+        # Extract retry parameters
+        retries = kwargs.pop("retries", None)
+        backoff = kwargs.pop("backoff", None)
+
         # Case 1: @asset (no parentheses) - func_or_name is the function
         if callable(func_or_name):
             return _create_asset_from_function(
@@ -97,6 +112,8 @@ class AssetDecorator:
                 description=description,
                 metadata=metadata,
                 config=config,
+                retries=retries,
+                backoff=backoff,
             )
 
         # Case 2 & 3: @asset(...) - with or without parameters
@@ -114,6 +131,8 @@ class AssetDecorator:
                 description=description,
                 metadata=metadata,
                 config=config,
+                retries=retries,
+                backoff=backoff,
             )
 
         return decorator

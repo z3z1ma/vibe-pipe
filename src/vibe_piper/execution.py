@@ -3,15 +3,21 @@ Execution engine for Vibe Piper.
 
 This module provides the core execution engine that orchestrates
 the execution of asset graphs with support for dependencies,
-error handling, and observability.
+error handling, checkpointing, and observability.
 """
 
+import logging
 import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from vibe_piper.error_handling import (
+    CheckpointManager,
+    CheckpointState,
+    capture_error_context,
+)
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -22,6 +28,12 @@ from vibe_piper.types import (
     Executor,
     PipelineContext,
 )
+
+# =============================================================================
+# Logger
+# =============================================================================
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Default Executor Implementation
@@ -144,12 +156,16 @@ class ExecutionEngine:
 
     The ExecutionEngine orchestrates the execution of assets in an
     AssetGraph, respecting dependencies and handling errors according
-    to the configured strategy.
+    to the configured strategy. Supports checkpointing for recovery
+    and enhanced error context capture.
 
     Attributes:
         executor: The executor to use for running assets
         error_strategy: How to handle execution errors
         max_retries: Maximum number of retries for failed assets (only used with RETRY strategy)
+        checkpoint_manager: Optional checkpoint manager for recovery
+        enable_checkpoints: Whether to enable checkpointing
+        capture_error_context: Whether to capture detailed error context
 
     Example:
         Execute a simple asset graph::
@@ -166,12 +182,16 @@ class ExecutionEngine:
     executor: Executor = field(default_factory=DefaultExecutor)
     error_strategy: ErrorStrategy = ErrorStrategy.FAIL_FAST
     max_retries: int = 3
+    checkpoint_manager: CheckpointManager = field(default_factory=CheckpointManager)
+    enable_checkpoints: bool = True
+    capture_error_context: bool = True
 
     def execute(
         self,
         graph: AssetGraph,
         target_assets: tuple[str, ...] | None = None,
         context: PipelineContext | None = None,
+        recover_from_checkpoint: bool = False,
     ) -> ExecutionResult:
         """
         Execute an asset graph.
@@ -181,6 +201,7 @@ class ExecutionEngine:
             target_assets: Optional specific assets to execute (and their dependencies).
                          If None, all assets in the graph are executed.
             context: Optional pipeline context. If None, creates a new context.
+            recover_from_checkpoint: Whether to attempt recovery from checkpoints
 
         Returns:
             ExecutionResult with details of the execution
@@ -194,6 +215,22 @@ class ExecutionEngine:
 
             context = PipelineContext(pipeline_id=graph.name, run_id=str(uuid.uuid4()))
 
+        # Initialize checkpoint manager (only if not already initialized)
+        if (
+            self.enable_checkpoints
+            and self.checkpoint_manager.get_checkpoint_state() is None
+        ):
+            checkpoint_state = None
+            if recover_from_checkpoint:
+                # Try to load existing checkpoint state
+                checkpoint_state = self._load_checkpoint_state(context.run_id)
+
+            self.checkpoint_manager.initialize(
+                pipeline_id=graph.name,
+                run_id=context.run_id,
+                existing_state=checkpoint_state,
+            )
+
         # Determine execution order
         if target_assets:
             execution_order = self._get_execution_order_for_targets(
@@ -202,14 +239,39 @@ class ExecutionEngine:
         else:
             execution_order = graph.topological_order()
 
+        # Adjust execution order based on checkpoints
+        if self.enable_checkpoints and recover_from_checkpoint:
+            execution_order = (
+                self.checkpoint_manager.get_execution_plan_from_checkpoint(
+                    execution_order
+                )
+            )
+            logger.info(f"Recovered execution plan from checkpoint: {execution_order}")
+
         # Execute assets
-        asset_results: dict[str, AssetResult] = {}
+        asset_results: dict[str, Any] = {}
         errors: list[str] = []
         succeeded = 0
         failed = 0
         retry_counts: dict[str, int] = {}
 
         for asset_name in execution_order:
+            # Check if we have a checkpoint for this asset
+            if (
+                self.enable_checkpoints
+                and self.checkpoint_manager.can_resume_from_asset(asset_name)
+            ):
+                logger.info(
+                    f"Skipping asset '{asset_name}' - using checkpointed result"
+                )
+                checkpointed_result = (
+                    self.checkpoint_manager.get_asset_result_from_checkpoint(asset_name)
+                )
+                if checkpointed_result:
+                    asset_results[asset_name] = checkpointed_result
+                    succeeded += 1
+                    continue
+
             asset = graph.get_asset(asset_name)
             if asset is None:
                 errors.append(f"Asset {asset_name!r} not found in graph")
@@ -230,6 +292,14 @@ class ExecutionEngine:
             )
 
             asset_results[asset_name] = result
+
+            # Create checkpoint if enabled and execution succeeded
+            if self.enable_checkpoints and result.success:
+                self.checkpoint_manager.create_checkpoint(
+                    asset_name=asset_name,
+                    asset_result=result,
+                    upstream_results=upstream_results,
+                )
 
             if result.success:
                 succeeded += 1
@@ -306,7 +376,7 @@ class ExecutionEngine:
         asset: Asset,
         context: PipelineContext,
         upstream_results: Mapping[str, Any],
-        retry_counts: dict[str, int],
+        _retry_counts: dict[str, int],  # Unused in new implementation
     ) -> AssetResult:
         """
         Execute an asset with retry logic if configured.
@@ -315,25 +385,89 @@ class ExecutionEngine:
             asset: The asset to execute
             context: Pipeline context
             upstream_results: Results from upstream assets
-            retry_counts: Dictionary tracking retry counts per asset
+            _retry_counts: Dictionary tracking retry counts per asset (unused)
 
         Returns:
             AssetResult from the execution attempt
         """
-        result = self.executor.execute(asset, context, upstream_results)
+        # Check if asset has retry config
+        asset_retries = asset.config.get("retries", 0)
+        asset_backoff = asset.config.get("backoff", "exponential")
 
-        # If retry strategy is enabled and execution failed
-        if self.error_strategy == ErrorStrategy.RETRY and not result.success:
-            retry_count = retry_counts.get(asset.name, 0)
+        # Use asset-level retry config if available, otherwise use engine-level
+        max_retries = asset_retries if asset_retries > 0 else self.max_retries
 
-            if retry_count < self.max_retries:
-                retry_counts[asset.name] = retry_count + 1
-                # Retry the asset
-                return self._execute_asset_with_retry(
-                    asset, context, upstream_results, retry_counts
+        # Execute with retries
+        for attempt in range(max_retries + 1):
+            result = self.executor.execute(asset, context, upstream_results)
+
+            if result.success:
+                return result
+
+            # Execution failed
+            if self.capture_error_context and result.error:
+                # Capture detailed error context
+                error_context = capture_error_context(
+                    error=Exception(result.error),  # Create exception from error string
+                    asset_name=asset.name,
+                    inputs=upstream_results,
+                    attempt_number=attempt,
+                    retryable=attempt < max_retries,
                 )
+                # Log error context
+                msg = (
+                    f"Error executing asset '{asset.name}' "
+                    f"(attempt {attempt + 1}/{max_retries + 1}): "
+                    f"{error_context.error_message}"
+                )
+                logger.error(msg)
+                logger.debug(f"Error context: {error_context.to_dict()}")
+
+            # Check if we should retry
+            if attempt < max_retries:
+                # Calculate delay based on backoff strategy
+                if asset_backoff == "exponential":
+                    delay = 2**attempt
+                elif asset_backoff == "linear":
+                    delay = attempt + 1
+                else:  # fixed
+                    delay = 0
+
+                delay = min(delay, 60.0)  # Cap at 60 seconds
+
+                if delay > 0:
+                    logger.warning(
+                        f"Retrying asset '{asset.name}' in {delay}s "
+                        f"(attempt {attempt + 2}/{max_retries + 1})"
+                    )
+                    time.sleep(delay)
+                else:
+                    logger.warning(
+                        f"Retrying asset '{asset.name}' immediately "
+                        f"(attempt {attempt + 2}/{max_retries + 1})"
+                    )
+            else:
+                # No more retries
+                break
 
         return result
+
+    def _load_checkpoint_state(self, _run_id: str) -> "CheckpointState | None":
+        """
+        Load checkpoint state from storage.
+
+        This is a placeholder implementation. In a real system, this would
+        load from persistent storage (database, file system, etc.).
+
+        Args:
+            _run_id: The run ID to load checkpoints for (unused in placeholder)
+
+        Returns:
+            CheckpointState if found, None otherwise
+        """
+        # TODO: Implement persistent checkpoint storage
+        # For now, return None to indicate no checkpoint state found
+        return None
 
     def _aggregate_metrics(
         self, asset_results: Mapping[str, AssetResult]
