@@ -197,4 +197,16 @@ __all__ = [
     "expect_column_to_be_non_nullable",
     "expect_column_to_have_constraint",
     "expect_column_constraint_to_equal",
+    # File I/O Connectors
+    "FileReader",
+    "FileWriter",
+    "CSVReader",
+    "CSVWriter",
+    "JSONReader",
+    "JSONWriter",
+    "ParquetReader",
+    "ParquetWriter",
+    "ExcelReader",
+    "ExcelWriter",
+    "infer_schema_from_file",
 ]
