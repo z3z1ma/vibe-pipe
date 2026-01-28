@@ -1,0 +1,48 @@
+# Vibe Piper Configuration for API Ingestion Example
+
+[api]
+base_url = "https://jsonplaceholder.typicode.com"
+# api_key = "${API_KEY}"
+page_size = 10
+max_pages = null
+
+[database]
+host = "localhost"
+port = 5432
+database = "vibe_piper_demo"
+user = "postgres"
+password = "${DB_PASSWORD}"
+pool_size = 5
+max_overflow = 10
+
+[rate_limiting]
+requests_per_second = 5
+burst_size = 10
+
+[retry]
+max_attempts = 3
+initial_delay = 1.0
+max_delay = 60.0
+exponential_base = 2.0
+jitter = true
+
+[validation]
+require_all_fields = false
+validate_email_format = true
+skip_on_validation_error = true
+
+[transformation]
+flatten_nested_objects = true
+convert_timestamps = true
+strip_whitespace = true
+
+[quality]
+log_validation_errors = true
+max_validation_errors_logged = 100
+generate_quality_report = true
+
+[logging]
+level = "INFO"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+log_api_calls = true
+log_database_operations = true
