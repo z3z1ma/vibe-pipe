@@ -42,9 +42,6 @@ dev = [
     "ruff>=0.5.0",
     "vibe-piper[files]",
 ]
-all = [
-    "vibe-piper[files,dev]",
-]
 postgres = [
     "psycopg2-binary>=2.9.0",
 ]
@@ -58,6 +55,7 @@ bigquery = [
     "google-cloud-bigquery>=3.0.0",
 ]
 all = [
+    "vibe-piper[files,dev]",
     "vibe-piper[postgres]",
     "vibe-piper[mysql]",
     "vibe-piper[snowflake]",

@@ -1,0 +1,70 @@
+# Docker Compose for ETL Pipeline Example
+# This sets up PostgreSQL database for testing the pipeline
+
+version: '3.8'
+
+services:
+  # Source PostgreSQL database
+  source-db:
+    image: postgres:16-alpine
+    container_name: vp-etl-source-db
+    environment:
+      POSTGRES_DB: source_db
+      POSTGRES_USER: etl_user
+      POSTGRES_PASSWORD: etl_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - source_db_data:/var/lib/postgresql/data
+      - ./scripts/init_source_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etl_user -d source_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl-network
+
+  # Analytics PostgreSQL database (target)
+  analytics-db:
+    image: postgres:16-alpine
+    container_name: vp-etl-analytics-db
+    environment:
+      POSTGRES_DB: analytics_db
+      POSTGRES_USER: analytics_user
+      POSTGRES_PASSWORD: analytics_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - analytics_db_data:/var/lib/postgresql/data
+      - ./scripts/init_analytics_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analytics_user -d analytics_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl-network
+
+  # Optional: Adminer for database management
+  adminer:
+    image: adminer:latest
+    container_name: vp-etl-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: source-db
+    networks:
+      - etl-network
+    profiles:
+      - tools
+
+volumes:
+  source_db_data:
+    driver: local
+  analytics_db_data:
+    driver: local
+
+networks:
+  etl-network:
+    driver: bridge
