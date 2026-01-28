@@ -8,7 +8,14 @@ Vibe Piper objects in a declarative way.
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
-from vibe_piper.types import Asset, AssetType, Expectation, Schema, ValidationResult
+from vibe_piper.types import (
+    Asset,
+    AssetType,
+    Expectation,
+    MaterializationStrategy,
+    Schema,
+    ValidationResult,
+)
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -23,6 +30,8 @@ def _create_asset_from_function(
     description: str | None,
     metadata: dict[str, Any] | None,
     config: dict[str, Any] | None,
+    io_manager: str | None,
+    materialization: str | MaterializationStrategy | None,
 ) -> Asset:
     """Helper function to create an Asset from a function."""
     # Determine asset name
@@ -40,6 +49,25 @@ def _create_asset_from_function(
     if asset_description is None and func.__doc__:
         asset_description = func.__doc__.strip()
 
+    # Normalize materialization parameter
+    asset_materialization: MaterializationStrategy | str
+    if materialization is None:
+        asset_materialization = MaterializationStrategy.TABLE
+    elif isinstance(materialization, str):
+        # Convert string to MaterializationStrategy enum
+        try:
+            # Case-insensitive lookup
+            asset_materialization = MaterializationStrategy[materialization.upper()]
+        except KeyError:
+            valid_options = [s.name.lower() for s in MaterializationStrategy]
+            msg = (
+                f"Invalid materialization strategy "
+                f"'{materialization}'. Must be one of: {valid_options}"
+            )
+            raise ValueError(msg) from None
+    else:
+        asset_materialization = materialization
+
     # Create the Asset instance
     return Asset(
         name=asset_name,
@@ -49,6 +77,8 @@ def _create_asset_from_function(
         description=asset_description,
         metadata=metadata or {},
         config=config or {},
+        io_manager=io_manager or "memory",
+        materialization=asset_materialization,
     )
 
 
@@ -85,6 +115,8 @@ class AssetDecorator:
         metadata = kwargs.pop("metadata", None)
         config = kwargs.pop("config", None)
         name_param = kwargs.pop("name", None)
+        io_manager = kwargs.pop("io_manager", None)
+        materialization = kwargs.pop("materialization", None)
 
         # Case 1: @asset (no parentheses) - func_or_name is the function
         if callable(func_or_name):
@@ -97,6 +129,8 @@ class AssetDecorator:
                 description=description,
                 metadata=metadata,
                 config=config,
+                io_manager=io_manager,
+                materialization=materialization,
             )
 
         # Case 2 & 3: @asset(...) - with or without parameters
@@ -114,6 +148,8 @@ class AssetDecorator:
                 description=description,
                 metadata=metadata,
                 config=config,
+                io_manager=io_manager,
+                materialization=materialization,
             )
 
         return decorator

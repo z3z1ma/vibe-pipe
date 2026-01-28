@@ -15,6 +15,13 @@ from datetime import datetime
 from typing import Any
 
 from vibe_piper.io_managers import get_io_manager
+from vibe_piper.materialization import (
+    FileStrategy,
+    IncrementalStrategy,
+    MaterializationStrategyBase,
+    TableStrategy,
+    ViewStrategy,
+)
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -23,9 +30,9 @@ from vibe_piper.types import (
     ErrorStrategy,
     ExecutionResult,
     Executor,
+    MaterializationStrategy,
     PipelineContext,
 )
-
 
 # =============================================================================
 # Utility Functions
@@ -67,6 +74,64 @@ def calculate_checksum(data: Any) -> str | None:
 
 
 # =============================================================================
+# Materialization Strategy Factory
+# =============================================================================
+
+
+def get_materialization_strategy(
+    asset: Asset,
+) -> MaterializationStrategyBase:
+    """
+    Get the materialization strategy for an asset.
+
+    Creates a strategy instance based on the asset's materialization config.
+
+    Args:
+        asset: The asset to get the strategy for
+
+    Returns:
+        A materialization strategy instance
+
+    Raises:
+        ValueError: If the materialization strategy is unknown
+    """
+    materialization = asset.materialization
+
+    # Handle string values (convert to enum if needed)
+    if isinstance(materialization, str):
+        try:
+            materialization = MaterializationStrategy[materialization.upper()]
+        except KeyError:
+            valid = [s.name.lower() for s in MaterializationStrategy]
+            msg = f"Unknown materialization strategy '{materialization}'. Must be one of: {valid}"
+            raise ValueError(msg) from None
+
+    # Create appropriate strategy instance
+    if materialization == MaterializationStrategy.TABLE:
+        return TableStrategy(config=asset.config)
+    elif materialization == MaterializationStrategy.VIEW:
+        return ViewStrategy(config=asset.config)
+    elif materialization == MaterializationStrategy.FILE:
+        return FileStrategy(
+            partition_key=asset.partition_key,
+            config=asset.config,
+        )
+    elif materialization == MaterializationStrategy.INCREMENTAL:
+        # Get key from config or use partition_key
+        key = asset.config.get("incremental_key", asset.partition_key)
+        if not key:
+            msg = (
+                "Incremental materialization requires 'incremental_key' in "
+                "config or 'partition_key' to be set"
+            )
+            raise ValueError(msg)
+        return IncrementalStrategy(key=key, config=asset.config)
+    else:
+        # Default to table strategy
+        return TableStrategy(config=asset.config)
+
+
+# =============================================================================
 # Default Executor Implementation
 # =============================================================================
 
@@ -100,6 +165,9 @@ class DefaultExecutor:
         now = datetime.now()
 
         try:
+            # Get materialization strategy for this asset
+            strategy = get_materialization_strategy(asset)
+
             # Check if asset has an operator to execute
             if asset.operator:
                 # Get upstream data from dependencies
@@ -115,22 +183,55 @@ class DefaultExecutor:
                 # Execute the operator's function with upstream data and context
                 result_data = asset.operator.fn(upstream_data, context)
 
-                # Materialize data using IO manager
-                io_manager_name = asset.io_manager or "memory"
-                io_manager = get_io_manager(io_manager_name)
+                # Check if we should materialize data
+                if strategy.should_materialize(context):
+                    # For incremental strategy, try to load existing data
+                    existing_data = None
+                    if isinstance(strategy, IncrementalStrategy):
+                        try:
+                            io_manager_name = asset.io_manager or "memory"
+                            io_manager = get_io_manager(io_manager_name)
 
-                # Create a modified context for the IO manager
-                # Use asset name as pipeline_id for proper isolation
-                io_context = PipelineContext(
-                    pipeline_id=asset.name,
-                    run_id=context.run_id,
-                    config=context.config,
-                    state=context.state,
-                    metadata=context.metadata,
-                )
+                            io_context = PipelineContext(
+                                pipeline_id=asset.name,
+                                run_id=context.run_id,
+                                config=context.config,
+                                state=context.state,
+                                metadata=context.metadata,
+                            )
 
-                # Store the output data
-                io_manager.handle_output(io_context, result_data)
+                            existing_data = io_manager.load_input(io_context)
+                        except Exception:
+                            # No existing data, that's fine
+                            existing_data = None
+
+                    # Prepare data according to strategy
+                    prepared_data = strategy.prepare_for_storage(
+                        context, result_data, existing_data
+                    )
+
+                    # Materialize data using IO manager
+                    io_manager_name = asset.io_manager or "memory"
+                    io_manager = get_io_manager(io_manager_name)
+
+                    # Create a modified context for the IO manager
+                    # Use asset name as pipeline_id for proper isolation
+                    io_context = PipelineContext(
+                        pipeline_id=asset.name,
+                        run_id=context.run_id,
+                        config=context.config,
+                        state=context.state,
+                        metadata={
+                            **context.metadata,
+                            **strategy.get_storage_metadata(context),
+                        },
+                    )
+
+                    # Store the output data
+                    io_manager.handle_output(io_context, prepared_data)
+                else:
+                    # View strategy: skip materialization
+                    pass
 
                 # Collect quality metrics if output is a list of DataRecords
                 metrics = self._collect_quality_metrics(result_data)
