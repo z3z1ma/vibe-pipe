@@ -1,0 +1,54 @@
+# Vibe Piper Configuration Example
+# Copy this file to vibepiper.toml and customize for your project
+
+[project]
+name = "my-pipeline"
+version = "0.1.0"
+description = "My data pipeline"
+
+# Development environment configuration
+[environments.dev]
+# Use in-memory IO manager for development
+io_manager = "memory"
+# Enable debug logging
+log_level = "debug"
+# Limit parallelism for development
+parallelism = 2
+
+# Staging environment configuration
+[environments.staging]
+# Use local file system for staging
+io_manager = "file"
+log_level = "info"
+parallelism = 4
+
+# Production environment configuration
+[environments.prod]
+# Use S3 for production storage
+io_manager = "s3"
+# S3 bucket name
+bucket = "my-production-bucket"
+# AWS region
+region = "us-west-2"
+# Info level logging for production
+log_level = "info"
+# Higher parallelism for production
+parallelism = 10
+
+# Secrets configuration
+# Secrets are loaded from environment variables by default
+[secrets]
+# Database password from environment variable
+DB_PASSWORD = { from = "env" }
+
+# API key from environment variable
+API_KEY = { from = "env" }
+
+# Optional secret with default value
+FEATURE_FLAG = { from = "env", required = false, default = "false" }
+
+# Secret from file (e.g., Docker secrets or Kubernetes secrets)
+TLS_CERT = { from = "file", path = "/run/secrets/tls_cert" }
+
+# Vault secret (not yet implemented, placeholder for future use)
+# VAULT_SECRET = { from = "vault", path = "secret/my-secret" }
