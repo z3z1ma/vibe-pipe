@@ -13,13 +13,25 @@ Classifier: Programming Language :: Python :: 3.13
 Requires-Python: >=3.12
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: httpx>=0.27.0
+Requires-Dist: openpyxl>=3.1.5
+Requires-Dist: pandas>=3.0.0
+Requires-Dist: pyarrow>=23.0.0
+Requires-Dist: python-snappy>=0.7.3
+Requires-Dist: typer>=0.12.0
+Requires-Dist: rich>=13.7.0
+Provides-Extra: files
+Requires-Dist: pandas>=2.0.0; extra == "files"
+Requires-Dist: pyarrow>=12.0.0; extra == "files"
+Requires-Dist: openpyxl>=3.0.0; extra == "files"
+Requires-Dist: python-snappy>=0.6.0; extra == "files"
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0.0; extra == "dev"
-Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
 Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
 Requires-Dist: mypy>=1.10.0; extra == "dev"
 Requires-Dist: ruff>=0.5.0; extra == "dev"
+Requires-Dist: vibe-piper[files]; extra == "dev"
+Provides-Extra: all
+Requires-Dist: vibe-piper[bigquery,dev,files,mysql,postgres,snowflake]; extra == "all"
 Provides-Extra: postgres
 Requires-Dist: psycopg2-binary>=2.9.0; extra == "postgres"
 Provides-Extra: mysql
@@ -28,11 +40,6 @@ Provides-Extra: snowflake
 Requires-Dist: snowflake-connector-python>=3.0.0; extra == "snowflake"
 Provides-Extra: bigquery
 Requires-Dist: google-cloud-bigquery>=3.0.0; extra == "bigquery"
-Provides-Extra: all
-Requires-Dist: vibe-piper[postgres]; extra == "all"
-Requires-Dist: vibe-piper[mysql]; extra == "all"
-Requires-Dist: vibe-piper[snowflake]; extra == "all"
-Requires-Dist: vibe-piper[bigquery]; extra == "all"
 Dynamic: license-file
 
 # Vibe Piper

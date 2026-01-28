@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.scripts]
-vibepiper = "vibe_piper.cli.main:main"
+vibepiper = "vibe_piper.cli.main:cli"
 
 [project.optional-dependencies]
 files = [

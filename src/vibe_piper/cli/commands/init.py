@@ -6,7 +6,6 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
-app = typer.Typer(help="Initialize a new VibePiper project")
 console = Console()
 
 TEMPLATE_DIR = Path(__file__).parent.parent / "templates"
@@ -20,7 +19,6 @@ def validate_project_name(name: str) -> bool:
     return name.replace("-", "_").replace(" ", "_").isidentifier()
 
 
-@app.command()  # type: ignore[misc]
 def init(
     project_name: str = typer.Argument(
         ...,
