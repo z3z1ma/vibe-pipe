@@ -17,6 +17,14 @@ src/vibe_piper.egg-info/SOURCES.txt
 src/vibe_piper.egg-info/dependency_links.txt
 src/vibe_piper.egg-info/requires.txt
 src/vibe_piper.egg-info/top_level.txt
+src/vibe_piper/integration/__init__.py
+src/vibe_piper/integration/auth.py
+src/vibe_piper/integration/base.py
+src/vibe_piper/integration/graphql.py
+src/vibe_piper/integration/pagination.py
+src/vibe_piper/integration/rest.py
+src/vibe_piper/integration/validation.py
+src/vibe_piper/integration/webhook.py
 tests/test_basic.py
 tests/test_decorators.py
 tests/test_dependency_inference.py

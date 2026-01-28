@@ -78,6 +78,32 @@ from vibe_piper.schema_definitions import (
     String,
     define_schema,
 )
+
+# Integration module exports (optional, for convenience)
+try:
+    from vibe_piper.integration import (
+        APIClient,
+        APIError,
+        AuthenticationError,
+        BearerTokenAuth,
+        CursorPagination,
+        GraphQLClient,
+        GraphQLResponse,
+        LinkHeaderPagination,
+        OffsetPagination,
+        RateLimitError,
+        RESTClient,
+        RESTResponse,
+        ValidationResult,
+        WebhookHandler,
+        WebhookRequest,
+        validate_and_parse,
+        validate_response,
+    )
+
+    _integration_available = True
+except ImportError:
+    _integration_available = False
 from vibe_piper.types import (
     Asset,
     AssetGraph,
