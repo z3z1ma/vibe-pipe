@@ -26,7 +26,12 @@ dependencies = [
     "pandas>=3.0.0",
     "pyarrow>=23.0.0",
     "python-snappy>=0.7.3",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
 ]
+
+[project.scripts]
+vibepiper = "vibe_piper.cli.main:main"
 
 [project.optional-dependencies]
 files = [
@@ -43,7 +48,7 @@ dev = [
     "vibe-piper[files]",
 ]
 all = [
-    "vibe-piper[files,dev]",
+    "vibe-piper[files,dev,postgres,mysql,snowflake,bigquery]",
 ]
 postgres = [
     "psycopg2-binary>=2.9.0",
@@ -56,12 +61,6 @@ snowflake = [
 ]
 bigquery = [
     "google-cloud-bigquery>=3.0.0",
-]
-all = [
-    "vibe-piper[postgres]",
-    "vibe-piper[mysql]",
-    "vibe-piper[snowflake]",
-    "vibe-piper[bigquery]",
 ]
 
 [tool.setuptools.packages.find]
@@ -110,6 +109,7 @@ ignore = ["UP040"]  # TypeAlias usage (keep for Python 3.9 compatibility)
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["ARG001"]
+"src/vibe_piper/cli/**/*.py" = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
