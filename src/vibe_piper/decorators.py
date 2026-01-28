@@ -32,6 +32,8 @@ def _create_asset_from_function(
     config: dict[str, Any] | None,
     io_manager: str | None,
     materialization: str | MaterializationStrategy | None,
+    retries: int | None = None,
+    backoff: str | None = None,
 ) -> Asset:
     """Helper function to create an Asset from a function."""
     # Determine asset name
@@ -68,6 +70,15 @@ def _create_asset_from_function(
     else:
         asset_materialization = materialization
 
+    # Build config with retry settings
+    asset_config = config or {}
+    if retries is not None:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["retries"] = retries
+    if backoff is not None:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["backoff"] = backoff
+
     # Create the Asset instance
     return Asset(
         name=asset_name,
@@ -76,7 +87,7 @@ def _create_asset_from_function(
         schema=schema,
         description=asset_description,
         metadata=metadata or {},
-        config=config or {},
+        config=asset_config,
         io_manager=io_manager or "memory",
         materialization=asset_materialization,
     )
@@ -118,6 +129,10 @@ class AssetDecorator:
         io_manager = kwargs.pop("io_manager", None)
         materialization = kwargs.pop("materialization", None)
 
+        # Extract retry parameters
+        retries = kwargs.pop("retries", None)
+        backoff = kwargs.pop("backoff", None)
+
         # Case 1: @asset (no parentheses) - func_or_name is the function
         if callable(func_or_name):
             return _create_asset_from_function(
@@ -131,6 +146,8 @@ class AssetDecorator:
                 config=config,
                 io_manager=io_manager,
                 materialization=materialization,
+                retries=retries,
+                backoff=backoff,
             )
 
         # Case 2 & 3: @asset(...) - with or without parameters
@@ -150,6 +167,8 @@ class AssetDecorator:
                 config=config,
                 io_manager=io_manager,
                 materialization=materialization,
+                retries=retries,
+                backoff=backoff,
             )
 
         return decorator
