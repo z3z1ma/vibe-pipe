@@ -7,6 +7,31 @@ and extensibility at its core.
 
 __version__ = "0.1.0"
 
+# Transformation framework
+try:
+    from vibe_piper.transformations import (
+        Avg,
+        Count,
+        Cube,
+        GroupBy,
+        Join,
+        JoinType,
+        Max,
+        Min,
+        Pivot,
+        Rollup,
+        Sum,
+        TransformationBuilder,
+        Unpivot,
+        Window,
+        transform,
+        window_function,
+    )
+
+    _TRANSFORMATIONS_AVAILABLE = True
+except ImportError:
+    _TRANSFORMATIONS_AVAILABLE = False
+
 from vibe_piper.decorators import asset, expect
 from vibe_piper.error_handling import (
     BackoffStrategy,
@@ -255,6 +280,23 @@ __all__ = [
     "Object",
     "AnyType",
     "DeclarativeSchema",
+    # Transformation Framework
+    "Join",
+    "JoinType",
+    "GroupBy",
+    "Sum",
+    "Count",
+    "Avg",
+    "Min",
+    "Max",
+    "Rollup",
+    "Cube",
+    "Window",
+    "window_function",
+    "Pivot",
+    "Unpivot",
+    "TransformationBuilder",
+    "transform",
     # Built-in Expectations
     "expect_column_to_exist",
     "expect_column_to_not_exist",
