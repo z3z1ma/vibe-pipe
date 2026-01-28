@@ -18,6 +18,19 @@ Requires-Dist: pytest>=8.0.0; extra == "dev"
 Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
 Requires-Dist: mypy>=1.10.0; extra == "dev"
 Requires-Dist: ruff>=0.5.0; extra == "dev"
+Provides-Extra: postgres
+Requires-Dist: psycopg2-binary>=2.9.0; extra == "postgres"
+Provides-Extra: mysql
+Requires-Dist: mysql-connector-python>=8.0.0; extra == "mysql"
+Provides-Extra: snowflake
+Requires-Dist: snowflake-connector-python>=3.0.0; extra == "snowflake"
+Provides-Extra: bigquery
+Requires-Dist: google-cloud-bigquery>=3.0.0; extra == "bigquery"
+Provides-Extra: all
+Requires-Dist: vibe-piper[postgres]; extra == "all"
+Requires-Dist: vibe-piper[mysql]; extra == "all"
+Requires-Dist: vibe-piper[snowflake]; extra == "all"
+Requires-Dist: vibe-piper[bigquery]; extra == "all"
 Dynamic: license-file
 
 # Vibe Piper

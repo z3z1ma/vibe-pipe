@@ -1,6 +1,24 @@
 
+[all]
+vibe-piper[postgres]
+vibe-piper[mysql]
+vibe-piper[snowflake]
+vibe-piper[bigquery]
+
+[bigquery]
+google-cloud-bigquery>=3.0.0
+
 [dev]
 pytest>=8.0.0
 pytest-cov>=5.0.0
 mypy>=1.10.0
 ruff>=0.5.0
+
+[mysql]
+mysql-connector-python>=8.0.0
+
+[postgres]
+psycopg2-binary>=2.9.0
+
+[snowflake]
+snowflake-connector-python>=3.0.0
