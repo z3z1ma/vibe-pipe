@@ -95,6 +95,32 @@ from vibe_piper.schema_definitions import (
     String,
     define_schema,
 )
+
+# Integration module exports (optional, for convenience)
+try:
+    from vibe_piper.integration import (
+        APIClient,
+        APIError,
+        AuthenticationError,
+        BearerTokenAuth,
+        CursorPagination,
+        GraphQLClient,
+        GraphQLResponse,
+        LinkHeaderPagination,
+        OffsetPagination,
+        RateLimitError,
+        RESTClient,
+        RESTResponse,
+        ValidationResult,
+        WebhookHandler,
+        WebhookRequest,
+        validate_and_parse,
+        validate_response,
+    )
+
+    _integration_available = True
+except ImportError:
+    _integration_available = False
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -119,6 +145,21 @@ from vibe_piper.types import (
     SchemaField,
     ValidationResult,
 )
+
+# Database connectors (imported but not exported in __all__ for optional feature)
+try:
+    from vibe_piper.connectors import (
+        BigQueryConnector,
+        DatabaseConnector,
+        MySQLConnector,
+        PostgreSQLConnector,
+        QueryBuilder,
+        SnowflakeConnector,
+    )
+
+    _CONNECTORS_AVAILABLE = True
+except ImportError:
+    _CONNECTORS_AVAILABLE = False
 
 __all__ = [
     "Asset",
@@ -229,4 +270,23 @@ __all__ = [
     "expect_column_to_be_non_nullable",
     "expect_column_to_have_constraint",
     "expect_column_constraint_to_equal",
+    # Database connectors
+    "DatabaseConnector",
+    "QueryBuilder",
+    "PostgreSQLConnector",
+    "MySQLConnector",
+    "SnowflakeConnector",
+    "BigQueryConnector",
+    # File I/O Connectors
+    "FileReader",
+    "FileWriter",
+    "CSVReader",
+    "CSVWriter",
+    "JSONReader",
+    "JSONWriter",
+    "ParquetReader",
+    "ParquetWriter",
+    "ExcelReader",
+    "ExcelWriter",
+    "infer_schema_from_file",
 ]
