@@ -325,6 +325,7 @@ class Asset:
         uri: Location/identifier for the asset
         schema: The schema of data in this asset
         operator: Optional operator to transform data for this asset
+        io_manager: Name of the IO manager to use for materialization (default: "memory")
         description: Optional documentation
         metadata: Additional metadata (owner, tags, etc.)
         config: Asset-specific configuration
@@ -337,6 +338,7 @@ class Asset:
     uri: str
     schema: Schema | None = None
     operator: "Operator | None" = None
+    io_manager: str = "memory"
     description: str | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
     config: Mapping[str, Any] = field(default_factory=dict)
@@ -701,6 +703,61 @@ class AssetGraph:
             metadata=self.metadata,
             config=self.config,
         )
+
+
+# =============================================================================
+# IO Manager Protocol
+# =============================================================================
+
+
+class IOManager(Protocol):
+    """
+    Protocol for IO managers that handle asset materialization.
+
+    IO managers are responsible for storing and loading asset data.
+    They provide abstraction over different storage backends (memory,
+    file system, S3, databases, etc.) and enable type-safe materialization.
+
+    Example:
+        Basic IO manager usage::
+
+            class MyIOManager:
+                def handle_output(self, context, data):
+                    # Store data to storage
+                    pass
+
+                def load_input(self, context):
+                    # Load data from storage
+                    pass
+    """
+
+    def handle_output(self, context: "PipelineContext", data: Any) -> None:
+        """
+        Store asset output data.
+
+        Args:
+            context: The pipeline execution context
+            data: The data to store
+
+        Raises:
+            Exception: If storage fails
+        """
+        ...
+
+    def load_input(self, context: "PipelineContext") -> Any:
+        """
+        Load asset input data.
+
+        Args:
+            context: The pipeline execution context
+
+        Returns:
+            The loaded data
+
+        Raises:
+            Exception: If loading fails
+        """
+        ...
 
 
 # =============================================================================
