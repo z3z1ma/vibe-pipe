@@ -66,6 +66,31 @@ class TestAssetResult:
 
         assert result.lineage == ("source_asset", "intermediate_asset")
 
+    def test_asset_result_with_metadata(self) -> None:
+        """Test asset result with metadata fields."""
+        from datetime import datetime
+
+        now = datetime.now()
+        result = AssetResult(
+            asset_name="test_asset",
+            success=True,
+            created_at=now,
+            updated_at=now,
+            checksum="abc123",
+        )
+
+        assert result.created_at == now
+        assert result.updated_at == now
+        assert result.checksum == "abc123"
+
+    def test_asset_result_metadata_defaults(self) -> None:
+        """Test that asset result metadata fields default to None."""
+        result = AssetResult(asset_name="test", success=True)
+
+        assert result.created_at is None
+        assert result.updated_at is None
+        assert result.checksum is None
+
     def test_asset_result_is_frozen(self) -> None:
         """Test that AssetResult is immutable."""
         result = AssetResult(asset_name="test", success=True)

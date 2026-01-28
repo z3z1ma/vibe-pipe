@@ -821,6 +821,111 @@ class TestAssetGraph:
         assert graph.metadata["owner"] == "data-team"
         assert graph.metadata["environment"] == "production"
 
+    def test_get_upstream_dependencies(self) -> None:
+        """Test getting upstream dependencies."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        aggregated = Asset(
+            name="aggregated",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/aggregated",
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned, aggregated),
+            dependencies={"cleaned": ("raw",), "aggregated": ("cleaned",)},
+        )
+
+        # Get upstream for aggregated
+        upstream = graph.get_upstream("aggregated")
+        upstream_names = {asset.name for asset in upstream}
+        assert upstream_names == {"cleaned", "raw"}
+
+        # Get upstream with depth limit
+        upstream_direct = graph.get_upstream("aggregated", depth=1)
+        assert len(upstream_direct) == 1
+        assert upstream_direct[0].name == "cleaned"
+
+    def test_get_downstream_dependents(self) -> None:
+        """Test getting downstream dependents."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        aggregated = Asset(
+            name="aggregated",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/aggregated",
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned, aggregated),
+            dependencies={"cleaned": ("raw",), "aggregated": ("cleaned",)},
+        )
+
+        # Get downstream from raw
+        downstream = graph.get_downstream("raw")
+        downstream_names = {asset.name for asset in downstream}
+        assert downstream_names == {"cleaned", "aggregated"}
+
+        # Get downstream with depth limit
+        downstream_direct = graph.get_downstream("raw", depth=1)
+        assert len(downstream_direct) == 1
+        assert downstream_direct[0].name == "cleaned"
+
+    def test_get_lineage_graph(self) -> None:
+        """Test getting complete lineage graph."""
+        raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
+        cleaned = Asset(
+            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
+        )
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned),
+            dependencies={"cleaned": ("raw",)},
+        )
+
+        lineage = graph.get_lineage_graph()
+        assert lineage == {"cleaned": ("raw",)}
+
+    def test_to_mermaid(self) -> None:
+        """Test exporting graph as Mermaid diagram."""
+        raw = Asset(name="raw_data", asset_type=AssetType.TABLE, uri="db://raw")
+        cleaned = Asset(name="clean_data", asset_type=AssetType.TABLE, uri="db://clean")
+        graph = AssetGraph(
+            name="test_graph",
+            assets=(raw, cleaned),
+            dependencies={"clean_data": ("raw_data",)},
+        )
+
+        mermaid = graph.to_mermaid()
+        assert "graph TD" in mermaid
+        assert "raw_data" in mermaid
+        assert "clean_data" in mermaid
+        assert "-->" in mermaid
+
+    def test_get_upstream_nonexistent_raises_error(self) -> None:
+        """Test that getting upstream for nonexistent asset raises error."""
+        asset = Asset(
+            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset,))
+
+        with pytest.raises(ValueError, match="not found in graph"):
+            graph.get_upstream("nonexistent")
+
+    def test_get_downstream_nonexistent_raises_error(self) -> None:
+        """Test that getting downstream for nonexistent asset raises error."""
+        asset = Asset(
+            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
+        )
+        graph = AssetGraph(name="test_graph", assets=(asset,))
+
+        with pytest.raises(ValueError, match="not found in graph"):
+            graph.get_downstream("nonexistent")
+
 
 class TestMaterializationStrategy:
     """Tests for MaterializationStrategy enum."""
@@ -899,6 +1004,55 @@ class TestAssetNewFields:
         assert asset.asset_type == AssetType.TABLE
         assert asset.version == "1"  # Default value
         assert asset.partition_key is None  # Default value
+        assert asset.created_at is None  # Default value
+        assert asset.updated_at is None  # Default value
+        assert asset.checksum is None  # Default value
+
+    def test_asset_with_metadata_timestamps(self) -> None:
+        """Test creating an Asset with created_at and updated_at."""
+        from datetime import datetime
+
+        now = datetime.now()
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+            created_at=now,
+            updated_at=now,
+        )
+        assert asset.created_at == now
+        assert asset.updated_at == now
+
+    def test_asset_with_checksum(self) -> None:
+        """Test creating an Asset with a checksum."""
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+            checksum="abc123def456",
+        )
+        assert asset.checksum == "abc123def456"
+
+    def test_asset_with_all_metadata(self) -> None:
+        """Test creating an Asset with all metadata fields."""
+        from datetime import datetime
+
+        now = datetime.now()
+        asset = Asset(
+            name="test_asset",
+            asset_type=AssetType.TABLE,
+            uri="postgresql://db/test",
+            version="2.0.0",
+            partition_key="date",
+            created_at=now,
+            updated_at=now,
+            checksum="abc123",
+        )
+        assert asset.version == "2.0.0"
+        assert asset.partition_key == "date"
+        assert asset.created_at == now
+        assert asset.updated_at == now
+        assert asset.checksum == "abc123"
 
 
 class TestPipelineNewFields:

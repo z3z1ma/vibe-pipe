@@ -6,6 +6,8 @@ the execution of asset graphs with support for dependencies,
 error handling, and observability.
 """
 
+import hashlib
+import json
 import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -23,6 +25,46 @@ from vibe_piper.types import (
     Executor,
     PipelineContext,
 )
+
+
+# =============================================================================
+# Utility Functions
+# =============================================================================
+
+
+def calculate_checksum(data: Any) -> str | None:
+    """
+    Calculate a checksum for data integrity verification.
+
+    This function generates a SHA256 hash of the data to enable
+    integrity verification. Returns None for None or unsupported data types.
+
+    Args:
+        data: The data to calculate checksum for
+
+    Returns:
+        Hexadecimal checksum string, or None if data is None or unsupported
+
+    Example:
+        Calculate checksum for a list of records::
+
+            data = [{"id": 1}, {"id": 2}]
+            checksum = calculate_checksum(data)
+            # Returns: "a1b2c3d4..."
+    """
+    if data is None:
+        return None
+
+    try:
+        # Convert data to JSON string for hashing
+        # This handles common types: dict, list, str, int, float, bool
+        data_str = json.dumps(data, sort_keys=True, default=str)
+        hash_obj = hashlib.sha256(data_str.encode())
+        return hash_obj.hexdigest()
+    except (TypeError, ValueError):
+        # Data type cannot be serialized to JSON
+        return None
+
 
 # =============================================================================
 # Default Executor Implementation
@@ -55,6 +97,7 @@ class DefaultExecutor:
             AssetResult containing execution outcome
         """
         start_time = time.time()
+        now = datetime.now()
 
         try:
             # Check if asset has an operator to execute
@@ -92,14 +135,20 @@ class DefaultExecutor:
                 # Collect quality metrics if output is a list of DataRecords
                 metrics = self._collect_quality_metrics(result_data)
 
+                # Calculate checksum for data integrity
+                checksum = calculate_checksum(result_data)
+
                 return AssetResult(
                     asset_name=asset.name,
                     success=True,
                     data=result_data,
                     metrics=metrics,
                     duration_ms=(time.time() - start_time) * 1000,
-                    timestamp=datetime.now(),
+                    timestamp=now,
                     lineage=tuple(upstream_results.keys()),
+                    created_at=asset.created_at or now,
+                    updated_at=now,
+                    checksum=checksum,
                 )
             else:
                 # No operator, just return success with no data
@@ -108,8 +157,11 @@ class DefaultExecutor:
                     success=True,
                     data=None,
                     duration_ms=(time.time() - start_time) * 1000,
-                    timestamp=datetime.now(),
+                    timestamp=now,
                     lineage=tuple(upstream_results.keys()),
+                    created_at=asset.created_at or now,
+                    updated_at=now,
+                    checksum=None,
                 )
 
         except Exception as e:
@@ -118,8 +170,11 @@ class DefaultExecutor:
                 success=False,
                 error=str(e),
                 duration_ms=(time.time() - start_time) * 1000,
-                timestamp=datetime.now(),
+                timestamp=now,
                 lineage=tuple(upstream_results.keys()),
+                created_at=asset.created_at or now,
+                updated_at=now,
+                checksum=None,
             )
 
     def _collect_quality_metrics(self, result_data: Any) -> Mapping[str, int | float]:

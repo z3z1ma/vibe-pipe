@@ -331,6 +331,9 @@ class Asset:
         config: Asset-specific configuration
         version: Version identifier for the asset (default: "1")
         partition_key: Optional partition key for large datasets (default: None)
+        created_at: Timestamp when the asset was created (default: None)
+        updated_at: Timestamp when the asset was last updated (default: None)
+        checksum: Optional checksum for data integrity verification (default: None)
     """
 
     name: str
@@ -344,6 +347,9 @@ class Asset:
     config: Mapping[str, Any] = field(default_factory=dict)
     version: str = "1"
     partition_key: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    checksum: str | None = None
 
     def __post_init__(self) -> None:
         """Validate the asset configuration."""
@@ -663,6 +669,173 @@ class AssetGraph:
             raise ValueError(msg)
 
         return tuple(result)
+
+    def get_upstream(
+        self, asset_name: str, depth: int | None = None
+    ) -> tuple[Asset, ...]:
+        """
+        Get all upstream assets (dependencies) recursively.
+
+        This method traverses the dependency graph upstream from the given asset,
+        collecting all assets that it depends on, either directly or indirectly.
+
+        Args:
+            asset_name: The name of the asset to query
+            depth: Maximum depth to traverse. None means unlimited.
+                   1 returns only direct dependencies.
+
+        Returns:
+            Tuple of upstream Asset objects in dependency order (closest first)
+
+        Raises:
+            ValueError: If asset_name is not found in the graph
+
+        Example:
+            Get all upstream assets::
+
+                upstream = graph.get_upstream("my_asset")
+                # Returns all assets that my_asset depends on
+        """
+        if self.get_asset(asset_name) is None:
+            msg = f"Asset {asset_name!r} not found in graph"
+            raise ValueError(msg)
+
+        visited: set[str] = set()
+        result: list[Asset] = []
+
+        def traverse(name: str, current_depth: int) -> None:
+            """Recursively traverse upstream dependencies."""
+            # Check depth limit
+            if depth is not None and current_depth > depth:
+                return
+
+            # Get direct dependencies
+            deps = self.get_dependencies(name)
+
+            for dep in deps:
+                if dep.name not in visited:
+                    visited.add(dep.name)
+                    result.append(dep)
+                    # Recursively traverse dependencies
+                    traverse(dep.name, current_depth + 1)
+
+        traverse(asset_name, 1)
+
+        return tuple(result)
+
+    def get_downstream(
+        self, asset_name: str, depth: int | None = None
+    ) -> tuple[Asset, ...]:
+        """
+        Get all downstream assets (dependents) recursively.
+
+        This method traverses the dependency graph downstream from the given asset,
+        collecting all assets that depend on it, either directly or indirectly.
+
+        Args:
+            asset_name: The name of the asset to query
+            depth: Maximum depth to traverse. None means unlimited.
+                   1 returns only direct dependents.
+
+        Returns:
+            Tuple of downstream Asset objects in dependency order (closest first)
+
+        Raises:
+            ValueError: If asset_name is not found in the graph
+
+        Example:
+            Get all downstream assets::
+
+                downstream = graph.get_downstream("source_asset")
+                # Returns all assets that depend on source_asset
+        """
+        if self.get_asset(asset_name) is None:
+            msg = f"Asset {asset_name!r} not found in graph"
+            raise ValueError(msg)
+
+        visited: set[str] = set()
+        result: list[Asset] = []
+
+        def traverse(name: str, current_depth: int) -> None:
+            """Recursively traverse downstream dependents."""
+            # Check depth limit
+            if depth is not None and current_depth > depth:
+                return
+
+            # Get direct dependents
+            dependents = self.get_dependents(name)
+
+            for dependent in dependents:
+                if dependent.name not in visited:
+                    visited.add(dependent.name)
+                    result.append(dependent)
+                    # Recursively traverse dependents
+                    traverse(dependent.name, current_depth + 1)
+
+        traverse(asset_name, 1)
+
+        return tuple(result)
+
+    def get_lineage_graph(self) -> dict[str, tuple[str, ...]]:
+        """
+        Get complete lineage mapping for all assets in the graph.
+
+        Returns a dictionary mapping each asset name to a tuple of its
+        direct upstream dependencies.
+
+        Returns:
+            Dictionary mapping asset names to tuples of upstream asset names
+
+        Example:
+            Get complete lineage graph::
+
+                lineage = graph.get_lineage_graph()
+                # Returns: {"asset_b": ("asset_a",), "asset_c": ("asset_b",)}
+        """
+        # Return a copy to prevent modification
+        return dict(self.dependencies)
+
+    def to_mermaid(self) -> str:
+        """
+        Export the asset graph as a Mermaid DAG diagram.
+
+        Generates a Mermaid flowchart definition that visualizes the
+        asset dependency graph. Each asset is represented as a node
+        with its dependencies shown as directed edges.
+
+        Returns:
+            A string containing the Mermaid diagram definition
+
+        Example:
+            Export graph as Mermaid diagram::
+
+                mermaid_diagram = graph.to_mermaid()
+                print(mermaid_diagram)
+                # Output:
+                # graph TD
+                #     A[raw_data]
+                #     B[processed_data]
+                #     A --> B
+        """
+        lines = ["graph TD"]
+
+        # Define nodes for each asset
+        for asset in self.assets:
+            # Use asset type in the label for clarity
+            type_label = asset.asset_type.name.lower()
+            label = f"{asset.name} ({type_label})"
+            # Sanitize name for Mermaid (remove special characters)
+            node_id = asset.name.replace("-", "_").replace(".", "_")
+            lines.append(f"    {node_id}[{label}]")
+
+        # Add edges for dependencies
+        for asset_name, deps in self.dependencies.items():
+            target_id = asset_name.replace("-", "_").replace(".", "_")
+            for dep in deps:
+                source_id = dep.replace("-", "_").replace(".", "_")
+                lines.append(f"    {source_id} --> {target_id}")
+
+        return "\n".join(lines)
 
     def add_asset(
         self,
@@ -1043,6 +1216,9 @@ class AssetResult:
         duration_ms: Execution time in milliseconds
         timestamp: When the asset was executed
         lineage: upstream asset names that contributed to this result
+        created_at: Timestamp when the asset data was created
+        updated_at: Timestamp when the asset data was last updated
+        checksum: Optional checksum for data integrity verification
     """
 
     asset_name: str
@@ -1053,6 +1229,9 @@ class AssetResult:
     duration_ms: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
     lineage: tuple[str, ...] = field(default_factory=tuple)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    checksum: str | None = None
 
 
 @dataclass(frozen=True)
