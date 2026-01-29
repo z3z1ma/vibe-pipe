@@ -146,6 +146,31 @@ from vibe_piper.schema_definitions import (
     define_schema,
 )
 
+# Schema evolution
+try:
+    from vibe_piper.schema_evolution import (
+        BackwardCompatibilityChecker,
+        BreakingChangeDetector,
+        BreakingChangeSeverity,
+        ChangeType,
+        MigrationPlan,
+        MigrationPlanner,
+        MigrationStep,
+        SchemaChange,
+        SchemaDiff,
+        SchemaHistory,
+        SchemaHistoryEntry,
+        SemanticVersion,
+        VersionedSchema,
+        get_schema_history,
+        reset_schema_history,
+        schema_version,
+    )
+
+    _SCHEMA_EVOLUTION_AVAILABLE = True
+except ImportError:
+    _SCHEMA_EVOLUTION_AVAILABLE = False
+
 # Integration module exports (optional, for convenience)
 try:
     from vibe_piper.integration import (
@@ -404,4 +429,21 @@ __all__ = [
     "ExcelReader",
     "ExcelWriter",
     "infer_schema_from_file",
+    # Schema evolution
+    "SemanticVersion",
+    "SchemaChange",
+    "SchemaDiff",
+    "MigrationStep",
+    "MigrationPlan",
+    "SchemaHistoryEntry",
+    "VersionedSchema",
+    "SchemaHistory",
+    "ChangeType",
+    "BreakingChangeSeverity",
+    "BreakingChangeDetector",
+    "MigrationPlanner",
+    "BackwardCompatibilityChecker",
+    "schema_version",
+    "get_schema_history",
+    "reset_schema_history",
 ]

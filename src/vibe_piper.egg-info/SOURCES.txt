@@ -13,6 +13,7 @@ src/vibe_piper/pipeline.py
 src/vibe_piper/py.typed
 src/vibe_piper/quality.py
 src/vibe_piper/schema_definitions.py
+src/vibe_piper/schema_evolution.py
 src/vibe_piper/types.py
 src/vibe_piper.egg-info/PKG-INFO
 src/vibe_piper.egg-info/SOURCES.txt
@@ -98,8 +99,12 @@ src/vibe_piper/transformations/joins.py
 src/vibe_piper/transformations/pivot.py
 src/vibe_piper/transformations/windows.py
 src/vibe_piper/validation/__init__.py
+src/vibe_piper/validation/anomaly_detection.py
 src/vibe_piper/validation/checks.py
+src/vibe_piper/validation/data_profiling.py
 src/vibe_piper/validation/decorators.py
+src/vibe_piper/validation/drift_detection.py
+src/vibe_piper/validation/quality_scoring.py
 src/vibe_piper/validation/suite.py
 tests/test_basic.py
 tests/test_decorators.py
@@ -113,10 +118,12 @@ tests/test_lineage.py
 tests/test_materialization.py
 tests/test_materialization_integration.py
 tests/test_operators.py
+tests/test_orchestration.py
 tests/test_pipeline.py
 tests/test_protocols.py
 tests/test_quality.py
 tests/test_schema_definitions.py
+tests/test_schema_evolution.py
 tests/test_testing_infrastructure.py
 tests/test_transformations.py
 tests/test_types.py
