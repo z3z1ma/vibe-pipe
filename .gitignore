@@ -66,3 +66,4 @@ docs/_build/
 .tickets/.cache/
 .tickets/.locks/
 .team/
+.egg-info/
