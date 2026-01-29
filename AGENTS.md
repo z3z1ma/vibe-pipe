@@ -158,6 +158,8 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/merge-queue/.opencode/skills/loom-ticketing/SKILL.md
 - **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/merge-queue/.opencode/skills/loom-workspace/SKILL.md
+- **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/monitoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/merge-queue/.opencode/skills/skill-authoring/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
@@ -165,7 +167,15 @@ This block is maintained by the compound plugin.
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
-- _(none yet)_
+- **optional-dependency-import-pattern** (90%)
+  - Trigger: Need to use external library that may not be installed
+  - Action: 1. Wrap import in try/except block 2. Add type: ignore[import-untyped] comment for mypy 3. Set flag variable to track availability 4. Provide fallback behavior when unavailable 5. Document degradation…
+- **datetime-none-coalescing** (85%)
+  - Trigger: Performing datetime arithmetic with potentially None fields
+  - Action: Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]
+- **formatter-type-separation** (75%)
+  - Trigger: MyPy complains about incompatible formatter assignments
+  - Action: Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->
