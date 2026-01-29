@@ -3,11 +3,9 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (11)
-- - `vp-6365` P1 open - Integration with External Quality Tools
+- # Tickets (9)
 - - `vp-c4ef` P1 in_progress - Untitled
 - - `vp-cf95` P1 in_progress - Untitled
-- - `vp-e6da` P1 open - Data Quality Dashboard
 - - `vp-0429` P2 open - Untitled
 - - `vp-141f` P2 in_progress - Advanced Validation Patterns
 - - `vp-1aa6` P2 in_progress - SQL Integration
@@ -18,6 +16,7 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-29T22:08:34.455Z Merged 4 tickets: vp-e6da (Data Quality Dashboard) and vp-6365 (external quality: Great Expectations, Soda Cloud). Resolved compound block conflicts by accepting incoming versions. Updated loom-merge-queue-worker skill to document conflict resolution for compound-managed files.
 - 2026-01-29T12:18:16.021Z Phase 3 P1 tickets completed: Pipeline Orchestration Engine (parallel execution, state tracking, incremental runs, checkpoint/recovery), Pipeline Scheduling System (cron/interval/event triggers, backfill support, timezone handling), CLI for Pipeline Operations (7 commands: status, history, backfill, asset list/show). All merged and shipped to main.
 - 2026-01-29T13:58:59.557Z Plan Mode deadlock continues - 12 autolearn prompts with same reason. Merge queue blocked (2 items: vp-cf95, vp-f17e). Previous merge worker session learning already captured. Cannot propose memory updates in Plan Mode.
 - 2026-01-29T13:54:43.709Z Plan Mode deadlock - Cannot propose memory updates (file edits required for CompoundSpec v2). Merge queue blocked (2 items: vp-cf95, vp-f17e) by uncommitted git changes. Cannot resolve without switching to Work/Implementation mode or explicit override. Current deadlock explained 11 times across autolearn prompts.

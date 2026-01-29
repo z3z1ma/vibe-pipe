@@ -30,6 +30,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **merge-worker-workspace-cleanup** (80%)
   - Trigger: Attempting to retire worker after merge
   - Action: When 'loom team retire <worker>' fails with 'modified or untracked files' error, check worktree status with git status and either: 1) Stash uncommitted changes, 2) Use --force flag if safe to delete, …
+- **compound-block-conflict-resolution** (80%)
+  - Trigger: Merge conflict in AGENTS.md, LOOM_ROADMAP.md, or other compound-managed files
+  - Action: Accept the incoming (theirs) version using 'git checkout --theirs <file>' since compound blocks are auto-generated. Do not manually edit conflict markers.
 - **loom-manager-dependency-notes** (75%)
   - Trigger: Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on
   - Action: Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)
