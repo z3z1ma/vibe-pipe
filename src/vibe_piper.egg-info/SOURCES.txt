@@ -8,6 +8,7 @@ src/vibe_piper/error_handling.py
 src/vibe_piper/execution.py
 src/vibe_piper/expectations.py
 src/vibe_piper/operators.py
+src/vibe_piper/orchestration.py
 src/vibe_piper/pipeline.py
 src/vibe_piper/py.typed
 src/vibe_piper/quality.py

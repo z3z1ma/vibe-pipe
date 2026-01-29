@@ -1,0 +1,19 @@
+{
+  "pipeline_id": "test_graph",
+  "run_id": "1444da54-4954-419f-9bc6-3d294396930b",
+  "completed_assets": [
+    "a",
+    "asset1",
+    "asset2",
+    "asset3",
+    "b",
+    "c",
+    "derived",
+    "source",
+    "test_asset"
+  ],
+  "failed_assets": [],
+  "start_time": "2026-01-29T10:54:59.369710",
+  "last_updated": "2026-01-29T10:54:59.398756",
+  "metadata": {}
+}

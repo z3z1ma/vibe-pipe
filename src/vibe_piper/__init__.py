@@ -92,6 +92,13 @@ from vibe_piper.operators import (
     validate_expectation_suite,
     validate_schema,
 )
+from vibe_piper.orchestration import (
+    ExecutionState,
+    OrchestrationConfig,
+    OrchestrationEngine,
+    ParallelExecutor,
+    StateManager,
+)
 from vibe_piper.pipeline import (
     PipelineBuilder,
     build_pipeline,
@@ -146,6 +153,12 @@ try:
     _integration_available = True
 except ImportError:
     _integration_available = False
+
+# Add AuthenticationError if integration is available
+if _integration_available:
+    from vibe_piper.integration import AuthenticationError
+else:
+    AuthenticationError = None  # type: ignore
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -205,6 +218,12 @@ __all__ = [
     "DefaultExecutor",
     "ErrorStrategy",
     "calculate_checksum",
+    # Orchestration
+    "ExecutionState",
+    "OrchestrationConfig",
+    "OrchestrationEngine",
+    "ParallelExecutor",
+    "StateManager",
     "Expectation",
     "ValidationResult",
     "QualityMetric",
