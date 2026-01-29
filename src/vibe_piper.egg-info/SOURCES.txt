@@ -71,6 +71,12 @@ src/vibe_piper/io_managers/registry.py
 src/vibe_piper/io_managers/s3.py
 src/vibe_piper/materialization/__init__.py
 src/vibe_piper/materialization/strategies.py
+src/vibe_piper/scheduling/__init__.py
+src/vibe_piper/scheduling/backfill.py
+src/vibe_piper/scheduling/base.py
+src/vibe_piper/scheduling/persistence.py
+src/vibe_piper/scheduling/scheduler.py
+src/vibe_piper/scheduling/schedules.py
 src/vibe_piper/transformations/__init__.py
 src/vibe_piper/transformations/aggregations.py
 src/vibe_piper/transformations/builder.py
