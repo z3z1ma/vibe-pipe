@@ -144,6 +144,8 @@ This block is maintained by the compound plugin.
 <!-- END:compound:workflow-commands -->
 
 <!-- BEGIN:compound:skills-index -->
+- **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/author-agents-md-uv-python/SKILL.md
 - **compound-apply-spec** (v1): Write a CompoundSpec v1 JSON payload and apply it via compound_apply to create/update skills and docs.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-apply-spec/SKILL.md
 - **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
@@ -154,6 +156,8 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-workspace/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/skill-authoring/SKILL.md
+- **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
