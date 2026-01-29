@@ -28,7 +28,7 @@ Requires-Dist: pyarrow>=12.0.0; extra == "files"
 Requires-Dist: openpyxl>=3.0.0; extra == "files"
 Requires-Dist: python-snappy>=0.6.0; extra == "files"
 Provides-Extra: all
-Requires-Dist: vibe-piper[bigquery,files,mysql,postgres,snowflake]; extra == "all"
+Requires-Dist: vibe-piper[bigquery,files,ge,mysql,postgres,snowflake,soda]; extra == "all"
 Provides-Extra: postgres
 Requires-Dist: psycopg2-binary>=2.9.0; extra == "postgres"
 Provides-Extra: mysql
@@ -37,6 +37,10 @@ Provides-Extra: snowflake
 Requires-Dist: snowflake-connector-python>=3.0.0; extra == "snowflake"
 Provides-Extra: bigquery
 Requires-Dist: google-cloud-bigquery>=3.0.0; extra == "bigquery"
+Provides-Extra: ge
+Requires-Dist: pyyaml>=6.0.0; extra == "ge"
+Provides-Extra: soda
+Requires-Dist: pyyaml>=6.0.0; extra == "soda"
 Dynamic: license-file
 
 # Vibe Piper

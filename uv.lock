@@ -1932,6 +1932,7 @@ all = [
     { name = "psycopg2-binary" },
     { name = "pyarrow" },
     { name = "python-snappy" },
+    { name = "pyyaml" },
     { name = "snowflake-connector-python" },
 ]
 bigquery = [
@@ -1943,6 +1944,9 @@ files = [
     { name = "pyarrow" },
     { name = "python-snappy" },
 ]
+ge = [
+    { name = "pyyaml" },
+]
 mysql = [
     { name = "mysql-connector-python" },
 ]
@@ -1951,6 +1955,9 @@ postgres = [
 ]
 snowflake = [
     { name = "snowflake-connector-python" },
+]
+soda = [
+    { name = "pyyaml" },
 ]
 
 [package.dev-dependencies]
@@ -1985,12 +1992,14 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.10.0" },
     { name = "python-snappy", specifier = ">=0.7.3" },
     { name = "python-snappy", marker = "extra == 'files'", specifier = ">=0.6.0" },
+    { name = "pyyaml", marker = "extra == 'ge'", specifier = ">=6.0.0" },
+    { name = "pyyaml", marker = "extra == 'soda'", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "snowflake-connector-python", marker = "extra == 'snowflake'", specifier = ">=3.0.0" },
     { name = "typer", specifier = ">=0.12.0" },
-    { name = "vibe-piper", extras = ["files", "postgres", "mysql", "snowflake", "bigquery"], marker = "extra == 'all'" },
+    { name = "vibe-piper", extras = ["files", "postgres", "mysql", "snowflake", "bigquery", "ge", "soda"], marker = "extra == 'all'" },
 ]
-provides-extras = ["files", "all", "postgres", "mysql", "snowflake", "bigquery"]
+provides-extras = ["files", "all", "postgres", "mysql", "snowflake", "bigquery", "ge", "soda"]
 
 [package.metadata.requires-dev]
 dev = [

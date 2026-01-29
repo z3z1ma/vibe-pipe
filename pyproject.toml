@@ -31,9 +31,6 @@ dependencies = [
     "python-snappy>=0.7.3",
     "typer>=0.12.0",
     "rich>=13.7.0",
-    "scipy>=1.13.0",
-    "scikit-learn>=1.5.0",
-    "matplotlib>=3.9.0",
 ]
 
 [project.scripts]
@@ -45,22 +42,28 @@ files = [
     "pyarrow>=12.0.0",
     "openpyxl>=3.0.0",
     "python-snappy>=0.6.0",
-]
+    ]
 all = [
-    "vibe-piper[files,postgres,mysql,snowflake,bigquery]",
-]
+    "vibe-piper[files,postgres,mysql,snowflake,bigquery,ge,soda]",
+    ]
 postgres = [
     "psycopg2-binary>=2.9.0",
-]
+    ]
 mysql = [
     "mysql-connector-python>=8.0.0",
-]
+    ]
 snowflake = [
     "snowflake-connector-python>=3.0.0",
-]
+    ]
 bigquery = [
     "google-cloud-bigquery>=3.0.0",
-]
+    ]
+ge = [
+    "pyyaml>=6.0.0",
+    ]
+soda = [
+    "pyyaml>=6.0.0",
+    ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
