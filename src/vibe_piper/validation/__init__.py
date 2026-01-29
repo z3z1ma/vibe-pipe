@@ -100,13 +100,23 @@ from vibe_piper.validation.drift_detection import (
 )
 from vibe_piper.validation.quality_scoring import (
     ColumnQualityResult,
+    QualityAlert,
+    QualityDashboard,
+    QualityHistory,
+    QualityRecommendation,
     QualityScore,
+    QualityThresholdConfig,
+    QualityTrend,
     calculate_column_quality,
     calculate_completeness,
     calculate_consistency,
     calculate_quality_score,
     calculate_uniqueness,
     calculate_validity,
+    create_quality_dashboard,
+    generate_quality_alerts,
+    generate_quality_recommendations,
+    track_quality_history,
 )
 from vibe_piper.validation.suite import (
     LazyValidationStrategy,
@@ -193,12 +203,22 @@ __all__ = [
     # Advanced validation: quality scoring
     "QualityScore",
     "ColumnQualityResult",
+    "QualityThresholdConfig",
+    "QualityAlert",
+    "QualityRecommendation",
+    "QualityTrend",
+    "QualityHistory",
+    "QualityDashboard",
     "calculate_completeness",
     "calculate_validity",
     "calculate_uniqueness",
     "calculate_consistency",
     "calculate_quality_score",
     "calculate_column_quality",
+    "track_quality_history",
+    "generate_quality_alerts",
+    "generate_quality_recommendations",
+    "create_quality_dashboard",
 ]
 
 __version__ = "2.0.0"
