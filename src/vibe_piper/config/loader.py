@@ -1,5 +1,6 @@
 """Configuration loading and parsing for Vibe Piper."""
 
+import json
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,15 @@ from vibe_piper.config.schema import (
     SecretSpec,
 )
 from vibe_piper.config.validation import validate_config
+
+try:
+    import yaml  # type: ignore[import-untyped]
+    from yaml import YAMLError  # type: ignore[import-untyped]
+
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+    YAMLError = Exception  # type: ignore[misc]
 
 
 class ConfigLoadError(Exception):
@@ -62,12 +72,11 @@ def load_config(
         raise ConfigLoadError(msg, path=path)
 
     try:
-        with path.open("rb") as f:
-            data = tomllib.load(f)
-    except tomllib.TOMLDecodeError as e:
-        msg = "Invalid TOML syntax"
+        data = _load_file_data(path)
+    except (tomllib.TOMLDecodeError, json.JSONDecodeError, YAMLError) as e:
+        msg = f"Invalid {_get_format_name(path)} syntax"
         raise ConfigLoadError(msg, path=path, cause=e) from e
-    except OSError as e:
+    except (ValueError, OSError) as e:
         msg = "Failed to read configuration file"
         raise ConfigLoadError(msg, path=path, cause=e) from e
 
@@ -85,6 +94,73 @@ def load_config(
     validate_config(config, environment)
 
     return config
+
+
+def _load_file_data(path: Path) -> dict[str, Any]:
+    """Load configuration data from file based on extension.
+
+    Args:
+        path: Path to configuration file
+
+    Returns:
+        Parsed configuration data
+
+    Raises:
+        ValueError: If file format is not supported
+    """
+    suffix = path.suffix.lower()
+
+    if suffix == ".toml":
+        with path.open("rb") as f:
+            return tomllib.load(f)
+    elif suffix == ".yaml" or suffix == ".yml":
+        if not YAML_AVAILABLE:
+            msg = "YAML support requires PyYAML. Install it with: uv pip install pyyaml"
+            raise ValueError(msg)
+        with path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f)  # type: ignore[no-any-return]
+    elif suffix == ".json":
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        msg = f"Unsupported configuration file format: {suffix}"
+        raise ValueError(msg)
+
+
+def _get_format_name(path: Path) -> str:
+    """Get human-readable format name from file extension.
+
+    Args:
+        path: Path to configuration file
+
+    Returns:
+        Format name (TOML, YAML, or JSON)
+    """
+    suffix = path.suffix.lower()
+    if suffix == ".toml":
+        return "TOML"
+    elif suffix in (".yaml", ".yml"):
+        return "YAML"
+    elif suffix == ".json":
+        return "JSON"
+    return "unknown"
+
+
+def _merge_additional_config(parent: dict[str, Any], child: dict[str, Any]) -> dict[str, Any]:
+    """Merge additional configuration from parent and child.
+
+    Child values override parent values.
+
+    Args:
+        parent: Parent environment's additional config
+        child: Child environment's additional config
+
+    Returns:
+        Merged additional configuration
+    """
+    merged = parent.copy()
+    merged.update(child)
+    return merged
 
 
 def _parse_config(data: dict[str, Any], path: Path) -> Config:
@@ -112,6 +188,8 @@ def _parse_config(data: dict[str, Any], path: Path) -> Config:
     # Parse environments section
     environments: dict[str, EnvironmentConfig] = {}
     environments_data = data.get("environments", {})
+
+    # First pass: parse all environment configs
     for env_name, env_data in environments_data.items():
         if not isinstance(env_data, dict):
             msg = f"Environment '{env_name}' must be a table"
@@ -126,6 +204,7 @@ def _parse_config(data: dict[str, Any], path: Path) -> Config:
             "region",
             "endpoint",
             "credentials_path",
+            "inherits",
         }
         additional_config = {k: v for k, v in env_data.items() if k not in known_fields}
 
@@ -139,6 +218,38 @@ def _parse_config(data: dict[str, Any], path: Path) -> Config:
             credentials_path=env_data.get("credentials_path"),
             additional_config=additional_config,
         )
+
+    # Second pass: apply inheritance
+    for env_name, env_data in environments_data.items():
+        if not isinstance(env_data, dict):
+            continue
+
+        inherits_from = env_data.get("inherits")
+        if inherits_from:
+            if inherits_from not in environments:
+                msg = (
+                    f"Environment '{env_name}' inherits from '{inherits_from}', "
+                    f"but '{inherits_from}' does not exist"
+                )
+                raise ValueError(msg)
+
+            # Merge child config with parent config (child overrides parent)
+            parent_env = environments[inherits_from]
+            child_env = environments[env_name]
+
+            environments[env_name] = EnvironmentConfig(
+                io_manager=child_env.io_manager or parent_env.io_manager,
+                log_level=child_env.log_level or parent_env.log_level,
+                parallelism=child_env.parallelism or parent_env.parallelism,
+                bucket=child_env.bucket or parent_env.bucket,
+                region=child_env.region or parent_env.region,
+                endpoint=child_env.endpoint or parent_env.endpoint,
+                credentials_path=child_env.credentials_path or parent_env.credentials_path,
+                additional_config=_merge_additional_config(
+                    parent_env.additional_config,
+                    child_env.additional_config,
+                ),
+            )
 
     # Parse secrets section
     secrets: dict[str, SecretSpec] = {}
@@ -181,6 +292,11 @@ def _parse_config(data: dict[str, Any], path: Path) -> Config:
 def find_config_file(search_path: Path | None = None) -> Path | None:
     """Find configuration file by searching upward from path.
 
+    Searches for configuration files in order of preference:
+    1. vibepiper.toml
+    2. vibepiper.yaml / vibepiper.yml
+    3. vibepiper.json
+
     Args:
         search_path: Starting path (defaults to current directory)
 
@@ -189,11 +305,19 @@ def find_config_file(search_path: Path | None = None) -> Path | None:
     """
     search_path = search_path or Path.cwd()
 
-    # Search upward for config file
+    # Search upward for config file in order of preference
+    config_names = [
+        "vibepiper.toml",
+        "vibepiper.yaml",
+        "vibepiper.yml",
+        "vibepiper.json",
+    ]
+
     for path in [search_path, *search_path.parents]:
-        config_file = path / "vibepiper.toml"
-        if config_file.exists():
-            return config_file
+        for config_name in config_names:
+            config_file = path / config_name
+            if config_file.exists():
+                return config_file
 
     return None
 
