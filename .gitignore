@@ -21,6 +21,8 @@ wheels/
 *.egg
 MANIFEST
 .venv/
+coverage.xml
+.coverage
 
 # Testing
 .pytest_cache/
@@ -56,18 +58,11 @@ docs/_build/
 
 # UV
 .uv/
-uv.lock
 
-# Murmur
+# Loom
 .memory/index.sqlite3*
 .memory/personal/
 .tickets/.audit/
 .tickets/.cache/
 .tickets/.locks/
 .team/
-.claude/
-.opencode/
-coverage.xml
-src/vibe_piper/pipeline.py
-tests/test_pipeline.py
-.coverage
