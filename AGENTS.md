@@ -150,6 +150,8 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-apply-spec/SKILL.md
 - **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-workflows/SKILL.md
+- **loom-team-manager-pane-dead-on-spawn** (v1): Diagnose and fix Loom team manager pane dying immediately (tmux pane status 1).
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
 - **loom-ticketing** (v1): Use loom ticket for ticket creation, status updates, deps, and notes.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-ticketing/SKILL.md
 - **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
