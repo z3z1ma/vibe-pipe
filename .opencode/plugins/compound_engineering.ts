@@ -219,6 +219,12 @@ function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
 }
 
+async function tuiToast(client: any, message: string, variant: "success" | "error" | "info" = "info") {
+  try {
+    await client.tui.showToast({ body: { message, variant } });
+  } catch {}
+}
+
 async function pathExists(p: string): Promise<boolean> {
   try {
     await fs.stat(p);
@@ -468,6 +474,35 @@ state.json
 `)
     );
   }
+}
+
+function extractSessionID(resp: any): string {
+  const r = resp?.data ?? resp;
+  const id = r?.id ?? r?.data?.id ?? r?.session?.id ?? r?.data?.session?.id;
+  return typeof id === "string" ? id : "";
+}
+
+async function forkEphemeralSession(client: any, activeSessionID: string): Promise<string> {
+  if (!activeSessionID) return "";
+
+  // Prefer a fork, since it preserves message history.
+  try {
+    const forkFn = client?.session?.fork;
+    if (typeof forkFn === "function") {
+      const resp = await forkFn({ path: { id: activeSessionID }, body: {} });
+      const id = extractSessionID(resp);
+      if (id) return id;
+    }
+  } catch {}
+
+  // Fallback: create a child session (may not inherit full message history, but avoids polluting the active chat).
+  try {
+    const resp = await client.session.create({ body: { parentID: activeSessionID, title: "compound-autolearn" } });
+    const id = extractSessionID(resp);
+    if (id) return id;
+  } catch {}
+
+  return "";
 }
 
 // -----------------------------
@@ -1530,20 +1565,37 @@ ${recentObs
       AUTO_PROMPT_MAX_CHARS
     );
 
-    // Ask the model for a CompoundSpec v2
-    const resp = await client.session.prompt({
-      path: { id: sessionID },
-      body: {
-        // Use read-only agent if available; it's fine if ignored.
-        agent: "plan",
-        parts: [{ type: "text", text: finalPrompt }],
-      },
-    });
+    // Ask the model for a CompoundSpec v2 in an ephemeral forked session so the gigantic
+    // autolearn prompt doesn't pollute the user's active chat.
+    const ephemeralSessionID = await forkEphemeralSession(client, sessionID);
+    if (!ephemeralSessionID) {
+      await recordAutolearnFailure(sessionRoot, sessionID, "failed to create ephemeral autolearn session");
+      await tuiToast(client, "Compound autolearn failed (could not create background session)", "error");
+      return;
+    }
+
+    let resp: any;
+    try {
+      resp = await client.session.prompt({
+        path: { id: ephemeralSessionID },
+        body: {
+          // Use read-only agent if available; it's fine if ignored.
+          agent: "plan",
+          parts: [{ type: "text", text: finalPrompt }],
+        },
+      });
+    } finally {
+      // Best-effort: keep autolearn invisible by deleting the fork.
+      try {
+        await client.session.delete({ path: { id: ephemeralSessionID } });
+      } catch {}
+    }
 
     const text = extractTextFromMessage(resp);
     const parsed = extractJsonObject(text);
     if (!parsed) {
       await recordAutolearnFailure(sessionRoot, sessionID, text);
+      await tuiToast(client, "Compound autolearn failed (invalid JSON spec)", "error");
       return;
     }
 
@@ -1554,10 +1606,24 @@ ${recentObs
     }
 
     // Apply spec (memory only)
-    await applySpec(writeRoot, spec, "auto");
+    const applyRes = await applySpec(writeRoot, spec, "auto");
 
     // Always sync docs after autolearn, to keep indexes fresh.
     await syncDocs(writeRoot);
+
+    // Notify only on meaningful changes.
+    try {
+      const skillChanges = Array.isArray((applyRes as any)?.skills) ? (applyRes as any).skills.length : 0;
+      const instinctsCreated = Number((applyRes as any)?.instincts?.created ?? 0);
+      const instinctsUpdated = Number((applyRes as any)?.instincts?.updated ?? 0);
+      if (skillChanges > 0 || instinctsCreated > 0 || instinctsUpdated > 0) {
+        const bits: string[] = [];
+        if (skillChanges > 0) bits.push(`skills=${skillChanges}`);
+        if (instinctsCreated + instinctsUpdated > 0)
+          bits.push(`instincts=+${instinctsCreated}/~${instinctsUpdated}`);
+        await tuiToast(client, `Compound autolearn applied (${bits.join(" ")})`, "success");
+      }
+    } catch {}
 
     state.autolearn = {
       lastRunAt: nowIso(),
@@ -1571,6 +1637,7 @@ ${recentObs
     try {
       const msg = e instanceof Error ? `${e.name}: ${e.message}\n${e.stack ?? ""}` : String(e);
       await recordAutolearnFailure(sessionRoot, sessionID, msg);
+      await tuiToast(client, "Compound autolearn failed", "error");
     } catch {}
   } finally {
     autolearnInFlight = false;
