@@ -41,3 +41,8 @@ Skill update rule (MANDATORY):
 - For skills.update[], body MUST be the **entire, final** managed body for the skill.
 - Do NOT output snippets, diffs, or “just the new section”. Re-emit the whole managed body with your edits applied.
 - The prompt context includes existing skill managed bodies. Start from that text when updating.
+
+Path rule (MANDATORY):
+- Whenever you reference repository files or directories in any markdown you output, use repo-root-relative paths (no absolute paths).
+- Example good: src/agent_loom/cli.py, .opencode/skills/foo/SKILL.md
+- Example bad: <ABSOLUTE_PATH>/src/agent_loom/cli.py
