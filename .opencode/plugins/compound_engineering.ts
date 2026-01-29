@@ -667,6 +667,41 @@ function applyInstinctChanges(store: InstinctStore, changes?: CompoundSpecV2["in
 // Skills
 // -----------------------------
 
+function nonEmptyLineCount(s: string): number {
+  return normalizeNewlines(s)
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean).length;
+}
+
+function looksLikeDiffOrPatch(s: string): boolean {
+  const t = normalizeNewlines(s);
+  if (/^```diff\b/m.test(t)) return true;
+  if (/^\+\+\+\s+\S+/m.test(t) && /^---\s+\S+/m.test(t)) return true;
+  if (/^@@\s+[-+0-9, ]+\s+@@/m.test(t)) return true;
+  return false;
+}
+
+function looksLikePartialSkillBodyUpdate(existingBody: string, nextBody: string): boolean {
+  const oldBody = normalizeNewlines(existingBody).trim();
+  const newBody = normalizeNewlines(nextBody).trim();
+  if (!oldBody) return false;
+  if (!newBody) return true;
+
+  if (looksLikeDiffOrPatch(newBody)) return true;
+
+  // Heuristic guardrail: block obvious "snippet" updates that would truncate the managed body.
+  const oldLen = oldBody.length;
+  const newLen = newBody.length;
+  const oldLines = nonEmptyLineCount(oldBody);
+  const newLines = nonEmptyLineCount(newBody);
+  if (oldLen > 250 && newLen < 250) return true;
+  if (oldLines >= 12 && newLines < 8) return true;
+  if (newLen < oldLen * 0.3 && newLines < 20) return true;
+
+  return false;
+}
+
 type ParsedFrontmatter = {
   name?: string;
   description?: string;
@@ -791,11 +826,13 @@ function buildSkillMarkdown(opts: {
   return fmLines + managed + "\n\n" + tail;
 }
 
-async function scanSkills(root: string): Promise<Array<{ name: string; description: string; path: string; version?: string }>> {
+async function scanSkills(
+  root: string
+): Promise<Array<{ name: string; description: string; path: string; version?: string; managedBody?: string }>> {
   const dir = path.join(root, SKILLS_DIR);
   if (!(await pathExists(dir))) return [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  const out: Array<{ name: string; description: string; path: string; version?: string }> = [];
+  const out: Array<{ name: string; description: string; path: string; version?: string; managedBody?: string }> = [];
 
   for (const ent of entries) {
     if (!ent.isDirectory()) continue;
@@ -804,9 +841,9 @@ async function scanSkills(root: string): Promise<Array<{ name: string; descripti
     if (!(await pathExists(skillPath))) continue;
     try {
       const raw = await fs.readFile(skillPath, "utf8");
-      const { fm } = parseFrontmatter(raw);
+      const { fm, body } = parseFrontmatter(raw);
       if (!fm.name || !fm.description) continue;
-      out.push({ name: fm.name, description: fm.description, path: skillPath, version: fm.metadata?.version });
+      out.push({ name: fm.name, description: fm.description, path: skillPath, version: fm.metadata?.version, managedBody: body });
     } catch {}
   }
   return out.sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -825,15 +862,23 @@ async function writeOrUpdateSkill(root: string, input: SkillSpec | (SkillUpdateS
   let createdAt = nowIso();
   let manualNotes: string | null = null;
   let existingFm: ParsedFrontmatter = {};
+  let existingBody: string | null = null;
 
   if (exists) {
     const raw = await fs.readFile(skillPath, "utf8");
     const parsed = parseFrontmatter(raw);
     existingFm = parsed.fm;
+    existingBody = parsed.body;
     const curV = Number(parsed.fm.metadata?.version ?? "1");
     nextVersion = Number.isFinite(curV) ? curV + 1 : 2;
     createdAt = parsed.fm.metadata?.created_at ?? createdAt;
     manualNotes = parsed.manualNotes;
+  }
+
+  if (exists && existingBody && looksLikePartialSkillBodyUpdate(existingBody, input.body)) {
+    throw new Error(
+      "skill.update.body must be the full managed body (complete replacement), not a snippet/diff. Re-emit the entire managed body with your edits applied."
+    );
   }
 
   const tags = input.tags ?? (existingFm.metadata?.tags ? existingFm.metadata.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined);
@@ -1181,6 +1226,8 @@ async function applySpec(root: string, spec: CompoundSpec, mode: "auto" | "manua
   await ensureBootstrap(root);
 
   const results: Array<{ name: string; action: string }> = [];
+  const autoSessionID =
+    spec.schema_version === 2 ? (spec as CompoundSpecV2).auto?.sessionID ?? null : null;
   const skillLimit = mode === "auto" ? AUTO_MAX_SKILLS_PER_RUN : Number.MAX_SAFE_INTEGER;
   const memoLimit = mode === "auto" ? 6 : Number.MAX_SAFE_INTEGER;
   const instinctLimit = mode === "auto" ? AUTO_MAX_INSTINCT_UPDATES_PER_RUN : Number.MAX_SAFE_INTEGER;
@@ -1188,8 +1235,14 @@ async function applySpec(root: string, spec: CompoundSpec, mode: "auto" | "manua
   // Skills
   if (spec.skills?.create) {
     for (const s of spec.skills.create.slice(0, skillLimit)) {
-      const r = await writeOrUpdateSkill(root, s);
-      results.push({ name: s.name, action: r.action });
+      try {
+        const r = await writeOrUpdateSkill(root, s);
+        results.push({ name: s.name, action: r.action });
+      } catch (e) {
+        if (mode !== "auto") throw e;
+        const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+        await recordAutolearnFailure(root, autoSessionID, `skill.create failed (${s.name}): ${msg}`);
+      }
     }
   }
   if (spec.skills?.update) {
@@ -1203,8 +1256,14 @@ async function applySpec(root: string, spec: CompoundSpec, mode: "auto" | "manua
         description = parsed.fm.description ?? `Skill: ${u.name}`;
       }
       if (!description) description = `Skill: ${u.name}`;
-      const r = await writeOrUpdateSkill(root, { ...u, description });
-      results.push({ name: u.name, action: r.action });
+      try {
+        const r = await writeOrUpdateSkill(root, { ...u, description });
+        results.push({ name: u.name, action: r.action });
+      } catch (e) {
+        if (mode !== "auto") throw e;
+        const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+        await recordAutolearnFailure(root, autoSessionID, `skill.update failed (${u.name}): ${msg}`);
+      }
     }
   }
   if (spec.skills?.deprecate) {
@@ -1320,6 +1379,11 @@ Output format:
 Constraints:
 - Max skills per run: ${AUTO_MAX_SKILLS_PER_RUN}
 - Max instinct updates per run: ${AUTO_MAX_INSTINCT_UPDATES_PER_RUN}
+
+Skill update rule (MANDATORY):
+- For `skills.update[]`, `body` MUST be the entire, final managed body for the skill.
+- Do NOT output snippets, diffs, or partial sections. Re-emit the whole managed body with your edits applied.
+- Start from the existing skill managed bodies provided in the prompt context.
 `);
 }
 
@@ -1370,6 +1434,14 @@ async function autoLearnIfNeeded(root: string, client: any, sessionID: string | 
 
     const promptTemplate = await safeReadFile(path.join(root, AUTOLEARN_PROMPT_FILE), defaultAutolearnPrompt());
 
+    const skillsContext = skills
+      .slice(0, 25)
+      .map((s) => {
+        const body = s.managedBody?.trim() ?? "";
+        return [`-- skill: ${s.name}`, `description: ${s.description}`, "managed_body:", body || "(empty)", "-- end skill"].join("\n");
+      })
+      .join("\n\n");
+
     const context = normalizeNewlines(`
 ## AUTOLEARN CONTEXT
 session_id: ${sessionID ?? "unknown"}
@@ -1381,8 +1453,8 @@ changed_files: ${g.ok ? g.changedFiles.length : "n/a"}
 diffstat:
 ${g.diffStat || "(none)"}
 
-### Existing skills (name: description)
-${skills.slice(0, 80).map((s) => `- ${s.name}: ${s.description}`).join("\n") || "(none)"}
+### Existing skills (managed bodies)
+${skillsContext || "(none)"}
 
 ### Existing instincts (top)
 ${renderInstinctsIndex(instincts.instincts, 20)}
@@ -1441,7 +1513,11 @@ ${recentObs
     };
     await saveState(root, state);
   } catch (e) {
-    // Keep it quiet. This is background.
+    // Keep it quiet, but leave breadcrumbs for debugging.
+    try {
+      const msg = e instanceof Error ? `${e.name}: ${e.message}\n${e.stack ?? ""}` : String(e);
+      await recordAutolearnFailure(root, sessionID, msg);
+    } catch {}
   } finally {
     autolearnInFlight = false;
   }
