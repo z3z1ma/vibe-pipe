@@ -89,11 +89,12 @@ class Config:
     cli_overrides: dict[str, Any] = field(default_factory=dict)
     config_path: Path | None = None
 
-    def get_environment(self, env_name: str) -> EnvironmentConfig:
+    def get_environment(self, env_name: str, apply_overrides: bool = True) -> EnvironmentConfig:
         """Get environment configuration.
 
         Args:
             env_name: Environment name (e.g., dev, staging, prod)
+            apply_overrides: Whether to apply CLI overrides to the config
 
         Returns:
             Environment configuration
@@ -104,7 +105,14 @@ class Config:
         if env_name not in self.environments:
             msg = f"Environment '{env_name}' not found in configuration"
             raise KeyError(msg)
-        return self.environments[env_name]
+
+        env_config = self.environments[env_name]
+
+        # Apply CLI overrides if requested
+        if apply_overrides and self.cli_overrides:
+            return self._apply_overrides(env_config)
+
+        return env_config
 
     def has_environment(self, env_name: str) -> bool:
         """Check if environment exists.
@@ -144,3 +152,44 @@ class Config:
             True if secret exists
         """
         return key in self.secrets
+
+    def _apply_overrides(self, env_config: EnvironmentConfig) -> EnvironmentConfig:
+        """Apply CLI overrides to environment configuration.
+
+        Args:
+            env_config: Environment configuration to apply overrides to
+
+        Returns:
+            Environment configuration with overrides applied
+        """
+        overrides = self.cli_overrides
+
+        # Create a copy with overrides applied
+        additional_config = env_config.additional_config.copy()
+        additional_config.update(
+            {
+                k: v
+                for k, v in overrides.items()
+                if k
+                not in {
+                    "io_manager",
+                    "log_level",
+                    "parallelism",
+                    "bucket",
+                    "region",
+                    "endpoint",
+                    "credentials_path",
+                }
+            }
+        )
+
+        return EnvironmentConfig(
+            io_manager=overrides.get("io_manager", env_config.io_manager),
+            log_level=overrides.get("log_level", env_config.log_level),
+            parallelism=overrides.get("parallelism", env_config.parallelism),
+            bucket=overrides.get("bucket", env_config.bucket),
+            region=overrides.get("region", env_config.region),
+            endpoint=overrides.get("endpoint", env_config.endpoint),
+            credentials_path=overrides.get("credentials_path", env_config.credentials_path),
+            additional_config=additional_config,
+        )

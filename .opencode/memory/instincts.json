@@ -240,6 +240,7 @@
       ]
     },
     {
+<<<<<<< HEAD
       "id": "pandas-string-accessor-pattern",
       "title": "Use Series.str accessor for text operations on DataFrames",
       "trigger": "Applying string methods (trim, upper, lower, title) to pandas DataFrame columns",
@@ -875,6 +876,23 @@
         {
           "ts": "2026-01-29T23:17:36.707Z",
           "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
+||||||| merged common ancestors
+        {"ts": "2026-01-29T11:00:04.777Z", "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"}
+=======
+      "id": "compound-block-conflict-resolution",
+      "title": "Resolve compound block merge conflicts",
+      "trigger": "Merge conflict in AGENTS.md, LOOM_ROADMAP.md, or other compound-managed files",
+      "action": "Accept the incoming (theirs) version using 'git checkout --theirs <file>' since compound blocks are auto-generated. Do not manually edit conflict markers.",
+      "tags": [],
+      "confidence": 0.8,
+      "status": "active",
+      "created_at": "2026-01-29T22:08:34.452Z",
+      "updated_at": "2026-01-29T22:08:34.452Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T22:08:34.452Z",
+          "sessionID": "ses_3f48cf4e3ffeIzJ4o3oh13EG0C"
+>>>>>>> team/merge-queue
         }
       ]
     }

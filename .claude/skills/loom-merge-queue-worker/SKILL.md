@@ -1,6 +1,6 @@
 ---
 name: loom-merge-queue-worker
-description: Process merge queue items as a Loom merge worker - claim, merge, mark done, and handle no-op merges correctly.
+description: Process merge queue items as a Loom merge worker - claim, merge, mark done, handle no-op merges, and resolve compound block conflicts correctly.
 license: MIT
 compatibility: opencode,claude
 metadata:
@@ -35,18 +35,48 @@ git fetch origin
 git merge origin/main --ff-only
 ```
 
-## 3. Merge the feature branch
+## 3. Stash any local changes
+If `git status` shows unstaged changes, stash them first:
+```bash
+git stash push -m "Merge preparation for <ticket_id>"
+```
+
+## 4. Merge the feature branch
 ```bash
 git merge <branch> --no-ff -m "Merge <branch> into merge-queue (ticket: <ticket_id>)"
 ```
 
-## 4. Mark as done
+### Handle Merge Conflicts
+If merge fails with conflicts:
+
+#### For compound-managed files (AGENTS.md, LOOM_ROADMAP.md, etc.)
+```bash
+git checkout --theirs AGENTS.md LOOM_ROADMAP.md
+git add AGENTS.md LOOM_ROADMAP.md
+```
+Rationale: Compound blocks are auto-generated; accept incoming version.
+
+#### For dependency files (pyproject.toml, uv.lock, egg-info/)
+```bash
+git checkout --theirs pyproject.toml uv.lock
+git checkout --theirs src/vibe_piper.egg-info/PKG-INFO
+git checkout --theirs src/vibe_piper.egg-info/requires.txt
+git add -f pyproject.toml uv.lock src/vibe_piper.egg-info/
+```
+Rationale: Accept incoming dependencies; newer branches add new optional deps.
+
+#### Complete the merge
+```bash
+git commit -m "Merge <branch> into merge-queue (ticket: <ticket_id>)"
+```
+
+## 5. Mark as done
 ```bash
 loom team merge <TEAM> done <ITEM_ID> --result merged|blocked --note "..."
 ```
 Use one of:
 - `--result merged` for successful merges
-- `--result blocked` for merge conflicts or issues
+- `--result blocked` for unresolvable merge conflicts
 
 # Handling No-Op Merges
 

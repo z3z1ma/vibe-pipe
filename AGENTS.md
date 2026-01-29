@@ -158,7 +158,7 @@ This block is maintained by the compound plugin.
   - .opencode/skills/implement-schema-evolution/SKILL.md
 - **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
   - .opencode/skills/loom-manager-workflow/SKILL.md
-- **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, and handle no-op merges correctly.
+- **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, handle no-op merges, and resolve compound block conflicts correctly.
   - .opencode/skills/loom-merge-queue-worker/SKILL.md
 - **loom-team-lifecycle-management** (v1): Manage Loom team worker lifecycle from spawn to retire, including ticket assignment, progress tracking, merge operations, and workspace cleanup.
   - .opencode/skills/loom-team-lifecycle-management/SKILL.md
@@ -189,66 +189,7 @@ This block is maintained by the compound plugin.
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
-- **nullable-schema-fields-for-tests** (95%)
-  - Trigger: Creating test fixtures with DataRecord objects that have null values in specific fields
-  - Action: Set nullable=True on SchemaField definitions for any field that may contain None in test data. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
-- **yaml-dev-deps-for-mypy** (95%)
-  - Trigger: Adding YAML format support in strict MyPy project
-  - Action: Install pyyaml runtime dependency and types-pyamal as dev dependency to satisfy strict type checking
-- **retry-metrics-mutable-not-frozen** (95%)
-  - Trigger: During retry decorator implementation, encountered mypy error when trying to update RetryMetrics fields. RetryMetrics was frozen=True which prevented field mutations during retry loop.
-  - Action: Change RetryMetrics from @dataclass(frozen=True) to @dataclass to allow mutable updates during retry attempts. Fields like total_attempts, dlq_sent, and circuit_breaker_opened need to be updated.
-- **sync-ticket-updates** (90%)
-  - Trigger: After any `loom ticket` command that changes state (close, add-note, update)
-  - Action: Run `loom ticket sync` to commit ticket changes to repository
-- **phase3-ticket-sequencing** (90%)
-  - Trigger: Starting Phase 3 ticket implementation
-  - Action: Orchestration Engine (vp-cf95) must complete before CLI (vp-6cf1), Scheduling (vp-7d49), and Monitoring (vp-f17e) can fully integrate. Verify orchestration engine is in codebase before spawning worker…
-- **optional-dependency-import-pattern** (90%)
-  - Trigger: Need to use external library that may not be installed
-  - Action: 1. Wrap import in try/except block 2. Add type: ignore[import-untyped] comment for mypy 3. Set flag variable to track availability 4. Provide fallback behavior when unavailable 5. Document degradation…
-- **pandas-string-accessor-pattern** (90%)
-  - Trigger: Applying string methods (trim, upper, lower, title) to pandas DataFrame columns
-  - Action: Always use df[col].str.method() for column operations, never operate on individual strings. The Series.str accessor returns a StringMethods object that operates on the entire series efficiently.
-- **export-new-transformation-modules** (90%)
-  - Trigger: Creating new transformation modules (aggregations, cleaning, windows, etc.)
-  - Action: Immediately update src/vibe_piper/transformations/__init__.py to include __all__ exports from the new module with descriptive docstring categories (e.g., # Cleaning, # Aggregations).
-- **sklearn-max-samples-auto** (90%)
-  - Trigger: Using sklearn.ensemble.IsolationForest
-  - Action: Set max_samples='auto' instead of None (scikit-learn v1.5+ requires explicit value)
-- **expectation-validationresult-return** (90%)
-  - Trigger: Creating validation expectation for @validate decorator
-  - Action: Ensure custom validation functions return ValidationResult(is_valid=..., errors=(...)) for compatibility with ValidationConfig.checks
-- **optional-scipy-type-checking** (90%)
-  - Trigger: importing scipy.stats for KS/PSI/chi-square tests
-  - Action: import scipy inside function body with TYPE_CHECKING guard to prevent ImportError when scipy is not installed, keep import localized
-- **two-pass-inheritance-parsing** (90%)
-  - Trigger: Implementing environment inheritance
-  - Action: Parse all environments first, then merge in second pass to handle forward references (child inherits from parent)
-- **catch-as-exception-check-isinstance** (90%)
-  - Trigger: Catching multiple parser exception types with MyPy strict mode
-  - Action: Catch as Exception, then use isinstance() to distinguish specific parser errors vs generic IO errors
-- **cloud-io-bucket-validation** (90%)
-  - Trigger: Validating environment configuration
-  - Action: When environment uses cloud IO manager (s3/gcs/azure), enforce that bucket parameter is provided
-- **inst-20250129-001** (90%)
-  - Trigger: validation_completed
-  - Action: store_validation_result
-- **retry-jitter-default-full** (90%)
-  - Trigger: Implemented jitter strategies (NONE, FULL, EQUAL, DECORRELATED) in retry system. Observed that FULL jitter (random 0 to delay) provides best protection against thundering herd when multiple clients re…
-  - Action: Set jitter_strategy=JitterStrategy.FULL as default in RetryConfig to prevent coordinated retry storms.
-- **fastapi-middleware-stack** (90%)
-  - Trigger: Creating new FastAPI application
-  - Action: Add CORS middleware (allow_origins=['http://localhost:5173', 'http://localhost:3000']), GZipMiddleware(minimum_size=1000), RequestIDMiddleware (X-Request-ID header), RateLimitMiddleware (token bucket:…
-- **tailwind-vite-setup** (90%)
-  - Trigger: Setting up new React + Vite + Tailwind project
-  - Action: Install @tailwindcss/postcss, configure postcss.config.js with '@tailwindcss/postcss' plugin, add @tailwind directives to src/index.css, configure tsconfig.json path aliases (@/* -> ./src/*), add path…
-- **resolve-ai-managed-conflicts** (85%)
-  - Trigger: Merge conflicts in AI-managed files (AGENTS.md, LOOM_ROADMAP.md, LOOM_PROJECT.md, CHANGELOG.md) when syncing merge-queue with origin/main
-  - Action: Accept incoming version with --theirs since AI-managed blocks are auto-generated by other agents. Use: git checkout --theirs AGENTS.md LOOM_ROADMAP.md
-- **verify-code-before-ticket-close** (85%)
-  - Trigger: Worker marks ticket ready for review/merge
-  - Action: Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementatio…
+- _(none yet)_
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->
