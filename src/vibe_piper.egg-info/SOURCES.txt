@@ -13,6 +13,7 @@ src/vibe_piper/pipeline.py
 src/vibe_piper/py.typed
 src/vibe_piper/quality.py
 src/vibe_piper/schema_definitions.py
+src/vibe_piper/schema_evolution.py
 src/vibe_piper/types.py
 src/vibe_piper.egg-info/PKG-INFO
 src/vibe_piper.egg-info/SOURCES.txt
@@ -143,6 +144,7 @@ tests/test_pipeline.py
 tests/test_protocols.py
 tests/test_quality.py
 tests/test_schema_definitions.py
+tests/test_schema_evolution.py
 tests/test_testing_infrastructure.py
 tests/test_transformations.py
 tests/test_types.py
