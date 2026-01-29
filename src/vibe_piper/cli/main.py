@@ -4,8 +4,10 @@ import typer
 from rich.console import Console
 
 from vibe_piper.cli.commands import (
+    asset,
     docs,
     init,
+    pipeline,
     run,
     test,
     validate,
@@ -53,6 +55,10 @@ app.command()(validate.validate)
 app.command()(run.run)
 app.command()(test.test)
 app.command()(docs.docs)
+
+# Add sub-commands
+app.add_typer(pipeline.app, name="pipeline", help="Pipeline operations")
+app.add_typer(asset.app, name="asset", help="Asset operations")
 
 
 def cli() -> None:

@@ -3,15 +3,19 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (8)
-- - `vp-02cc` P1 in_progress - Untitled
-- - `vp-045b` P1 in_progress - API Clients
-- - `vp-0862` P1 in_progress - Database Connectors
-- - `vp-77b7` P1 in_progress - File I/O Abstractions
+- # Tickets (12)
+- - `vp-6cf1` P1 open - Untitled
+- - `vp-7d49` P1 open - Untitled
+- - `vp-cf95` P1 open - Untitled
 - - `vp-e2b5` P1 in_progress - Real-World Example - API Ingestion
-- - `vp-141f` P2 open - Advanced Validation Patterns
-- - `vp-1aa6` P2 open - SQL Integration
-- - `vp-db50` P2 open - Performance Optimizations
+- - `vp-f17e` P1 open - Untitled
+- - `vp-0429` P2 open - Untitled
+- - `vp-141f` P2 in_progress - Advanced Validation Patterns
+- - `vp-1aa6` P2 in_progress - SQL Integration
+- - `vp-2830` P2 open - Untitled
+- - `vp-bb21` P2 open - Untitled
+- - `vp-c422` P2 open - Untitled
+- - `vp-db50` P2 in_progress - Performance Optimizations
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
