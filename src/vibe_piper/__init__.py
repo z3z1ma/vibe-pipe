@@ -236,6 +236,35 @@ from vibe_piper.monitoring import (
     profile_execution,
 )
 
+# External quality tools (optional, for convenience)
+try:
+    from vibe_piper.external_quality import (
+        GreatExpectationsAdapter,
+        QualityToolAdapter,
+        QualityToolResult,
+        SodaAdapter,
+        ToolType,
+        display_quality_dashboard,
+        ge_asset,
+        generate_unified_report,
+        merge_quality_results,
+        soda_asset,
+    )
+
+    _EXTERNAL_QUALITY_AVAILABLE = True
+except ImportError:
+    _EXTERNAL_QUALITY_AVAILABLE = False
+    QualityToolAdapter = None  # type: ignore
+    QualityToolResult = None  # type: ignore
+    ToolType = None  # type: ignore
+    ge_asset = None  # type: ignore
+    GreatExpectationsAdapter = None  # type: ignore
+    soda_asset = None  # type: ignore
+    SodaAdapter = None  # type: ignore
+    merge_quality_results = None  # type: ignore
+    generate_unified_report = None  # type: ignore
+    display_quality_dashboard = None  # type: ignore
+
 __all__ = [
     "Asset",
     "AssetGraph",
@@ -404,4 +433,15 @@ __all__ = [
     "ExcelReader",
     "ExcelWriter",
     "infer_schema_from_file",
+    # External quality tools
+    "QualityToolAdapter",
+    "QualityToolResult",
+    "ToolType",
+    "ge_asset",
+    "GreatExpectationsAdapter",
+    "soda_asset",
+    "SodaAdapter",
+    "merge_quality_results",
+    "generate_unified_report",
+    "display_quality_dashboard",
 ]
