@@ -92,6 +92,13 @@ from vibe_piper.operators import (
     validate_expectation_suite,
     validate_schema,
 )
+from vibe_piper.orchestration import (
+    ExecutionState,
+    OrchestrationConfig,
+    OrchestrationEngine,
+    ParallelExecutor,
+    StateManager,
+)
 from vibe_piper.pipeline import (
     PipelineBuilder,
     build_pipeline,
@@ -106,6 +113,24 @@ from vibe_piper.quality import (
     check_uniqueness,
     check_validity,
     generate_quality_report,
+)
+from vibe_piper.scheduling import (
+    BackfillConfig,
+    BackfillManager,
+    BackfillStatus,
+    BackfillTask,
+    CronSchedule,
+    EventTrigger,
+    IntervalSchedule,
+    Schedule,
+    ScheduleEvent,
+    Scheduler,
+    SchedulerConfig,
+    ScheduleStatus,
+    ScheduleStore,
+    ScheduleType,
+    TriggerEvent,
+    TriggerType,
 )
 from vibe_piper.schema_definitions import (
     AnyType,
@@ -126,7 +151,6 @@ try:
     from vibe_piper.integration import (
         APIClient,
         APIError,
-        AuthenticationError,
         BearerTokenAuth,
         CursorPagination,
         GraphQLClient,
@@ -146,6 +170,12 @@ try:
     _integration_available = True
 except ImportError:
     _integration_available = False
+
+# Add AuthenticationError if integration is available
+if _integration_available:
+    from vibe_piper.integration import AuthenticationError
+else:
+    AuthenticationError = None  # type: ignore
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -186,6 +216,26 @@ try:
 except ImportError:
     _CONNECTORS_AVAILABLE = False
 
+# Monitoring & Observability
+from vibe_piper.monitoring import (
+    ErrorAggregator,
+    ErrorCategory,
+    ErrorRecord,
+    ErrorSeverity,
+    HealthChecker,
+    HealthStatus,
+    LogLevel,
+    MetricsCollector,
+    MetricsSnapshot,
+    MetricType,
+    Profiler,
+    StructuredLogger,
+    configure_logging,
+    get_logger,
+    log_execution,
+    profile_execution,
+)
+
 __all__ = [
     "Asset",
     "AssetGraph",
@@ -205,6 +255,12 @@ __all__ = [
     "DefaultExecutor",
     "ErrorStrategy",
     "calculate_checksum",
+    # Orchestration
+    "ExecutionState",
+    "OrchestrationConfig",
+    "OrchestrationEngine",
+    "ParallelExecutor",
+    "StateManager",
     "Expectation",
     "ValidationResult",
     "QualityMetric",
@@ -312,6 +368,23 @@ __all__ = [
     "expect_column_to_be_non_nullable",
     "expect_column_to_have_constraint",
     "expect_column_constraint_to_equal",
+    # Scheduling
+    "BackfillConfig",
+    "BackfillManager",
+    "BackfillStatus",
+    "BackfillTask",
+    "CronSchedule",
+    "EventTrigger",
+    "IntervalSchedule",
+    "Schedule",
+    "ScheduleEvent",
+    "ScheduleStatus",
+    "ScheduleStore",
+    "ScheduleType",
+    "Scheduler",
+    "SchedulerConfig",
+    "TriggerEvent",
+    "TriggerType",
     # Database connectors
     "DatabaseConnector",
     "QueryBuilder",

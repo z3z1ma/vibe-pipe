@@ -21,7 +21,7 @@ from vibe_piper.integration.auth import (
     BearerTokenAuth,
     OAuth2ClientCredentialsAuth,
 )
-from vibe_piper.integration.base import APIClient, APIError, RateLimitError
+from vibe_piper.integration.base import APIClient, APIError, AuthenticationError, RateLimitError
 from vibe_piper.integration.graphql import GraphQLClient, GraphQLResponse
 from vibe_piper.integration.pagination import (
     CursorPagination,
@@ -42,6 +42,7 @@ __all__ = [
     # Base
     "APIClient",
     "APIError",
+    "AuthenticationError",
     "RateLimitError",
     # REST
     "RESTClient",

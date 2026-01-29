@@ -152,6 +152,8 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-workflows/SKILL.md
 - **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-manager-workflow/SKILL.md
+- **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, and handle no-op merges correctly.
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-merge-queue-worker/SKILL.md
 - **loom-team-lifecycle-management** (v1): Manage Loom team worker lifecycle from spawn to retire, including ticket assignment, progress tracking, merge operations, and workspace cleanup.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-lifecycle-management/SKILL.md
 - **loom-team-manager** (v1): Act as Team Manager for Loom team, handling ticket workflow when team commands may be unavailable
@@ -162,6 +164,8 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-ticketing/SKILL.md
 - **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-workspace/SKILL.md
+- **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/monitoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/skill-authoring/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
@@ -175,9 +179,15 @@ This block is maintained by the compound plugin.
 - **phase3-ticket-sequencing** (90%)
   - Trigger: Starting Phase 3 ticket implementation
   - Action: Orchestration Engine (vp-cf95) must complete before CLI (vp-6cf1), Scheduling (vp-7d49), and Monitoring (vp-f17e) can fully integrate. Verify orchestration engine is in codebase before spawning worker…
+- **optional-dependency-import-pattern** (90%)
+  - Trigger: Need to use external library that may not be installed
+  - Action: 1. Wrap import in try/except block 2. Add type: ignore[import-untyped] comment for mypy 3. Set flag variable to track availability 4. Provide fallback behavior when unavailable 5. Document degradation…
 - **verify-code-before-ticket-close** (85%)
   - Trigger: Worker marks ticket ready for review/merge
   - Action: Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementatio…
+- **datetime-none-coalescing** (85%)
+  - Trigger: Performing datetime arithmetic with potentially None fields
+  - Action: Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]
 - **check-loom-permissions-early** (80%)
   - Trigger: Acting as Team Manager for Loom team
   - Action: Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.
@@ -190,9 +200,12 @@ This block is maintained by the compound plugin.
 - **loom-manager-dependency-notes** (75%)
   - Trigger: Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on
   - Action: Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)
+- **formatter-type-separation** (75%)
+  - Trigger: MyPy complains about incompatible formatter assignments
+  - Action: Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion
 - **verify-code-before-closing-tickets** (70%)
   - Trigger: Ticket marked 'ready to merge' or 'implementation complete'
-  - Action: Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connectors)
+  - Action: Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connector tickets)
 - **loom-manager-check-merge-blockage** (70%)
   - Trigger: Listing tickets shows in_progress status but implementation is complete
   - Action: For each in_progress ticket: check if implementation is done (git log shows recent feature commits, ticket notes say 'implementation complete'), if yes but not merged: add URGENT note with commit hash…

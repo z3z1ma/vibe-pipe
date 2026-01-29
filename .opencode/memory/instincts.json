@@ -5,17 +5,14 @@
       "id": "verify-code-before-closing-tickets",
       "title": "Verify code exists before closing completed tickets",
       "trigger": "Ticket marked 'ready to merge' or 'implementation complete'",
-      "action": "Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connectors)",
+      "action": "Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connector tickets)",
       "tags": [],
       "confidence": 0.7,
       "status": "active",
       "created_at": "2026-01-29T10:20:06.338Z",
       "updated_at": "2026-01-29T10:20:06.338Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
-        }
+        {"ts": "2026-01-29T10:20:06.338Z", "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"}
       ]
     },
     {
@@ -29,10 +26,7 @@
       "created_at": "2026-01-29T10:20:06.338Z",
       "updated_at": "2026-01-29T10:20:06.338Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
-        }
+        {"ts": "2026-01-29T10:20:06.338Z", "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"}
       ]
     },
     {
@@ -46,10 +40,7 @@
       "created_at": "2026-01-29T10:20:06.338Z",
       "updated_at": "2026-01-29T10:20:06.338Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
-        }
+        {"ts": "2026-01-29T10:20:06.338Z", "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"}
       ]
     },
     {
@@ -63,10 +54,7 @@
       "created_at": "2026-01-29T10:20:56.342Z",
       "updated_at": "2026-01-29T10:20:56.342Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
+        {"ts": "2026-01-29T10:20:56.342Z", "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"}
       ]
     },
     {
@@ -80,10 +68,7 @@
       "created_at": "2026-01-29T10:20:56.342Z",
       "updated_at": "2026-01-29T10:20:56.342Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
+        {"ts": "2026-01-29T10:20:56.342Z", "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"}
       ]
     },
     {
@@ -97,10 +82,7 @@
       "created_at": "2026-01-29T10:20:56.342Z",
       "updated_at": "2026-01-29T10:20:56.342Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
+        {"ts": "2026-01-29T10:20:56.342Z", "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"}
       ]
     },
     {
@@ -114,10 +96,7 @@
       "created_at": "2026-01-29T10:20:56.342Z",
       "updated_at": "2026-01-29T10:20:56.342Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
+        {"ts": "2026-01-29T10:20:56.342Z", "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"}
       ]
     },
     {
@@ -131,10 +110,7 @@
       "created_at": "2026-01-29T10:20:56.342Z",
       "updated_at": "2026-01-29T10:20:56.342Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
+        {"ts": "2026-01-29T10:20:56.342Z", "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"}
       ]
     },
     {
@@ -148,10 +124,7 @@
       "created_at": "2026-01-29T12:18:15.165Z",
       "updated_at": "2026-01-29T12:18:15.165Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
-        }
+        {"ts": "2026-01-29T12:18:15.165Z", "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"}
       ]
     },
     {
@@ -165,10 +138,7 @@
       "created_at": "2026-01-29T12:18:15.165Z",
       "updated_at": "2026-01-29T12:18:15.165Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
-        }
+        {"ts": "2026-01-29T12:18:15.165Z", "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"}
       ]
     },
     {
@@ -182,10 +152,49 @@
       "created_at": "2026-01-29T12:18:15.165Z",
       "updated_at": "2026-01-29T12:18:15.165Z",
       "evidence": [
-        {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
-        }
+        {"ts": "2026-01-29T12:18:15.165Z", "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"}
+      ]
+    },
+    {
+      "id": "optional-dependency-import-pattern",
+      "title": "Import optional dependencies with try/except and type ignore",
+      "trigger": "Need to use external library that may not be installed",
+      "action": "1. Wrap import in try/except block\n2. Add type: ignore[import-untyped] comment for mypy\n3. Set flag variable to track availability\n4. Provide fallback behavior when unavailable\n5. Document degradation in docstring",
+      "tags": [],
+      "confidence": 0.9,
+      "status": "active",
+      "created_at": "2026-01-29T11:00:04.777Z",
+      "updated_at": "2026-01-29T11:00:04.777Z",
+      "evidence": [
+        {"ts": "2026-01-29T11:00:04.777Z", "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"}
+      ]
+    },
+    {
+      "id": "datetime-none-coalescing",
+      "title": "Coalesce None datetime values before arithmetic",
+      "trigger": "Performing datetime arithmetic with potentially None fields",
+      "action": "Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]",
+      "tags": [],
+      "confidence": 0.85,
+      "status": "active",
+      "created_at": "2026-01-29T11:00:04.777Z",
+      "updated_at": "2026-01-29T11:00:04.777Z",
+      "evidence": [
+        {"ts": "2026-01-29T11:00:04.777Z", "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"}
+      ]
+    },
+    {
+      "id": "formatter-type-separation",
+      "title": "Use separate variables for different formatter types",
+      "trigger": "MyPy complains about incompatible formatter assignments",
+      "action": "Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion",
+      "tags": [],
+      "confidence": 0.75,
+      "status": "active",
+      "created_at": "2026-01-29T11:00:04.777Z",
+      "updated_at": "2026-01-29T11:00:04.777Z",
+      "evidence": [
+        {"ts": "2026-01-29T11:00:04.777Z", "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"}
       ]
     }
   ]
