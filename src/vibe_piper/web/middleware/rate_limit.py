@@ -3,7 +3,6 @@
 import logging
 import time
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timedelta
 from functools import lru_cache
 
 from fastapi import HTTPException, Request, Response
@@ -205,7 +204,6 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
     Raises:
         HTTPException: If rate limit is exceeded
     """
-    from fastapi import Response
 
     # Get client ID
     forwarded = request.headers.get("X-Forwarded-For")

@@ -4,10 +4,9 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from vibe_piper.web.api.endpoints.auth import get_current_user
-
 
 # =============================================================================
 # Pydantic Models
