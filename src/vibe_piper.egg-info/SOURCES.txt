@@ -71,6 +71,12 @@ src/vibe_piper/io_managers/registry.py
 src/vibe_piper/io_managers/s3.py
 src/vibe_piper/materialization/__init__.py
 src/vibe_piper/materialization/strategies.py
+src/vibe_piper/monitoring/__init__.py
+src/vibe_piper/monitoring/errors.py
+src/vibe_piper/monitoring/health.py
+src/vibe_piper/monitoring/logging.py
+src/vibe_piper/monitoring/metrics.py
+src/vibe_piper/monitoring/profiling.py
 src/vibe_piper/transformations/__init__.py
 src/vibe_piper/transformations/aggregations.py
 src/vibe_piper/transformations/builder.py

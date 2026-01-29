@@ -145,25 +145,35 @@ This block is maintained by the compound plugin.
 
 <!-- BEGIN:compound:skills-index -->
 - **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/author-agents-md-uv-python/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/author-agents-md-uv-python/SKILL.md
 - **compound-apply-spec** (v1): Write a CompoundSpec v1 JSON payload and apply it via compound_apply to create/update skills and docs.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-apply-spec/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/compound-apply-spec/SKILL.md
 - **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-workflows/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/compound-workflows/SKILL.md
 - **loom-team-manager-pane-dead-on-spawn** (v1): Diagnose and fix Loom team manager pane dying immediately (tmux pane status 1).
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
 - **loom-ticketing** (v1): Use loom ticket for ticket creation, status updates, deps, and notes.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-ticketing/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/loom-ticketing/SKILL.md
 - **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-workspace/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/loom-workspace/SKILL.md
+- **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/monitoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/skill-authoring/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/skill-authoring/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-f17e/.opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
-- _(none yet)_
+- **optional-dependency-import-pattern** (90%)
+  - Trigger: Need to use external library that may not be installed
+  - Action: 1. Wrap import in try/except block 2. Add type: ignore[import-untyped] comment for mypy 3. Set flag variable to track availability 4. Provide fallback behavior when unavailable 5. Document degradation…
+- **datetime-none-coalescing** (85%)
+  - Trigger: Performing datetime arithmetic with potentially None fields
+  - Action: Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]
+- **formatter-type-separation** (75%)
+  - Trigger: MyPy complains about incompatible formatter assignments
+  - Action: Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->

@@ -126,7 +126,6 @@ try:
     from vibe_piper.integration import (
         APIClient,
         APIError,
-        AuthenticationError,
         BearerTokenAuth,
         CursorPagination,
         GraphQLClient,
@@ -185,6 +184,26 @@ try:
     _CONNECTORS_AVAILABLE = True
 except ImportError:
     _CONNECTORS_AVAILABLE = False
+
+# Monitoring & Observability
+from vibe_piper.monitoring import (
+    ErrorAggregator,
+    ErrorCategory,
+    ErrorRecord,
+    ErrorSeverity,
+    HealthChecker,
+    HealthStatus,
+    LogLevel,
+    MetricsCollector,
+    MetricsSnapshot,
+    MetricType,
+    Profiler,
+    StructuredLogger,
+    configure_logging,
+    get_logger,
+    log_execution,
+    profile_execution,
+)
 
 __all__ = [
     "Asset",
