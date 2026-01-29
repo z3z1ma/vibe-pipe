@@ -8,15 +8,7 @@ This module provides comprehensive data validation capabilities including:
 - Validation suites for organizing checks
 - Detailed validation results
 - Lazy validation mode (collect all errors)
-
-Example usage:
-
-    @asset
-    @validate(schema=CustomerSchema, lazy=True)
-    @expect.column("email").to_match_regex(r"^[\\w\\.-]+@")
-    @expect.column("age").to_be_between(0, 120)
-    def customers():
-        return records
+- Advanced validation: anomaly detection, data profiling, drift detection, quality scoring
 """
 
 # Import checks using importlib to avoid circular issues
@@ -38,8 +30,6 @@ expect_column_groupby_value_counts_to_be_between = (
 )
 expect_column_max_to_be_between = checks.expect_column_max_to_be_between
 expect_column_mean_to_be_between = checks.expect_column_mean_to_be_between
-expect_column_median_to_be_between = checks.expect_column_median_to_be_between
-expect_column_min_to_be_between = checks.expect_column_min_to_be_between
 expect_column_pair_values_a_to_be_greater_than_b = (
     checks.expect_column_pair_values_a_to_be_greater_than_b
 )
@@ -55,6 +45,7 @@ expect_column_values_to_be_between = checks.expect_column_values_to_be_between
 expect_column_values_to_be_dateutil_parseable = checks.expect_column_values_to_be_dateutil_parseable
 expect_column_values_to_be_decreasing = checks.expect_column_values_to_be_decreasing
 expect_column_values_to_be_in_set = checks.expect_column_values_to_be_in_set
+expect_column_values_to_not_be_in_set = _expect_not_in_set  # Workaround: use direct import
 expect_column_values_to_be_increasing = checks.expect_column_values_to_be_increasing
 expect_column_values_to_not_be_null = checks.expect_column_values_to_not_be_null
 expect_column_values_to_not_in_set = _expect_not_in_set  # Workaround: use direct import
@@ -66,6 +57,20 @@ expect_table_row_count_to_be_between = checks.expect_table_row_count_to_be_betwe
 expect_table_row_count_to_equal = checks.expect_table_row_count_to_equal
 
 # Import decorators and suite
+# Import advanced validation modules
+from vibe_piper.validation.anomaly_detection import (
+    AnomalyResult,
+    detect_anomalies_iqr,
+    detect_anomalies_isolation_forest,
+    detect_anomalies_multi_method,
+    detect_anomalies_zscore,
+)
+from vibe_piper.validation.data_profiling import (
+    ColumnStatistics,
+    DataProfile,
+    profile_column,
+    profile_data,
+)
 from vibe_piper.validation.decorators import (
     ColumnExpectationBuilder,
     ExpectationBuilder,
@@ -75,6 +80,24 @@ from vibe_piper.validation.decorators import (
     ValidationConfig,
     expect,
     validate,
+)
+from vibe_piper.validation.drift_detection import (
+    ColumnDriftResult,
+    DriftResult,
+    detect_drift_chi_square,
+    detect_drift_ks,
+    detect_drift_multi_method,
+    detect_drift_psi,
+)
+from vibe_piper.validation.quality_scoring import (
+    ColumnQualityResult,
+    QualityScore,
+    calculate_column_quality,
+    calculate_completeness,
+    calculate_consistency,
+    calculate_quality_score,
+    calculate_uniqueness,
+    calculate_validity,
 )
 from vibe_piper.validation.suite import (
     LazyValidationStrategy,
@@ -109,7 +132,6 @@ __all__ = [
     "expect_column_values_to_be_unique",
     "expect_column_values_to_be_of_type",
     "expect_column_values_to_not_be_null",
-    "expect_column_proportion_of_nulls_to_be_between",
     "expect_column_value_lengths_to_be_between",
     "expect_column_values_to_be_increasing",
     "expect_column_values_to_be_decreasing",
@@ -119,6 +141,7 @@ __all__ = [
     "expect_column_sum_to_equal_other_column_sum",
     "expect_column_groupby_value_counts_to_be_between",
     "expect_column_groupby_mean_to_be_between",
+    "expect_column_proportion_of_nulls_to_be_between",
     "expect_table_row_count_to_be_between",
     "expect_table_row_count_to_equal",
     "expect_column_values_to_be_dateutil_parseable",
@@ -131,6 +154,33 @@ __all__ = [
     "MultiColumnExpectationBuilder",
     "TableExpectationBuilder",
     "ValidateDecorator",
+    # Advanced validation: anomaly detection
+    "AnomalyResult",
+    "detect_anomalies_zscore",
+    "detect_anomalies_iqr",
+    "detect_anomalies_isolation_forest",
+    "detect_anomalies_multi_method",
+    # Advanced validation: data profiling
+    "ColumnStatistics",
+    "DataProfile",
+    "profile_data",
+    "profile_column",
+    # Advanced validation: drift detection
+    "ColumnDriftResult",
+    "DriftResult",
+    "detect_drift_ks",
+    "detect_drift_chi_square",
+    "detect_drift_psi",
+    "detect_drift_multi_method",
+    # Advanced validation: quality scoring
+    "QualityScore",
+    "ColumnQualityResult",
+    "calculate_completeness",
+    "calculate_validity",
+    "calculate_uniqueness",
+    "calculate_consistency",
+    "calculate_quality_score",
+    "calculate_column_quality",
 ]
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
