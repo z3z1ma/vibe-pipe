@@ -1,6 +1,6 @@
 ---
 "id": "vp-e2b5"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-28T01:27:18Z"
