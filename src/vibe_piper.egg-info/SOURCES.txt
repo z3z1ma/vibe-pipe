@@ -67,6 +67,11 @@ src/vibe_piper/docs/cli.py
 src/vibe_piper/docs/lineage.py
 src/vibe_piper/docs/schema.py
 src/vibe_piper/docs/site.py
+src/vibe_piper/external_quality/__init__.py
+src/vibe_piper/external_quality/base.py
+src/vibe_piper/external_quality/great_expectations.py
+src/vibe_piper/external_quality/soda.py
+src/vibe_piper/external_quality/unified.py
 src/vibe_piper/integration/__init__.py
 src/vibe_piper/integration/auth.py
 src/vibe_piper/integration/base.py
