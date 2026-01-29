@@ -178,6 +178,8 @@ This block is maintained by the compound plugin.
   - .opencode/skills/quality-scoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
   - .opencode/skills/skill-authoring/SKILL.md
+- **snapshot-testing** (v1): Snapshot testing framework for asserting data structures don't change unexpectedly. Supports JSON serialization, automatic snapshot creation on first run, diff visualization on mismatches, max depth protection, and --update-snapshots flag.
+  - .opencode/skills/snapshot-testing/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
   - .opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
 - **validation-history-integration** (v1): Integrate validation history auto-storage with existing validation framework
