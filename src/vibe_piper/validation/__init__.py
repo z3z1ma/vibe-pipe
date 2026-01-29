@@ -9,6 +9,7 @@ This module provides comprehensive data validation capabilities including:
 - Detailed validation results
 - Lazy validation mode (collect all errors)
 - Advanced validation: anomaly detection, data profiling, drift detection, quality scoring
+- Validation history: PostgreSQL-based storage, trend analysis, failure pattern detection, baseline comparison
 """
 
 # Import checks using importlib to avoid circular issues
@@ -101,10 +102,32 @@ from vibe_piper.validation.quality_scoring import (
 )
 from vibe_piper.validation.suite import (
     LazyValidationStrategy,
+    SuiteValidationResult,
     ValidationContext,
     ValidationStrategy,
     ValidationSuite,
     create_validation_suite,
+)
+
+# Validation history storage and analysis
+from vibe_piper.validation.history import (
+    BaselineComparisonResult,
+    FailurePattern,
+    PostgreSQLValidationHistoryStore,
+    TrendAnalysisResult,
+    ValidationCheckRecord,
+    ValidationHistoryAnalyzer,
+    ValidationHistoryStore,
+    ValidationMetric,
+    ValidationRunMetadata,
+)
+
+# Integration utilities
+from vibe_piper.validation.integration import (
+    extract_metrics_from_suite_result,
+    store_validation_result,
+    suite_result_to_check_records,
+    suite_result_to_run_metadata,
 )
 
 __all__ = [
@@ -117,6 +140,7 @@ __all__ = [
     "ValidationStrategy",
     "LazyValidationStrategy",
     "ValidationContext",
+    "SuiteValidationResult",
     "create_validation_suite",
     # Check functions (30+ validations)
     "expect_column_mean_to_be_between",
@@ -181,6 +205,21 @@ __all__ = [
     "calculate_consistency",
     "calculate_quality_score",
     "calculate_column_quality",
+    # Validation history storage and analysis
+    "ValidationRunMetadata",
+    "ValidationCheckRecord",
+    "ValidationMetric",
+    "TrendAnalysisResult",
+    "FailurePattern",
+    "BaselineComparisonResult",
+    "ValidationHistoryStore",
+    "PostgreSQLValidationHistoryStore",
+    "ValidationHistoryAnalyzer",
+    # Integration utilities
+    "suite_result_to_run_metadata",
+    "suite_result_to_check_records",
+    "extract_metrics_from_suite_result",
+    "store_validation_result",
 ]
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"

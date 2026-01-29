@@ -98,8 +98,14 @@ src/vibe_piper/transformations/joins.py
 src/vibe_piper/transformations/pivot.py
 src/vibe_piper/transformations/windows.py
 src/vibe_piper/validation/__init__.py
+src/vibe_piper/validation/anomaly_detection.py
 src/vibe_piper/validation/checks.py
+src/vibe_piper/validation/data_profiling.py
 src/vibe_piper/validation/decorators.py
+src/vibe_piper/validation/drift_detection.py
+src/vibe_piper/validation/history.py
+src/vibe_piper/validation/integration.py
+src/vibe_piper/validation/quality_scoring.py
 src/vibe_piper/validation/suite.py
 tests/test_basic.py
 tests/test_decorators.py
@@ -113,6 +119,7 @@ tests/test_lineage.py
 tests/test_materialization.py
 tests/test_materialization_integration.py
 tests/test_operators.py
+tests/test_orchestration.py
 tests/test_pipeline.py
 tests/test_protocols.py
 tests/test_quality.py
