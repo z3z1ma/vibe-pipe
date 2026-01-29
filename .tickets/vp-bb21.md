@@ -1,6 +1,6 @@
 ---
 "id": "vp-bb21"
-"status": "open"
+"status": "in_progress"
 "deps": []
 "links": []
 "created": "2026-01-29T10:16:59Z"
