@@ -3,9 +3,8 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (9)
+- # Tickets (8)
 - - `vp-cf95` P1 in_progress - Untitled
-- - `vp-f17e` P1 in_progress - Untitled
 - - `vp-0429` P2 open - Untitled
 - - `vp-141f` P2 in_progress - Advanced Validation Patterns
 - - `vp-1aa6` P2 in_progress - SQL Integration
