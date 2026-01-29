@@ -15,13 +15,13 @@ from vibe_piper.config.schema import (
 from vibe_piper.config.validation import validate_config
 
 try:
-    import yaml  # type: ignore[import-untyped]
-    from yaml import YAMLError  # type: ignore[import-untyped]
+    import yaml
+    from yaml import YAMLError
 
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
-    YAMLError = Exception  # type: ignore[misc]
+    YAMLError = Exception  # type: ignore[misc,assignment]
 
 
 class ConfigLoadError(Exception):
@@ -73,11 +73,12 @@ def load_config(
 
     try:
         data = _load_file_data(path)
-    except (tomllib.TOMLDecodeError, json.JSONDecodeError, YAMLError) as e:
-        msg = f"Invalid {_get_format_name(path)} syntax"
-        raise ConfigLoadError(msg, path=path, cause=e) from e
-    except (ValueError, OSError) as e:
-        msg = "Failed to read configuration file"
+    except Exception as e:
+        # Check if it's a specific parsing error or a general error
+        if isinstance(e, (tomllib.TOMLDecodeError, json.JSONDecodeError, YAMLError)):
+            msg = f"Invalid {_get_format_name(path)} syntax"
+        else:
+            msg = "Failed to read configuration file"
         raise ConfigLoadError(msg, path=path, cause=e) from e
 
     try:
@@ -121,7 +122,7 @@ def _load_file_data(path: Path) -> dict[str, Any]:
             return yaml.safe_load(f)  # type: ignore[no-any-return]
     elif suffix == ".json":
         with path.open("r", encoding="utf-8") as f:
-            return json.load(f)
+            return json.load(f)  # type: ignore[no-any-return]
     else:
         msg = f"Unsupported configuration file format: {suffix}"
         raise ValueError(msg)

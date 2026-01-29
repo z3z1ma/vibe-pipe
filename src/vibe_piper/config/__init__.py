@@ -2,6 +2,40 @@
 
 This module provides environment-specific configuration management with secrets support.
 
+Configuration file formats supported:
+- TOML (.toml) - Native Python 3.11+ support
+- YAML (.yaml, .yml) - Requires PyYAML
+- JSON (.json) - Native Python support
+
+The loader searches for configuration files in order of preference:
+1. vibepiper.toml
+2. vibepiper.yaml
+3. vibepiper.yml
+4. vibepiper.json
+
+Configuration inheritance:
+Environments can inherit from other environments using the 'inherits' field:
+
+```toml
+[environments.base]
+io_manager = "s3"
+bucket = "base-bucket"
+
+[environments.prod]
+inherits = "base"
+log_level = "warning"
+```
+
+Runtime configuration overrides:
+CLI overrides can be applied to environment configurations:
+
+```python
+from vibe_piper.config import load_config
+
+config = load_config("vibepiper.toml", cli_overrides={"log_level": "debug"})
+env = config.get_environment("prod", apply_overrides=True)
+```
+
 Example usage:
     ```python
     from vibe_piper.config import load_config, load_secrets
@@ -12,30 +46,9 @@ Example usage:
     # Load secrets
     secrets = load_secrets(config)
 
-    # Access configuration
-    env_config = config.get_environment("prod")
+    # Access configuration with runtime overrides
+    env_config = config.get_environment("prod", apply_overrides=True)
     print(f"IO Manager: {env_config.io_manager}")
-    ```
-
-Configuration file format (vibepiper.toml):
-    ```toml
-    [project]
-    name = "my-pipeline"
-    version = "0.1.0"
-
-    [environments.dev]
-    io_manager = "memory"
-    log_level = "debug"
-
-    [environments.prod]
-    io_manager = "s3"
-    bucket = "my-bucket"
-    region = "us-west-2"
-    log_level = "info"
-
-    [secrets]
-    AWS_SECRET_ACCESS_KEY = { from = "env" }
-    API_KEY = { from = "vault", path = "secret/api-key" }
     ```
 """
 
