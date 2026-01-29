@@ -28,6 +28,13 @@ src/vibe_piper/cli/commands/run.py
 src/vibe_piper/cli/commands/test.py
 src/vibe_piper/cli/commands/validate.py
 src/vibe_piper/cli/commands/version.py
+src/vibe_piper/cli/commands/asset/__init__.py
+src/vibe_piper/cli/commands/asset/list.py
+src/vibe_piper/cli/commands/asset/show.py
+src/vibe_piper/cli/commands/pipeline/__init__.py
+src/vibe_piper/cli/commands/pipeline/backfill.py
+src/vibe_piper/cli/commands/pipeline/history.py
+src/vibe_piper/cli/commands/pipeline/status.py
 src/vibe_piper/config/__init__.py
 src/vibe_piper/config/loader.py
 src/vibe_piper/config/schema.py

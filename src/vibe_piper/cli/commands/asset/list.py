@@ -9,7 +9,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-app = typer.Typer(help="List assets in a pipeline")
 console = Console()
 
 
@@ -58,7 +57,6 @@ def import_pipeline(project_path: Path) -> Any:
         sys.path.pop(0)
 
 
-@app.command()  # type: ignore[misc]
 def list_assets(
     project_path: Path = typer.Argument(
         Path("."),

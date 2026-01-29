@@ -11,7 +11,6 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.table import Table
 
-app = typer.Typer(help="Show detailed information about an asset")
 console = Console()
 
 
@@ -75,7 +74,6 @@ def format_metadata(metadata: dict[str, Any] | None) -> str:
     return json.dumps(metadata, indent=2, default=str)
 
 
-@app.command()  # type: ignore[misc]
 def show(
     asset_name: str = typer.Argument(
         ...,
