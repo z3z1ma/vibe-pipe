@@ -23,6 +23,7 @@ src/vibe_piper.egg-info/top_level.txt
 src/vibe_piper/cli/__init__.py
 src/vibe_piper/cli/main.py
 src/vibe_piper/cli/commands/__init__.py
+src/vibe_piper/cli/commands/dashboard.py
 src/vibe_piper/cli/commands/docs.py
 src/vibe_piper/cli/commands/init.py
 src/vibe_piper/cli/commands/run.py
@@ -55,6 +56,10 @@ src/vibe_piper/connectors/utils/__init__.py
 src/vibe_piper/connectors/utils/compression.py
 src/vibe_piper/connectors/utils/inference.py
 src/vibe_piper/connectors/utils/type_mapping.py
+src/vibe_piper/dashboard/__init__.py
+src/vibe_piper/dashboard/anomaly_detection.py
+src/vibe_piper/dashboard/api.py
+src/vibe_piper/dashboard/models.py
 src/vibe_piper/docs/__init__.py
 src/vibe_piper/docs/base.py
 src/vibe_piper/docs/catalog.py
@@ -113,6 +118,7 @@ tests/test_lineage.py
 tests/test_materialization.py
 tests/test_materialization_integration.py
 tests/test_operators.py
+tests/test_orchestration.py
 tests/test_pipeline.py
 tests/test_protocols.py
 tests/test_quality.py
