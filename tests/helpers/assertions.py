@@ -38,9 +38,9 @@ def assert_schema_valid(
     if check_fields:
         # Check for duplicate field names
         field_names = [f.name for f in schema.fields]
-        assert len(field_names) == len(
-            set(field_names)
-        ), f"Schema '{schema.name}' has duplicate field names"
+        assert len(field_names) == len(set(field_names)), (
+            f"Schema '{schema.name}' has duplicate field names"
+        )
 
         # Validate each field
         for field in schema.fields:
@@ -60,9 +60,9 @@ def assert_field_valid(field: SchemaField, check_constraints: bool = True) -> No
     """
     assert field.name, "Field name must not be empty"
     assert isinstance(field.name, str), "Field name must be a string"
-    assert field.name.replace(
-        "_", ""
-    ).isidentifier(), f"Field name '{field.name}' must be a valid identifier"
+    assert field.name.replace("_", "").isidentifier(), (
+        f"Field name '{field.name}' must be a valid identifier"
+    )
 
     # Check that data_type is a valid DataType enum
     from vibe_piper.types import DataType
@@ -81,9 +81,9 @@ def assert_field_valid(field: SchemaField, check_constraints: bool = True) -> No
     assert field.data_type in valid_types, f"Field '{field.name}' has invalid data_type"
 
     if check_constraints and field.constraints:
-        assert isinstance(
-            field.constraints, Mapping
-        ), f"Field '{field.name}' constraints must be a mapping"
+        assert isinstance(field.constraints, Mapping), (
+            f"Field '{field.name}' constraints must be a mapping"
+        )
 
 
 def assert_data_conforms_to_schema(
@@ -172,9 +172,9 @@ def assert_asset_graph_valid(graph: AssetGraph) -> None:
 
     # Check for duplicate asset names
     asset_names = [a.name for a in graph.assets]
-    assert len(asset_names) == len(
-        set(asset_names)
-    ), f"AssetGraph '{graph.name}' has duplicate asset names"
+    assert len(asset_names) == len(set(asset_names)), (
+        f"AssetGraph '{graph.name}' has duplicate asset names"
+    )
 
     # Validate all assets
     for asset in graph.assets:
@@ -183,13 +183,13 @@ def assert_asset_graph_valid(graph: AssetGraph) -> None:
     # Validate all dependencies exist
     asset_name_set = set(asset_names)
     for asset_name, deps in graph.dependencies.items():
-        assert (
-            asset_name in asset_name_set
-        ), f"Asset '{asset_name}' in dependencies but not in assets"
+        assert asset_name in asset_name_set, (
+            f"Asset '{asset_name}' in dependencies but not in assets"
+        )
         for dep in deps:
-            assert (
-                dep in asset_name_set
-            ), f"Dependency '{dep}' of asset '{asset_name}' not found in assets"
+            assert dep in asset_name_set, (
+                f"Dependency '{dep}' of asset '{asset_name}' not found in assets"
+            )
 
     # Check for circular dependencies
     assert_no_circular_dependencies(graph)
@@ -289,9 +289,9 @@ def assert_lineage(
     collect_lineage(asset_name)
 
     expected_set = set(expected_lineage)
-    assert (
-        actual_lineage == expected_set
-    ), f"Asset '{asset_name}' has lineage {actual_lineage}, expected {expected_set}"
+    assert actual_lineage == expected_set, (
+        f"Asset '{asset_name}' has lineage {actual_lineage}, expected {expected_set}"
+    )
 
 
 def assert_execution_successful(
@@ -311,18 +311,18 @@ def assert_execution_successful(
     if isinstance(result, AssetResult):
         assert result.success, f"Asset '{result.asset_name}' execution failed: {result.error}"
         if check_data:
-            assert (
-                result.data is not None
-            ), f"Asset '{result.asset_name}' has no data despite success=True"
+            assert result.data is not None, (
+                f"Asset '{result.asset_name}' has no data despite success=True"
+            )
     else:  # ExecutionResult
         assert result.success, f"Execution failed with {len(result.errors)} errors: {result.errors}"
         assert result.assets_failed == 0, f"Execution had {result.assets_failed} failed assets"
         if check_data:
             for asset_name, asset_result in result.asset_results.items():
                 if asset_result.success:
-                    assert (
-                        asset_result.data is not None
-                    ), f"Asset '{asset_name}' has no data despite success=True"
+                    assert asset_result.data is not None, (
+                        f"Asset '{asset_name}' has no data despite success=True"
+                    )
 
 
 def assert_assets_equal(asset1: Asset, asset2: Asset) -> None:
@@ -359,9 +359,9 @@ def assert_schemas_equal(schema1: Schema, schema2: Schema) -> None:
         AssertionError: If schemas are not equal
     """
     assert schema1.name == schema2.name, "Schema names don't match"
-    assert len(schema1.fields) == len(
-        schema2.fields
-    ), f"Schema field counts don't match: {len(schema1.fields)} vs {len(schema2.fields)}"
+    assert len(schema1.fields) == len(schema2.fields), (
+        f"Schema field counts don't match: {len(schema1.fields)} vs {len(schema2.fields)}"
+    )
 
     # Compare fields
     field_map2 = {f.name: f for f in schema2.fields}
@@ -369,15 +369,15 @@ def assert_schemas_equal(schema1: Schema, schema2: Schema) -> None:
         assert field1.name in field_map2, f"Field '{field1.name}' not in second schema"
         field2 = field_map2[field1.name]
 
-        assert (
-            field1.data_type == field2.data_type
-        ), f"Field '{field1.name}' has different data_type"
-        assert (
-            field1.required == field2.required
-        ), f"Field '{field1.name}' has different required flag"
-        assert (
-            field1.nullable == field2.nullable
-        ), f"Field '{field1.name}' has different nullable flag"
+        assert field1.data_type == field2.data_type, (
+            f"Field '{field1.name}' has different data_type"
+        )
+        assert field1.required == field2.required, (
+            f"Field '{field1.name}' has different required flag"
+        )
+        assert field1.nullable == field2.nullable, (
+            f"Field '{field1.name}' has different nullable flag"
+        )
 
 
 def assert_execution_results_equal(
@@ -396,23 +396,23 @@ def assert_execution_results_equal(
     """
     assert result1.success == result2.success, "Success status doesn't match"
     assert result1.assets_executed == result2.assets_executed, "Assets executed count doesn't match"
-    assert (
-        result1.assets_succeeded == result2.assets_succeeded
-    ), "Assets succeeded count doesn't match"
+    assert result1.assets_succeeded == result2.assets_succeeded, (
+        "Assets succeeded count doesn't match"
+    )
     assert result1.assets_failed == result2.assets_failed, "Assets failed count doesn't match"
 
     # Compare asset results
-    assert set(result1.asset_results.keys()) == set(
-        result2.asset_results.keys()
-    ), "Asset result keys don't match"
+    assert set(result1.asset_results.keys()) == set(result2.asset_results.keys()), (
+        "Asset result keys don't match"
+    )
 
     for asset_name in result1.asset_results:
         asset_result1 = result1.asset_results[asset_name]
         asset_result2 = result2.asset_results[asset_name]
 
-        assert (
-            asset_result1.success == asset_result2.success
-        ), f"Asset '{asset_name}' success status doesn't match"
-        assert (
-            asset_result1.asset_name == asset_result2.asset_name
-        ), f"Asset name mismatch for '{asset_name}'"
+        assert asset_result1.success == asset_result2.success, (
+            f"Asset '{asset_name}' success status doesn't match"
+        )
+        assert asset_result1.asset_name == asset_result2.asset_name, (
+            f"Asset name mismatch for '{asset_name}'"
+        )
