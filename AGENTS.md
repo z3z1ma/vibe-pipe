@@ -150,6 +150,12 @@ This block is maintained by the compound plugin.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-apply-spec/SKILL.md
 - **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/compound-workflows/SKILL.md
+- **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-manager-workflow/SKILL.md
+- **loom-team-lifecycle-management** (v1): Manage Loom team worker lifecycle from spawn to retire, including ticket assignment, progress tracking, merge operations, and workspace cleanup.
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-lifecycle-management/SKILL.md
+- **loom-team-manager** (v1): Act as Team Manager for Loom team, handling ticket workflow when team commands may be unavailable
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-manager/SKILL.md
 - **loom-team-manager-pane-dead-on-spawn** (v1): Diagnose and fix Loom team manager pane dying immediately (tmux pane status 1).
   - /Users/alexanderbutler/code_projects/personal/vibe-piper/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
 - **loom-ticketing** (v1): Use loom ticket for ticket creation, status updates, deps, and notes.
@@ -163,7 +169,39 @@ This block is maintained by the compound plugin.
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
-- _(none yet)_
+- **sync-ticket-updates** (90%)
+  - Trigger: After any `loom ticket` command that changes state (close, add-note, update)
+  - Action: Run `loom ticket sync` to commit ticket changes to repository
+- **phase3-ticket-sequencing** (90%)
+  - Trigger: Starting Phase 3 ticket implementation
+  - Action: Orchestration Engine (vp-cf95) must complete before CLI (vp-6cf1), Scheduling (vp-7d49), and Monitoring (vp-f17e) can fully integrate. Verify orchestration engine is in codebase before spawning worker…
+- **verify-code-before-ticket-close** (85%)
+  - Trigger: Worker marks ticket ready for review/merge
+  - Action: Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementatio…
+- **check-loom-permissions-early** (80%)
+  - Trigger: Acting as Team Manager for Loom team
+  - Action: Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.
+- **loom-manager-add-ticket-notes** (80%)
+  - Trigger: Created new ticket via loom ticket create
+  - Action: Immediately add a note to the ticket with: 1) Tasks numbered list, 2) Dependencies (if any), 3) Acceptance criteria, 4) Technical notes, 5) Example usage (if feature)
+- **merge-worker-workspace-cleanup** (80%)
+  - Trigger: Attempting to retire worker after merge
+  - Action: When 'loom team retire <worker>' fails with 'modified or untracked files' error, check worktree status with git status and either: 1) Stash uncommitted changes, 2) Use --force flag if safe to delete, …
+- **loom-manager-dependency-notes** (75%)
+  - Trigger: Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on
+  - Action: Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)
+- **verify-code-before-closing-tickets** (70%)
+  - Trigger: Ticket marked 'ready to merge' or 'implementation complete'
+  - Action: Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connectors)
+- **loom-manager-check-merge-blockage** (70%)
+  - Trigger: Listing tickets shows in_progress status but implementation is complete
+  - Action: For each in_progress ticket: check if implementation is done (git log shows recent feature commits, ticket notes say 'implementation complete'), if yes but not merged: add URGENT note with commit hash…
+- **loom-manager-phase-organization** (70%)
+  - Trigger: Creating tickets for sequential project phases
+  - Action: Add phase tags (phase1, phase2, phase3) to tickets and ensure lower-priority tickets have dependency notes referencing higher-priority phase tickets that must complete first
+- **loom-manager-inspect-before-action** (65%)
+  - Trigger: About to merge a ticket branch or assess completion status
+  - Action: Run git log <branch> --oneline -5 to see recent commits, git diff main <branch> --stat to see change scope, check if commits look like implementation vs cleanup, verify branch exists and is ahead of m…
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->

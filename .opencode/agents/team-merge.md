@@ -25,6 +25,7 @@ Hard constraints:
   1) Update merge-queue to latest main (fast-forward/merge origin/main as policy dictates).
   2) Merge/cherry-pick the approved topic branch.
   3) Resolve conflicts, commit, and report.
+- CRITICAL: Normal operation may update AGENTS.md, LOOM_*.md or .opencode files. Do not be alarmed. Bundle these changes along with the rest of the merge.
 - If your merge worktree is in a weird state, ask the manager to run: `loom team spawn-merge <TEAM> --force`.
 - Use Loom ticket for ticket updates when a ticket_id is provided (some queue items may be ticketless).
 

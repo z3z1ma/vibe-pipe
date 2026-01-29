@@ -1,4 +1,192 @@
 {
   "version": 1,
-  "instincts": []
+  "instincts": [
+    {
+      "id": "verify-code-before-closing-tickets",
+      "title": "Verify code exists before closing completed tickets",
+      "trigger": "Ticket marked 'ready to merge' or 'implementation complete'",
+      "action": "Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connectors)",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:06.338Z",
+      "updated_at": "2026-01-29T10:20:06.338Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:06.338Z",
+          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
+        }
+      ]
+    },
+    {
+      "id": "check-loom-permissions-early",
+      "title": "Check Loom command permissions before acting as Team Manager",
+      "trigger": "Acting as Team Manager for Loom team",
+      "action": "Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.",
+      "tags": [],
+      "confidence": 0.8,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:06.338Z",
+      "updated_at": "2026-01-29T10:20:06.338Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:06.338Z",
+          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
+        }
+      ]
+    },
+    {
+      "id": "sync-ticket-updates",
+      "title": "Sync ticket updates after modifications",
+      "trigger": "After any `loom ticket` command that changes state (close, add-note, update)",
+      "action": "Run `loom ticket sync` to commit ticket changes to repository",
+      "tags": [],
+      "confidence": 0.9,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:06.338Z",
+      "updated_at": "2026-01-29T10:20:06.338Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:06.338Z",
+          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
+        }
+      ]
+    },
+    {
+      "id": "loom-manager-add-ticket-notes",
+      "title": "Add detailed notes when creating tickets",
+      "trigger": "Created new ticket via loom ticket create",
+      "action": "Immediately add a note to the ticket with: 1) Tasks numbered list, 2) Dependencies (if any), 3) Acceptance criteria, 4) Technical notes, 5) Example usage (if feature)",
+      "tags": [],
+      "confidence": 0.8,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:56.342Z",
+      "updated_at": "2026-01-29T10:20:56.342Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:56.342Z",
+          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+        }
+      ]
+    },
+    {
+      "id": "loom-manager-check-merge-blockage",
+      "title": "Check for complete-but-unmerged tickets",
+      "trigger": "Listing tickets shows in_progress status but implementation is complete",
+      "action": "For each in_progress ticket: check if implementation is done (git log shows recent feature commits, ticket notes say 'implementation complete'), if yes but not merged: add URGENT note with commit hash and branch name, request merge to merge-queue",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:56.342Z",
+      "updated_at": "2026-01-29T10:20:56.342Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:56.342Z",
+          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+        }
+      ]
+    },
+    {
+      "id": "loom-manager-dependency-notes",
+      "title": "Document ticket dependencies in notes",
+      "trigger": "Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on",
+      "action": "Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)",
+      "tags": [],
+      "confidence": 0.75,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:56.342Z",
+      "updated_at": "2026-01-29T10:20:56.342Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:56.342Z",
+          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+        }
+      ]
+    },
+    {
+      "id": "loom-manager-inspect-before-action",
+      "title": "Inspect git state before ticket actions",
+      "trigger": "About to merge a ticket branch or assess completion status",
+      "action": "Run git log <branch> --oneline -5 to see recent commits, git diff main <branch> --stat to see change scope, check if commits look like implementation vs cleanup, verify branch exists and is ahead of main",
+      "tags": [],
+      "confidence": 0.65,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:56.342Z",
+      "updated_at": "2026-01-29T10:20:56.342Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:56.342Z",
+          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+        }
+      ]
+    },
+    {
+      "id": "loom-manager-phase-organization",
+      "title": "Organize tickets by phase in tags",
+      "trigger": "Creating tickets for sequential project phases",
+      "action": "Add phase tags (phase1, phase2, phase3) to tickets and ensure lower-priority tickets have dependency notes referencing higher-priority phase tickets that must complete first",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-29T10:20:56.342Z",
+      "updated_at": "2026-01-29T10:20:56.342Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T10:20:56.342Z",
+          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+        }
+      ]
+    },
+    {
+      "id": "verify-code-before-ticket-close",
+      "title": "Verify code exists before closing tickets",
+      "trigger": "Worker marks ticket ready for review/merge",
+      "action": "Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementation notes exist but no actual code was committed.",
+      "tags": [],
+      "confidence": 0.85,
+      "status": "active",
+      "created_at": "2026-01-29T12:18:15.165Z",
+      "updated_at": "2026-01-29T12:18:15.165Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T12:18:15.165Z",
+          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+        }
+      ]
+    },
+    {
+      "id": "merge-worker-workspace-cleanup",
+      "title": "Handle git workspace cleanup failures",
+      "trigger": "Attempting to retire worker after merge",
+      "action": "When 'loom team retire <worker>' fails with 'modified or untracked files' error, check worktree status with git status and either: 1) Stash uncommitted changes, 2) Use --force flag if safe to delete, or 3) Manually clean up files before retrying retirement.",
+      "tags": [],
+      "confidence": 0.8,
+      "status": "active",
+      "created_at": "2026-01-29T12:18:15.165Z",
+      "updated_at": "2026-01-29T12:18:15.165Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T12:18:15.165Z",
+          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+        }
+      ]
+    },
+    {
+      "id": "phase3-ticket-sequencing",
+      "title": "Phase 3 P1 tickets depend on orchestration engine",
+      "trigger": "Starting Phase 3 ticket implementation",
+      "action": "Orchestration Engine (vp-cf95) must complete before CLI (vp-6cf1), Scheduling (vp-7d49), and Monitoring (vp-f17e) can fully integrate. Verify orchestration engine is in codebase before spawning workers for dependent tickets.",
+      "tags": [],
+      "confidence": 0.9,
+      "status": "active",
+      "created_at": "2026-01-29T12:18:15.165Z",
+      "updated_at": "2026-01-29T12:18:15.165Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T12:18:15.165Z",
+          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+        }
+      ]
+    }
+  ]
 }
