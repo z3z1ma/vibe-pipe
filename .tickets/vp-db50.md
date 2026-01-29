@@ -71,3 +71,9 @@ Benchmarks showing improvements (>2x speedup)
 Tests for race conditions
 Documentation on tuning
 Test coverage > 80%
+
+## Notes
+
+**2026-01-29T10:14:16Z**
+
+Manager note: This is a P2 ticket. Please prioritize completing and merging the P1 tickets (vp-045b, vp-0862, vp-77b7, vp-e2b5) before working on this ticket. Performance optimizations should be done after core features are stable.
