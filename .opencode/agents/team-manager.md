@@ -9,7 +9,7 @@ permission:
   "task": "deny"
   "bash":
     "*": "deny"
-    "team *": "allow"
+    "loom team *": "allow"
     "loom ticket *": "allow"
     "loom ticket sync*": "allow"
     "git status*": "allow"
