@@ -1381,7 +1381,7 @@ Constraints:
 - Max instinct updates per run: ${AUTO_MAX_INSTINCT_UPDATES_PER_RUN}
 
 Skill update rule (MANDATORY):
-- For `skills.update[]`, `body` MUST be the entire, final managed body for the skill.
+- For skills.update[], body MUST be the entire, final managed body for the skill.
 - Do NOT output snippets, diffs, or partial sections. Re-emit the whole managed body with your edits applied.
 - Start from the existing skill managed bodies provided in the prompt context.
 `);
