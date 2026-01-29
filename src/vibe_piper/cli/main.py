@@ -147,11 +147,11 @@ def asset_show_cmd(
 
 
 # Register all wrapper commands
-app.command()(pipeline_status_cmd, name="pipeline-status")
-app.command()(pipeline_history_cmd, name="pipeline-history")
-app.command()(pipeline_backfill_cmd, name="pipeline-backfill")
-app.command()(asset_list_cmd, name="asset-list")
-app.command()(asset_show_cmd, name="asset-show")
+app.command()(pipeline_status_cmd)
+app.command()(pipeline_history_cmd)
+app.command()(pipeline_backfill_cmd)
+app.command()(asset_list_cmd)
+app.command()(asset_show_cmd)
 
 
 def cli() -> None:
