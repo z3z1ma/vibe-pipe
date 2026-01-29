@@ -202,6 +202,19 @@ function normalizeNewlines(s: string): string {
   return s.replace(/\r\n/g, "\n");
 }
 
+function rewriteRepoAbsolutePaths(root: string, text: string): string {
+  const t = normalizeNewlines(String(text ?? ""));
+
+  const rootAbs = path.resolve(String(root ?? "")).replace(/[\\/]+$/, "");
+  if (!rootAbs) return t;
+
+  const rootPosix = rootAbs.replace(/\\/g, "/");
+  const rootWin = rootAbs.replace(/\//g, "\\");
+
+  // Only rewrite paths that are clearly within this repo root.
+  return t.split(rootPosix + "/").join("").split(rootWin + "\\").join("");
+}
+
 function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
 }
@@ -225,6 +238,30 @@ async function atomicWrite(filePath: string, content: string): Promise<void> {
   const tmp = `${filePath}.tmp.${randomUUID()}`;
   await fs.writeFile(tmp, content, "utf8");
   await fs.rename(tmp, filePath);
+}
+
+async function resolveWriteRoot(sessionRoot: string): Promise<string> {
+  const override = String(process.env.COMPOUND_ROOT ?? "").trim();
+  if (override) return path.resolve(override);
+
+  // Fallback: infer repo root via git common dir (works in worktrees).
+  try {
+    const res = await runProcess({ cmd: "git", args: ["rev-parse", "--git-common-dir"] }, sessionRoot, 8000);
+    const out = String(res.stdout ?? "").trim();
+    if (!out) return sessionRoot;
+
+    const commonDir = path.resolve(sessionRoot, out);
+    const commonPosix = commonDir.replace(/\\/g, "/");
+
+    // Normal repo: .../.git
+    if (path.basename(commonDir) === ".git") return path.dirname(commonDir);
+
+    // Worktree common dir: .../.git/worktrees/<name>
+    const m = commonPosix.match(/^(.*)\/\.git(?:\/|$)/);
+    if (m && m[1]) return m[1];
+  } catch {}
+
+  return sessionRoot;
 }
 
 // -----------------------------
@@ -837,13 +874,14 @@ async function scanSkills(
   for (const ent of entries) {
     if (!ent.isDirectory()) continue;
     const name = ent.name;
-    const skillPath = path.join(dir, name, "SKILL.md");
-    if (!(await pathExists(skillPath))) continue;
+    const skillPathAbs = path.join(dir, name, "SKILL.md");
+    if (!(await pathExists(skillPathAbs))) continue;
     try {
-      const raw = await fs.readFile(skillPath, "utf8");
+      const raw = await fs.readFile(skillPathAbs, "utf8");
       const { fm, body } = parseFrontmatter(raw);
       if (!fm.name || !fm.description) continue;
-      out.push({ name: fm.name, description: fm.description, path: skillPath, version: fm.metadata?.version, managedBody: body });
+      const rel = path.relative(root, skillPathAbs).replace(/\\/g, "/");
+      out.push({ name: fm.name, description: fm.description, path: rel, version: fm.metadata?.version, managedBody: body });
     } catch {}
   }
   return out.sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -852,7 +890,8 @@ async function scanSkills(
 async function writeOrUpdateSkill(root: string, input: SkillSpec | (SkillUpdateSpec & { description: string })): Promise<{ action: "created" | "updated"; path: string }> {
   validateKebab(input.name, "skill.name");
   if (!input.description?.trim()) throw new Error("skill.description required");
-  if (!input.body?.trim()) throw new Error("skill.body required");
+  const sanitizedBody = rewriteRepoAbsolutePaths(root, input.body);
+  if (!sanitizedBody?.trim()) throw new Error("skill.body required");
 
   const skillDir = path.join(root, SKILLS_DIR, input.name);
   const skillPath = path.join(skillDir, "SKILL.md");
@@ -875,7 +914,7 @@ async function writeOrUpdateSkill(root: string, input: SkillSpec | (SkillUpdateS
     manualNotes = parsed.manualNotes;
   }
 
-  if (exists && existingBody && looksLikePartialSkillBodyUpdate(existingBody, input.body)) {
+  if (exists && existingBody && looksLikePartialSkillBodyUpdate(existingBody, sanitizedBody)) {
     throw new Error(
       "skill.update.body must be the full managed body (complete replacement), not a snippet/diff. Re-emit the entire managed body with your edits applied."
     );
@@ -887,7 +926,7 @@ async function writeOrUpdateSkill(root: string, input: SkillSpec | (SkillUpdateS
   const md = buildSkillMarkdown({
     name: input.name,
     description: input.description.trim(),
-    body: input.body.trim(),
+    body: sanitizedBody.trim(),
     license: input.license ?? existingFm.license,
     compatibility: input.compatibility ?? existingFm.compatibility,
     version: nextVersion,
@@ -1193,7 +1232,8 @@ async function appendChangelog(root: string, line: string): Promise<void> {
   let doc = await fs.readFile(p, "utf8");
 
   const markers = blockMarkers("changelog-entries");
-  const entry = `- ${nowIso()} ${line.trim()}`;
+  const safeLine = rewriteRepoAbsolutePaths(root, line.trim());
+  const entry = `- ${nowIso()} ${safeLine}`;
 
   const b = doc.indexOf(markers.begin);
   const e = doc.indexOf(markers.end);
@@ -1384,6 +1424,11 @@ Skill update rule (MANDATORY):
 - For skills.update[], body MUST be the entire, final managed body for the skill.
 - Do NOT output snippets, diffs, or partial sections. Re-emit the whole managed body with your edits applied.
 - Start from the existing skill managed bodies provided in the prompt context.
+
+Path rule (MANDATORY):
+- Whenever you reference repository files or directories in any markdown you output, use repo-root-relative paths (no absolute paths).
+- Example good: src/app.py, .opencode/skills/foo/SKILL.md
+- Example bad: <ABSOLUTE_PATH>/src/app.py
 `);
 }
 
@@ -1406,19 +1451,25 @@ function extractJsonObject(text: string): any | null {
 
 let autolearnInFlight = false;
 
-async function autoLearnIfNeeded(root: string, client: any, sessionID: string | null | undefined, reason = "session.idle"): Promise<void> {
+async function autoLearnIfNeeded(
+  sessionRoot: string,
+  writeRoot: string,
+  client: any,
+  sessionID: string | null | undefined,
+  reason = "session.idle"
+): Promise<void> {
   if (!AUTO_ENABLED) return;
   if (autolearnInFlight) return;
 
   autolearnInFlight = true;
   try {
-    const state = await loadState(root);
+    const state = await loadState(sessionRoot);
     if (!sessionID) return;
     const last = state.autolearn?.lastRunAt ? Date.parse(state.autolearn.lastRunAt) : 0;
     const now = Date.now();
     if (last && now - last < AUTO_COOLDOWN_SECONDS * 1000) return;
 
-    const obsCount = await countObservations(root);
+    const obsCount = await countObservations(sessionRoot);
     const lastCount = state.autolearn?.lastObservationCount ?? 0;
     const newObs = obsCount.count - lastCount;
 
@@ -1427,12 +1478,15 @@ async function autoLearnIfNeeded(root: string, client: any, sessionID: string | 
 
     if (newObs < AUTO_MIN_NEW_OBSERVATIONS && !hashChanged) return;
 
-    const recentObs = await readObservationsTail(root, AUTO_MAX_OBSERVATIONS_IN_PROMPT);
-    const instincts = await loadInstincts(root);
-    const skills = await scanSkills(root);
-    const g = await gitSummary(root);
+    const recentObs = await readObservationsTail(sessionRoot, AUTO_MAX_OBSERVATIONS_IN_PROMPT);
+    const instincts = await loadInstincts(writeRoot);
+    const skills = await scanSkills(writeRoot);
+    const g = await gitSummary(sessionRoot);
 
-    const promptTemplate = await safeReadFile(path.join(root, AUTOLEARN_PROMPT_FILE), defaultAutolearnPrompt());
+    const promptTemplate = await safeReadFile(
+      path.join(writeRoot, AUTOLEARN_PROMPT_FILE),
+      defaultAutolearnPrompt()
+    );
 
     const skillsContext = skills
       .slice(0, 25)
@@ -1489,7 +1543,7 @@ ${recentObs
     const text = extractTextFromMessage(resp);
     const parsed = extractJsonObject(text);
     if (!parsed) {
-      await recordAutolearnFailure(root, sessionID, text);
+      await recordAutolearnFailure(sessionRoot, sessionID, text);
       return;
     }
 
@@ -1500,10 +1554,10 @@ ${recentObs
     }
 
     // Apply spec (memory only)
-    await applySpec(root, spec, "auto");
+    await applySpec(writeRoot, spec, "auto");
 
     // Always sync docs after autolearn, to keep indexes fresh.
-    await syncDocs(root);
+    await syncDocs(writeRoot);
 
     state.autolearn = {
       lastRunAt: nowIso(),
@@ -1511,12 +1565,12 @@ ${recentObs
       lastObservationCount: obsCount.count,
       lastObservationHash: obsCount.tailHash,
     };
-    await saveState(root, state);
+    await saveState(sessionRoot, state);
   } catch (e) {
     // Keep it quiet, but leave breadcrumbs for debugging.
     try {
       const msg = e instanceof Error ? `${e.name}: ${e.message}\n${e.stack ?? ""}` : String(e);
-      await recordAutolearnFailure(root, sessionID, msg);
+      await recordAutolearnFailure(sessionRoot, sessionID, msg);
     } catch {}
   } finally {
     autolearnInFlight = false;
@@ -1559,18 +1613,19 @@ async function recordAutolearnFailure(root: string, sessionID: string | null | u
 // -----------------------------
 
 export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, worktree }) => {
-  const root = worktree ?? directory;
+  const sessionRoot = worktree ?? directory;
+  const writeRoot = await resolveWriteRoot(sessionRoot);
 
-  await ensureBootstrap(root);
-  await syncDocs(root);
+  await ensureBootstrap(writeRoot);
+  await syncDocs(writeRoot);
 
   // Tools
   const compound_bootstrap = tool({
     description: "Create/update scaffolding (docs + dirs + prompts) for the compound engineering system.",
     parameters: {},
     execute: async () => {
-      await ensureBootstrap(root);
-      await syncDocs(root);
+      await ensureBootstrap(writeRoot);
+      await syncDocs(writeRoot);
       return "compound_bootstrap complete";
     },
   });
@@ -1579,7 +1634,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Refresh AI-managed blocks in AGENTS.md / LOOM_PROJECT.md / LOOM_ROADMAP.md and the instincts index.",
     parameters: {},
     execute: async () => {
-      await syncDocs(root);
+      await syncDocs(writeRoot);
       return "compound_sync complete";
     },
   });
@@ -1588,10 +1643,10 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Show compound system status: skills count, instincts count, observation count, last autolearn.",
     parameters: {},
     execute: async () => {
-      const skills = await scanSkills(root);
-      const instincts = await loadInstincts(root);
-      const obs = await countObservations(root);
-      const state = await loadState(root);
+      const skills = await scanSkills(writeRoot);
+      const instincts = await loadInstincts(writeRoot);
+      const obs = await countObservations(sessionRoot);
+      const state = await loadState(sessionRoot);
       const out = {
         skills: skills.length,
         instincts: instincts.instincts.length,
@@ -1599,6 +1654,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
         autolearn: state.autolearn ?? {},
         mirror_claude: MIRROR_CLAUDE,
         auto_enabled: AUTO_ENABLED,
+        write_root: writeRoot,
+        session_root: sessionRoot,
       };
       return JSON.stringify(out, null, 2);
     },
@@ -1607,7 +1664,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
   const compound_git_summary = tool({
     description: "Get git status + diffstat for the current repo/worktree.",
     parameters: {},
-    execute: async () => JSON.stringify(await gitSummary(root), null, 2),
+    execute: async () => JSON.stringify(await gitSummary(sessionRoot), null, 2),
   });
 
   const compound_apply = tool({
@@ -1616,8 +1673,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     execute: async ({ spec_json }: any) => {
       const parsed = JSON.parse(spec_json);
       const spec = coerceSpec(parsed);
-      const r = await applySpec(root, spec, "manual");
-      await syncDocs(root);
+      const r = await applySpec(writeRoot, spec, "manual");
+      await syncDocs(writeRoot);
       return JSON.stringify(r, null, 2);
     },
   });
@@ -1626,7 +1683,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Force an autolearn run now (same as session.idle background), using recent observations.",
     parameters: { sessionID: { type: "string", optional: true }, reason: { type: "string", optional: true } },
     execute: async ({ sessionID, reason }: any) => {
-      await autoLearnIfNeeded(root, client, sessionID ?? null, reason ?? "manual");
+      await autoLearnIfNeeded(sessionRoot, writeRoot, client, sessionID ?? null, reason ?? "manual");
       return "autolearn triggered";
     },
   });
@@ -1635,7 +1692,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Show the last N observation records (JSONL).",
     parameters: { n: { type: "number", optional: true } },
     execute: async ({ n }: any) => {
-      const tail = await readObservationsTail(root, Number(n ?? 30));
+      const tail = await readObservationsTail(sessionRoot, Number(n ?? 30));
       return JSON.stringify(tail, null, 2);
     },
   });
@@ -1644,7 +1701,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "List instincts (top by confidence) from the instincts store.",
     parameters: { n: { type: "number", optional: true } },
     execute: async ({ n }: any) => {
-      const store = await loadInstincts(root);
+      const store = await loadInstincts(writeRoot);
       const list = store.instincts
         .filter((i) => i.status === "active")
         .sort((a: any, b: any) => (b.confidence ?? 0) - (a.confidence ?? 0))
@@ -1658,8 +1715,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Run loom ticket with argv array.",
     parameters: { argv: { type: "array", items: { type: "string" } } },
     execute: async ({ argv }: any) => {
-      const ticket = await resolveTicketCli(root);
-      const res = await runProcess({ cmd: ticket.cmd, args: [...ticket.args, ...argv] }, root, 120000);
+      const ticket = await resolveTicketCli(sessionRoot);
+      const res = await runProcess({ cmd: ticket.cmd, args: [...ticket.args, ...argv] }, sessionRoot, 120000);
       return JSON.stringify(res, null, 2);
     },
   });
@@ -1668,8 +1725,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     description: "Run loom workspace with argv array.",
     parameters: { argv: { type: "array", items: { type: "string" } } },
     execute: async ({ argv }: any) => {
-      const ws = await resolveWorkspaceCli(root);
-      const res = await runProcess({ cmd: ws.cmd, args: [...ws.args, ...argv] }, root, 120000);
+      const ws = await resolveWorkspaceCli(sessionRoot);
+      const res = await runProcess({ cmd: ws.cmd, args: [...ws.args, ...argv] }, sessionRoot, 120000);
       return JSON.stringify(res, null, 2);
     },
   });
@@ -1686,7 +1743,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       context: { type: "boolean", optional: true }, // maps to --context
     },
     execute: async ({ query, command, scopes, tags, format, n, context }: any) => {
-      const mem = await resolveMemoryCli(root);
+      const mem = await resolveMemoryCli(writeRoot);
       const args = [...mem.args, "recall"];
       if (query && String(query).trim()) args.push(String(query));
       if (command) args.push("--command", String(command));
@@ -1699,7 +1756,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       if (format) args.push("--format", String(format));
       if (n) args.push("--limit", String(n));
       if (context) args.push("--context");
-      const res = await runProcess({ cmd: mem.cmd, args }, root, 60000);
+      const res = await runProcess({ cmd: mem.cmd, args }, writeRoot, 60000);
       return JSON.stringify(res, null, 2);
     },
   });
@@ -1716,7 +1773,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       visibility: { type: "string", optional: true }, // shared|personal|ephemeral
     },
     execute: async ({ title, body, tags, scopes, command, ticket, visibility }: any) => {
-      const mem = await resolveMemoryCli(root);
+      const mem = await resolveMemoryCli(writeRoot);
       const args = [...mem.args, "add", "--title", String(title), "--body", String(body)];
       for (const t of Array.isArray(tags) ? tags : []) {
         if (String(t).trim()) args.push("--tag", String(t).trim());
@@ -1730,7 +1787,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
         if (safe) args.push("--tag", `ticket_${safe}`);
       }
       if (visibility) args.push("--visibility", String(visibility));
-      const res = await runProcess({ cmd: mem.cmd, args }, root, 60000);
+      const res = await runProcess({ cmd: mem.cmd, args }, writeRoot, 60000);
       return JSON.stringify(res, null, 2);
     },
   });
@@ -1784,7 +1841,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     if (type === "session.updated") obs.summary = `title=${String(event?.properties?.title ?? "")}`;
     if (type === "lsp.client.diagnostics") obs.summary = "diagnostics";
 
-    await appendObservation(root, obs);
+    await appendObservation(sessionRoot, obs);
   };
 
   const onEvent = async ({ event }: any) => {
@@ -1797,14 +1854,14 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       if (event.type === "command.executed") {
         const name = String(event.properties?.name ?? event.properties?.command ?? "");
         const sessionID = event.properties?.sessionID ?? event.properties?.sessionId ?? null;
-        const state = await loadState(root);
+        const state = await loadState(sessionRoot);
         state.lastCommand = { name, at: nowIso(), sessionID };
-        await saveState(root, state);
+        await saveState(sessionRoot, state);
       }
 
       if (event.type === "session.idle") {
         const sessionID = event.properties?.sessionID ?? event.properties?.sessionId ?? event.properties?.id ?? null;
-        await autoLearnIfNeeded(root, client, sessionID ?? null, "session.idle");
+        await autoLearnIfNeeded(sessionRoot, writeRoot, client, sessionID ?? null, "session.idle");
       }
     } catch {
       // swallow
@@ -1841,7 +1898,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
         if (bits.length) (obs as any).summary = bits.join(" ");
       } catch {}
 
-      await appendObservation(root, obs);
+      await appendObservation(sessionRoot, obs);
     } catch {
       // swallow
     }
@@ -1873,7 +1930,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
         if (bits.length) (obs as any).summary = bits.join(" ");
       } catch {}
 
-      await appendObservation(root, obs);
+      await appendObservation(sessionRoot, obs);
     } catch {}
   };
 
