@@ -109,10 +109,7 @@ class BigQueryConnector(DatabaseConnector):
             client_kwargs = {"project": self.config.project_id}
 
             # Add credentials if provided
-            if (
-                hasattr(self.config, "credentials_path")
-                and self.config.credentials_path
-            ):
+            if hasattr(self.config, "credentials_path") and self.config.credentials_path:
                 from google.oauth2 import service_account
 
                 credentials = service_account.Credentials.from_service_account_file(
@@ -333,9 +330,7 @@ class BigQueryConnector(DatabaseConnector):
             else:
                 job_config.autodetect = True
 
-            job = self._client.load_table_from_file(
-                json_file, table_id, job_config=job_config
-            )
+            job = self._client.load_table_from_file(json_file, table_id, job_config=job_config)
             job.result()
 
             return job.output_rows if job.output_rows else 0
@@ -369,9 +364,7 @@ class BigQueryConnector(DatabaseConnector):
         try:
             job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
 
-            job = self._client.load_table_from_dataframe(
-                dataframe, table_id, job_config=job_config
-            )
+            job = self._client.load_table_from_dataframe(dataframe, table_id, job_config=job_config)
             job.result()
 
             return job.output_rows if job.output_rows else 0

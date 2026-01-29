@@ -56,9 +56,7 @@ class TestRetryConfig:
 
     def test_calculate_delay_exponential(self) -> None:
         """Test exponential backoff delay calculation."""
-        config = RetryConfig(
-            backoff_strategy=BackoffStrategy.EXPONENTIAL, base_delay=1.0
-        )
+        config = RetryConfig(backoff_strategy=BackoffStrategy.EXPONENTIAL, base_delay=1.0)
 
         assert config.calculate_delay(0) == 1.0
         assert config.calculate_delay(1) == 2.0

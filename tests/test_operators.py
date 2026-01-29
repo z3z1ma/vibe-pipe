@@ -98,9 +98,7 @@ class TestMapField:
         """Test that records without the field are unchanged."""
         schema = Schema(
             name="test",
-            fields=(
-                SchemaField(name="name", data_type=DataType.STRING, required=False),
-            ),
+            fields=(SchemaField(name="name", data_type=DataType.STRING, required=False),),
         )
 
         op = map_field(

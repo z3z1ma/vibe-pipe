@@ -478,11 +478,7 @@ class Pipeline:
             if isinstance(result, DataRecord):
                 # DataRecord validates itself in __post_init__
                 pass
-            elif (
-                isinstance(result, list)
-                and result
-                and isinstance(result[0], DataRecord)
-            ):
+            elif isinstance(result, list) and result and isinstance(result[0], DataRecord):
                 # List of DataRecords - each validates itself
                 pass
             elif isinstance(result, dict):
@@ -673,9 +669,7 @@ class AssetGraph:
 
         return tuple(result)
 
-    def get_upstream(
-        self, asset_name: str, depth: int | None = None
-    ) -> tuple[Asset, ...]:
+    def get_upstream(self, asset_name: str, depth: int | None = None) -> tuple[Asset, ...]:
         """
         Get all upstream assets (dependencies) recursively.
 
@@ -726,9 +720,7 @@ class AssetGraph:
 
         return tuple(result)
 
-    def get_downstream(
-        self, asset_name: str, depth: int | None = None
-    ) -> tuple[Asset, ...]:
+    def get_downstream(self, asset_name: str, depth: int | None = None) -> tuple[Asset, ...]:
         """
         Get all downstream assets (dependents) recursively.
 
@@ -1285,9 +1277,7 @@ class ExecutionResult:
         Returns:
             Tuple of asset names that failed execution
         """
-        return tuple(
-            name for name, result in self.asset_results.items() if not result.success
-        )
+        return tuple(name for name, result in self.asset_results.items() if not result.success)
 
     def get_succeeded_assets(self) -> tuple[str, ...]:
         """
@@ -1296,9 +1286,7 @@ class ExecutionResult:
         Returns:
             Tuple of asset names that succeeded
         """
-        return tuple(
-            name for name, result in self.asset_results.items() if result.success
-        )
+        return tuple(name for name, result in self.asset_results.items() if result.success)
 
 
 # =============================================================================

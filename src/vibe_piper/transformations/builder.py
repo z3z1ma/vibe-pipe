@@ -47,9 +47,7 @@ class TransformationBuilder:
             context: Optional pipeline context
         """
         self.data = data
-        self.context = context or PipelineContext(
-            pipeline_id="transform_builder", run_id="run"
-        )
+        self.context = context or PipelineContext(pipeline_id="transform_builder", run_id="run")
         self.transformations: list[Callable[[list[DataRecord]], list[DataRecord]]] = []
 
     def filter(
@@ -394,9 +392,7 @@ class TransformationBuilder:
         """
         from vibe_piper.types import Operator, OperatorType
 
-        def execute_all(
-            data: list[DataRecord], ctx: PipelineContext
-        ) -> list[DataRecord]:
+        def execute_all(data: list[DataRecord], ctx: PipelineContext) -> list[DataRecord]:
             # Execute all transformations
             result = data
             for transform_fn in self.transformations:

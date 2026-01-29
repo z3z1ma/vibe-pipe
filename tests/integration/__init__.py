@@ -304,9 +304,7 @@ def test_parquet_file(test_data_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="function")
-def integration_pipeline_context(
-    test_db_url: str, test_data_dir: Path
-) -> PipelineContext:
+def integration_pipeline_context(test_db_url: str, test_data_dir: Path) -> PipelineContext:
     """
     Create a pipeline context configured for integration testing.
 

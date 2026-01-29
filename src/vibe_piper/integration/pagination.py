@@ -474,9 +474,7 @@ async def fetch_all_pages(
     """
     items = []
 
-    async for item in paginate(
-        client, path, strategy, method, initial_params, **kwargs
-    ):
+    async for item in paginate(client, path, strategy, method, initial_params, **kwargs):
         items.append(item)
 
     return items

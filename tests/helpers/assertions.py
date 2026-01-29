@@ -109,9 +109,7 @@ def assert_data_conforms_to_schema(
         records = [data]
     else:
         # Handle sequence of records
-        records = [
-            record.data if isinstance(record, DataRecord) else record for record in data
-        ]
+        records = [record.data if isinstance(record, DataRecord) else record for record in data]
 
     # Build a field lookup for efficiency
     field_map = {f.name: f for f in schema.fields}
@@ -120,16 +118,10 @@ def assert_data_conforms_to_schema(
         # Check required fields
         for field in schema.fields:
             if field.required and field.name not in record:
-                raise AssertionError(
-                    f"Record {i}: Required field '{field.name}' is missing"
-                )
+                raise AssertionError(f"Record {i}: Required field '{field.name}' is missing")
 
             # Check nullability
-            if (
-                field.name in record
-                and record[field.name] is None
-                and not field.nullable
-            ):
+            if field.name in record and record[field.name] is None and not field.nullable:
                 raise AssertionError(
                     f"Record {i}: Field '{field.name}' is not nullable but has None value"
                 )
@@ -138,9 +130,7 @@ def assert_data_conforms_to_schema(
         if strict:
             for field_name in record:
                 if field_name not in field_map:
-                    raise AssertionError(
-                        f"Record {i}: Field '{field_name}' not in schema"
-                    )
+                    raise AssertionError(f"Record {i}: Field '{field_name}' not in schema")
 
 
 def assert_asset_valid(asset: Asset) -> None:
@@ -222,9 +212,7 @@ def assert_no_circular_dependencies(graph: AssetGraph) -> None:
         if node in rec_stack:
             cycle_start = path.index(node)
             cycle_path = path[cycle_start:] + [node]
-            raise AssertionError(
-                f"Circular dependency detected: {' -> '.join(cycle_path)}"
-            )
+            raise AssertionError(f"Circular dependency detected: {' -> '.join(cycle_path)}")
         if node in visited:
             return
 
@@ -301,10 +289,9 @@ def assert_lineage(
     collect_lineage(asset_name)
 
     expected_set = set(expected_lineage)
-    assert actual_lineage == expected_set, (
-        f"Asset '{asset_name}' has lineage {actual_lineage}, "
-        f"expected {expected_set}"
-    )
+    assert (
+        actual_lineage == expected_set
+    ), f"Asset '{asset_name}' has lineage {actual_lineage}, expected {expected_set}"
 
 
 def assert_execution_successful(
@@ -322,20 +309,14 @@ def assert_execution_successful(
         AssertionError: If execution was not successful
     """
     if isinstance(result, AssetResult):
-        assert (
-            result.success
-        ), f"Asset '{result.asset_name}' execution failed: {result.error}"
+        assert result.success, f"Asset '{result.asset_name}' execution failed: {result.error}"
         if check_data:
             assert (
                 result.data is not None
             ), f"Asset '{result.asset_name}' has no data despite success=True"
     else:  # ExecutionResult
-        assert (
-            result.success
-        ), f"Execution failed with {len(result.errors)} errors: {result.errors}"
-        assert (
-            result.assets_failed == 0
-        ), f"Execution had {result.assets_failed} failed assets"
+        assert result.success, f"Execution failed with {len(result.errors)} errors: {result.errors}"
+        assert result.assets_failed == 0, f"Execution had {result.assets_failed} failed assets"
         if check_data:
             for asset_name, asset_result in result.asset_results.items():
                 if asset_result.success:
@@ -414,15 +395,11 @@ def assert_execution_results_equal(
         AssertionError: If results are not equal
     """
     assert result1.success == result2.success, "Success status doesn't match"
-    assert (
-        result1.assets_executed == result2.assets_executed
-    ), "Assets executed count doesn't match"
+    assert result1.assets_executed == result2.assets_executed, "Assets executed count doesn't match"
     assert (
         result1.assets_succeeded == result2.assets_succeeded
     ), "Assets succeeded count doesn't match"
-    assert (
-        result1.assets_failed == result2.assets_failed
-    ), "Assets failed count doesn't match"
+    assert result1.assets_failed == result2.assets_failed, "Assets failed count doesn't match"
 
     # Compare asset results
     assert set(result1.asset_results.keys()) == set(

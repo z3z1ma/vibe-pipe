@@ -74,9 +74,7 @@ class TestTransformable:
             return value * 2
 
         data: Transformable[CustomData] = CustomData(5)
-        operator = Operator(
-            name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn
-        )
+        operator = Operator(name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn)
         ctx = PipelineContext(pipeline_id="test", run_id="run1")
 
         result = data.transform(operator, ctx)
@@ -210,9 +208,7 @@ class TestProtocolComposition:
                     return ["Value must be non-negative"]
                 return []
 
-            def transform(
-                self, operator, context: PipelineContext
-            ) -> "MultiProtocolData":
+            def transform(self, operator, context: PipelineContext) -> "MultiProtocolData":
                 """Transform the data."""
                 new_value = operator.fn(self.value, context)
                 result = MultiProtocolData(new_value)

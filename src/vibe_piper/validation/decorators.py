@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any, ParamSpec, TypeVar
 
-from vibe_piper.types import Asset, DataRecord, Schema, ValidationResult
+from vibe_piper.types import DataRecord, Schema, ValidationResult
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -129,9 +129,7 @@ class ValidateDecorator:
 
         return decorator
 
-    def _wrap_function(
-        self, func: Callable[P, T], config: ValidationConfig
-    ) -> Callable[P, T]:
+    def _wrap_function(self, func: Callable[P, T], config: ValidationConfig) -> Callable[P, T]:
         """Wrap a function with validation logic."""
 
         @wraps(func)
@@ -193,9 +191,7 @@ class ValidateDecorator:
                         warnings.extend(result.warnings)
 
                         if not config.lazy:
-                            self._handle_validation_failure(
-                                errors, warnings, config, func_name
-                            )
+                            self._handle_validation_failure(errors, warnings, config, func_name)
                             return
                 except Exception as e:
                     error_msg = f"Check {check_idx} failed with exception: {e}"
@@ -353,9 +349,7 @@ class ColumnExpectationBuilder:
         """Expect column string lengths to be within a range."""
         from vibe_piper.validation.checks import expect_column_value_lengths_to_be_between
 
-        return expect_column_value_lengths_to_be_between(
-            self.column, min_length, max_length
-        )
+        return expect_column_value_lengths_to_be_between(self.column, min_length, max_length)
 
     def to_be_increasing(self, strict: bool = False):
         """Expect column values to be monotonically increasing."""
@@ -405,9 +399,7 @@ class ColumnExpectationBuilder:
             expect_column_proportion_of_nulls_to_be_between,
         )
 
-        return expect_column_proportion_of_nulls_to_be_between(
-            self.column, min_value, max_value
-        )
+        return expect_column_proportion_of_nulls_to_be_between(self.column, min_value, max_value)
 
     def to_be_dateutil_parseable(self):
         """Expect column values to be parseable as dates."""

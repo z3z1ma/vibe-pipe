@@ -105,9 +105,7 @@ class TestValidateConfig:
     def test_validate_secret_with_default_and_required(self) -> None:
         """Test validation fails for secret with both default and required."""
         project = ProjectConfig(name="test", version="1.0")
-        spec = SecretSpec(
-            from_=SecretSource.ENV, path="KEY", required=True, default="default"
-        )
+        spec = SecretSpec(from_=SecretSource.ENV, path="KEY", required=True, default="default")
         config = Config(project=project, secrets={"KEY": spec})
 
         with pytest.raises(
@@ -135,9 +133,7 @@ class TestValidateEnvironmentOverride:
         project = ProjectConfig(name="test", version="1.0")
         config = Config(project=project)
 
-        with pytest.raises(
-            ConfigValidationError, match="Cannot override unknown environment"
-        ):
+        with pytest.raises(ConfigValidationError, match="Cannot override unknown environment"):
             validate_environment_override(config, "prod", "log_level", "debug")
 
     def test_validate_override_invalid_log_level(self) -> None:
@@ -155,14 +151,10 @@ class TestValidateEnvironmentOverride:
         env = EnvironmentConfig()
         config = Config(project=project, environments={"dev": env})
 
-        with pytest.raises(
-            ConfigValidationError, match="Parallelism override must be >= 1"
-        ):
+        with pytest.raises(ConfigValidationError, match="Parallelism override must be >= 1"):
             validate_environment_override(config, "dev", "parallelism", 0)
 
-        with pytest.raises(
-            ConfigValidationError, match="Parallelism override must be >= 1"
-        ):
+        with pytest.raises(ConfigValidationError, match="Parallelism override must be >= 1"):
             validate_environment_override(config, "dev", "parallelism", -5)
 
     def test_validate_override_invalid_bucket(self) -> None:
@@ -171,9 +163,7 @@ class TestValidateEnvironmentOverride:
         env = EnvironmentConfig()
         config = Config(project=project, environments={"dev": env})
 
-        with pytest.raises(
-            ConfigValidationError, match="Bucket override cannot be empty"
-        ):
+        with pytest.raises(ConfigValidationError, match="Bucket override cannot be empty"):
             validate_environment_override(config, "dev", "bucket", "")
 
     def test_validate_override_non_int_parallelism(self) -> None:
@@ -182,7 +172,5 @@ class TestValidateEnvironmentOverride:
         env = EnvironmentConfig()
         config = Config(project=project, environments={"dev": env})
 
-        with pytest.raises(
-            ConfigValidationError, match="Parallelism override must be >= 1"
-        ):
+        with pytest.raises(ConfigValidationError, match="Parallelism override must be >= 1"):
             validate_environment_override(config, "dev", "parallelism", "not-an-int")

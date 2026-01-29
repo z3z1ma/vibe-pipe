@@ -140,9 +140,7 @@ class ParquetReader(FileReader):
             compression_str = None
             if metadata.num_row_groups > 0:
                 try:
-                    compression_str = str(
-                        metadata.schema.to_arrow_schema().pandas_metadata
-                    )
+                    compression_str = str(metadata.schema.to_arrow_schema().pandas_metadata)
                 except Exception:
                     compression_str = None
 
@@ -349,8 +347,7 @@ class ParquetWriter(FileWriter):
         # Validate compression
         if compression and compression not in self.SUPPORTED_COMPRESSION:
             msg = (
-                f"Unsupported compression: {compression!r}. "
-                f"Supported: {self.SUPPORTED_COMPRESSION}"
+                f"Unsupported compression: {compression!r}. Supported: {self.SUPPORTED_COMPRESSION}"
             )
             raise ValueError(msg)
 
@@ -463,8 +460,6 @@ class ParquetWriter(FileWriter):
         data = [record.data for record in records]
 
         # Create DataFrame
-        df = pd.DataFrame(
-            data, columns=columns if set(columns) == set(data[0].keys()) else None
-        )
+        df = pd.DataFrame(data, columns=columns if set(columns) == set(data[0].keys()) else None)
 
         return df

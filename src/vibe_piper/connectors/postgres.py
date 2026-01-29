@@ -125,11 +125,7 @@ class PostgreSQLConnector(DatabaseConnector):
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, params)
                 rows = cursor.fetchall()
-                columns = (
-                    [desc.name for desc in cursor.description]
-                    if cursor.description
-                    else []
-                )
+                columns = [desc.name for desc in cursor.description] if cursor.description else []
 
                 return QueryResult(
                     rows=[dict(row) for row in rows],

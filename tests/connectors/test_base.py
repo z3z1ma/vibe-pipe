@@ -68,9 +68,7 @@ class TestQueryBuilder:
     def test_select_with_where(self):
         """Test SELECT with WHERE clause."""
         builder = QueryBuilder("users")
-        query, params = builder.where(
-            "status = :status", status="active"
-        ).build_select()
+        query, params = builder.where("status = :status", status="active").build_select()
 
         assert query == "SELECT * FROM users WHERE status = :status"
         assert params == {"status": "active"}
@@ -156,8 +154,7 @@ class TestQueryBuilder:
         )
 
         assert (
-            query
-            == "UPDATE users SET name = :update_name, age = :update_age WHERE id = :where_id"
+            query == "UPDATE users SET name = :update_name, age = :update_age WHERE id = :where_id"
         )
         assert params == {"update_name": "John", "update_age": 31, "where_id": 1}
 
@@ -176,26 +173,17 @@ class TestQueryBuilder:
     def test_join(self):
         """Test building query with JOIN."""
         builder = QueryBuilder("users")
-        query, params = builder.join(
-            "orders", "users.id = orders.user_id"
-        ).build_select()
+        query, params = builder.join("orders", "users.id = orders.user_id").build_select()
 
-        assert (
-            query
-            == "SELECT * FROM users INNER JOIN orders ON users.id = orders.user_id"
-        )
+        assert query == "SELECT * FROM users INNER JOIN orders ON users.id = orders.user_id"
         assert params == {}
 
     def test_left_join(self):
         """Test building query with LEFT JOIN."""
         builder = QueryBuilder("users")
-        query, params = builder.join(
-            "orders", "users.id = orders.user_id", "LEFT"
-        ).build_select()
+        query, params = builder.join("orders", "users.id = orders.user_id", "LEFT").build_select()
 
-        assert (
-            query == "SELECT * FROM users LEFT JOIN orders ON users.id = orders.user_id"
-        )
+        assert query == "SELECT * FROM users LEFT JOIN orders ON users.id = orders.user_id"
         assert params == {}
 
     def test_group_by(self):

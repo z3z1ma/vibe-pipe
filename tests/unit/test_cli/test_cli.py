@@ -102,9 +102,7 @@ class TestInitCommand:
 
     def test_init_with_invalid_name(self, tmp_path: Path) -> None:
         """Test that init command rejects invalid project names."""
-        result = runner.invoke(
-            app, ["init", "invalid-name-123!", "--dir", str(tmp_path)]
-        )
+        result = runner.invoke(app, ["init", "invalid-name-123!", "--dir", str(tmp_path)])
         assert result.exit_code == 1
 
     def test_init_existing_directory_fails(self, tmp_path: Path) -> None:
@@ -164,9 +162,7 @@ class TestRunCommand:
 
     def test_run_with_asset(self, temp_project_dir: Path) -> None:
         """Test run command with specific asset."""
-        result = runner.invoke(
-            app, ["run", str(temp_project_dir), "--asset", "test_asset"]
-        )
+        result = runner.invoke(app, ["run", str(temp_project_dir), "--asset", "test_asset"])
         assert result.exit_code == 0
 
 
@@ -208,9 +204,7 @@ class TestDocsCommand:
     def test_docs_generate(self, temp_project_dir: Path) -> None:
         """Test that docs command generates documentation."""
         output_dir = temp_project_dir / "generated_docs"
-        result = runner.invoke(
-            app, ["docs", str(temp_project_dir), "--output", str(output_dir)]
-        )
+        result = runner.invoke(app, ["docs", str(temp_project_dir), "--output", str(output_dir)])
 
         assert result.exit_code == 0
         assert output_dir.exists()
@@ -220,9 +214,7 @@ class TestDocsCommand:
     def test_docs_custom_output(self, temp_project_dir: Path) -> None:
         """Test docs command with custom output directory."""
         custom_output = temp_project_dir / "custom_docs"
-        result = runner.invoke(
-            app, ["docs", str(temp_project_dir), "--output", str(custom_output)]
-        )
+        result = runner.invoke(app, ["docs", str(temp_project_dir), "--output", str(custom_output)])
 
         assert result.exit_code == 0
         assert custom_output.exists()

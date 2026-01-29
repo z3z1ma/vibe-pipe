@@ -74,7 +74,9 @@ class TestMySQLConnector:
         )
 
         # Insert data
-        insert_sql = "INSERT INTO test_users (name, email, age) VALUES (%(name)s, %(email)s, %(age)s)"
+        insert_sql = (
+            "INSERT INTO test_users (name, email, age) VALUES (%(name)s, %(email)s, %(age)s)"
+        )
         affected = self.connector.execute(
             insert_sql, {"name": "John Doe", "email": "john@example.com", "age": 30}
         )
@@ -108,9 +110,7 @@ class TestMySQLConnector:
         )
 
         # Batch insert
-        insert_sql = (
-            "INSERT INTO test_products (name, price) VALUES (%(name)s, %(price)s)"
-        )
+        insert_sql = "INSERT INTO test_products (name, price) VALUES (%(name)s, %(price)s)"
         params_list = [
             {"name": "Product 1", "price": 10.99},
             {"name": "Product 2", "price": 20.99},

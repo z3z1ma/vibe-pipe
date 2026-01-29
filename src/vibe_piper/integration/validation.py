@@ -287,9 +287,7 @@ class ResponseValidator(Generic[T]):
 
                     pattern = field.constraints["pattern"]
                     if not re.match(pattern, value):
-                        errors.append(
-                            f"Field '{field.name}' does not match pattern '{pattern}'"
-                        )
+                        errors.append(f"Field '{field.name}' does not match pattern '{pattern}'")
 
         # Numeric constraints
         elif field.data_type in (DataType.INTEGER, DataType.FLOAT):

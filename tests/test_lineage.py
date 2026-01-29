@@ -316,9 +316,7 @@ class TestMermaidExport:
         assert "graph TD" in mermaid
         assert "raw_data" in mermaid
         assert "clean_data" in mermaid
-        assert (
-            "raw_data --> clean_data" in mermaid or "raw_data-->clean_data" in mermaid
-        )
+        assert "raw_data --> clean_data" in mermaid or "raw_data-->clean_data" in mermaid
 
     def test_to_mermaid_includes_asset_types(self) -> None:
         """Test that Mermaid export includes asset types."""

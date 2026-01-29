@@ -82,9 +82,7 @@ def test_catalog_generator_initialization(tmp_path: Path) -> None:
     assert generator.context == {}
 
 
-def test_catalog_generator_creates_catalog_file(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_catalog_generator_creates_catalog_file(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates catalog JSON file."""
     generator = AssetCatalogGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -93,9 +91,7 @@ def test_catalog_generator_creates_catalog_file(
     assert catalog_file.exists()
 
 
-def test_catalog_generator_catalog_structure(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_catalog_generator_catalog_structure(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that catalog has correct structure."""
     generator = AssetCatalogGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -109,9 +105,7 @@ def test_catalog_generator_catalog_structure(
     assert len(data["assets"]) == 3
 
 
-def test_catalog_generator_asset_details(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_catalog_generator_asset_details(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that asset details are correctly serialized."""
     generator = AssetCatalogGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)

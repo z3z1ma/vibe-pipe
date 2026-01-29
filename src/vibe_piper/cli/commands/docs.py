@@ -41,7 +41,7 @@ def generate_module_docs(module_path: Path, output_path: Path) -> None:
 
     if docstring:
         output_path.write_text(
-            f"# {module_path.stem}\n\n{docstring}\n\n" f"[Source]({module_path.name})\n"
+            f"# {module_path.stem}\n\n{docstring}\n\n[Source]({module_path.name})\n"
         )
     else:
         output_path.write_text(
@@ -120,9 +120,7 @@ def docs(
     project_path = project_path.resolve()
     output_path = project_path / output
 
-    console.print(
-        f"\n[bold cyan]Generating documentation for:[/bold cyan] {project_path.name}\n"
-    )
+    console.print(f"\n[bold cyan]Generating documentation for:[/bold cyan] {project_path.name}\n")
 
     # Create output directory
     output_path.mkdir(parents=True, exist_ok=True)
@@ -177,9 +175,7 @@ Generated documentation for {project_path.name}.
 
         # Check if markdown-it or similar is available
         # For now, just mention that HTML conversion would require additional tools
-        console.print(
-            "[dim]  HTML conversion requires additional tools (e.g., markdown-it)[/dim]"
-        )
+        console.print("[dim]  HTML conversion requires additional tools (e.g., markdown-it)[/dim]")
 
     # Display results
     console.print("\n[bold green]✓[/bold green] Documentation generated successfully!")

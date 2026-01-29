@@ -248,9 +248,7 @@ class CSVReaderIterator(FileReaderIterator):
 
     def __iter__(self) -> "CSVReaderIterator":
         """Initialize the pandas chunk iterator."""
-        self._iterator = pd.read_csv(
-            self.path, chunksize=self.chunk_size, **self.kwargs
-        )
+        self._iterator = pd.read_csv(self.path, chunksize=self.chunk_size, **self.kwargs)
         return self
 
     def __next__(self) -> Sequence[DataRecord]:
@@ -437,9 +435,7 @@ class CSVWriter(FileWriter):
             partition_writer = CSVWriter(partition_path, encoding=self.encoding)
             partition_writer.write(
                 [
-                    self._row_to_record(
-                        row, schema or infer_schema_from_pandas(group_df)
-                    )
+                    self._row_to_record(row, schema or infer_schema_from_pandas(group_df))
                     for _, row in group_df.iterrows()
                 ],
                 schema,
@@ -467,9 +463,7 @@ class CSVWriter(FileWriter):
         data = [record.data for record in records]
 
         # Create DataFrame
-        df = pd.DataFrame(
-            data, columns=columns if set(columns) == set(data[0].keys()) else None
-        )
+        df = pd.DataFrame(data, columns=columns if set(columns) == set(data[0].keys()) else None)
 
         return df
 

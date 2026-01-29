@@ -160,9 +160,7 @@ class TestOAuth2ClientCredentialsAuth:
                 "expires_in": 3600,
             }
 
-            with pytest.raises(
-                Exception
-            ):  # Will fail because we can't easily mock this
+            with pytest.raises(Exception):  # Will fail because we can't easily mock this
                 # This test is complex and would require more sophisticated mocking
                 pass
 

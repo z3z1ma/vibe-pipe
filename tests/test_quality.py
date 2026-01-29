@@ -113,12 +113,8 @@ class TestCheckCompleteness:
         schema = Schema(
             name="test",
             fields=(
-                SchemaField(
-                    name="id", data_type=DataType.INTEGER, nullable=True
-                ),  # type: ignore
-                SchemaField(
-                    name="name", data_type=DataType.STRING, nullable=True
-                ),  # type: ignore
+                SchemaField(name="id", data_type=DataType.INTEGER, nullable=True),  # type: ignore
+                SchemaField(name="name", data_type=DataType.STRING, nullable=True),  # type: ignore
             ),
         )
 
@@ -244,9 +240,7 @@ class TestCheckUniqueness:
 
         assert result.passed is False
 
-        duplicate_metric = next(
-            m for m in result.metrics if m.name == "duplicate_count"
-        )
+        duplicate_metric = next(m for m in result.metrics if m.name == "duplicate_count")
         assert duplicate_metric.value == 1
 
     def test_no_unique_fields_specified(self) -> None:
@@ -311,7 +305,8 @@ class TestCheckFreshness:
         now = datetime.now()
         records = [
             DataRecord(
-                data={"timestamp": now - timedelta(hours=48)}, schema=schema  # 2 days old
+                data={"timestamp": now - timedelta(hours=48)},
+                schema=schema,  # 2 days old
             ),
         ]
 
@@ -349,12 +344,8 @@ class TestGenerateQualityReport:
         schema = Schema(
             name="test",
             fields=(
-                SchemaField(
-                    name="id", data_type=DataType.INTEGER, nullable=True
-                ),  # type: ignore
-                SchemaField(
-                    name="name", data_type=DataType.STRING, nullable=True
-                ),  # type: ignore
+                SchemaField(name="id", data_type=DataType.INTEGER, nullable=True),  # type: ignore
+                SchemaField(name="name", data_type=DataType.STRING, nullable=True),  # type: ignore
             ),
         )
 

@@ -108,9 +108,7 @@ class FakeDataGenerator:
             # For regex patterns, return a simple alphanumeric string
             # (Full pattern matching would require regex library)
             length = random.randint(min_length, min(max_length, 20))
-            return "".join(
-                random.choices(string.ascii_letters + string.digits, k=length)
-            )
+            return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
         length = random.randint(min_length, max_length)
 
@@ -119,9 +117,7 @@ class FakeDataGenerator:
             lambda: "".join(random.choices(string.ascii_lowercase, k=length)),
             lambda: "".join(random.choices(string.ascii_uppercase, k=length)),
             lambda: "".join(random.choices(string.ascii_letters, k=length)),
-            lambda: "".join(
-                random.choices(string.ascii_letters + string.digits, k=length)
-            ),
+            lambda: "".join(random.choices(string.ascii_letters + string.digits, k=length)),
             lambda: "email_"
             + "".join(random.choices(string.ascii_lowercase, k=length - 6))
             + "@example.com",
@@ -198,9 +194,7 @@ class FakeDataGenerator:
 
         return items
 
-    def generate_object(
-        self, constraints: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    def generate_object(self, constraints: dict[str, Any] | None = None) -> dict[str, Any]:
         """Generate a fake object value."""
         constraints = constraints or {}
 
@@ -343,9 +337,7 @@ def fake_event_data(count: int = 1, seed: int | None = None) -> list[dict[str, A
     return generator.generate_for_schema(event_schema, count=count)
 
 
-def fake_financial_data(
-    count: int = 1, seed: int | None = None
-) -> list[dict[str, Any]]:
+def fake_financial_data(count: int = 1, seed: int | None = None) -> list[dict[str, Any]]:
     """
     Generate fake financial transaction data.
 
@@ -361,9 +353,7 @@ def fake_financial_data(
     transaction_schema = Schema(
         name="transaction",
         fields=(
-            SchemaField(
-                name="transaction_id", data_type=DataType.STRING, required=True
-            ),
+            SchemaField(name="transaction_id", data_type=DataType.STRING, required=True),
             SchemaField(name="account_id", data_type=DataType.STRING, required=True),
             SchemaField(name="amount", data_type=DataType.FLOAT, required=True),
             SchemaField(name="currency", data_type=DataType.STRING, required=True),

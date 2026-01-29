@@ -76,11 +76,11 @@ Code Quality
 Formatting
 ~~~~~~~~~~
 
-We use Black for code formatting:
+We use Ruff for code formatting:
 
 .. code-block:: bash
 
-   black src/ tests/
+   uv run ruff format src tests
 
 Configuration is in ``pyproject.toml``.
 
@@ -129,7 +129,7 @@ Adding New Features
 .. code-block:: bash
 
    pytest
-   black src/ tests/
+   uv run ruff format src tests
    ruff check src/ tests/
    mypy src/
 

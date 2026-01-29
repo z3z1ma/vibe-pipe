@@ -95,9 +95,7 @@ def generate(
             description=description,
         )
 
-        console.print(
-            "[bold green]✓ Documentation generated successfully![/bold green]"
-        )
+        console.print("[bold green]✓ Documentation generated successfully![/bold green]")
         console.print(f"Open {output / 'index.html'} in your browser to view")
 
     except Exception as e:
@@ -201,9 +199,7 @@ def _load_assets_from_path(pipeline_path: Path) -> list[Asset]:
                 file_assets = _extract_assets_from_file(py_file)
                 assets.extend(file_assets)
             except Exception as e:
-                console.print(
-                    f"[yellow]Warning: Could not load {py_file}: {e}[/yellow]"
-                )
+                console.print(f"[yellow]Warning: Could not load {py_file}: {e}[/yellow]")
 
     # If it's a single file, load it
     elif pipeline_path.is_file() and pipeline_path.suffix == ".py":

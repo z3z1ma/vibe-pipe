@@ -28,6 +28,11 @@ src/vibe_piper/cli/commands/run.py
 src/vibe_piper/cli/commands/test.py
 src/vibe_piper/cli/commands/validate.py
 src/vibe_piper/cli/commands/version.py
+src/vibe_piper/config/__init__.py
+src/vibe_piper/config/loader.py
+src/vibe_piper/config/schema.py
+src/vibe_piper/config/secrets.py
+src/vibe_piper/config/validation.py
 src/vibe_piper/connectors/__init__.py
 src/vibe_piper/connectors/base.py
 src/vibe_piper/connectors/bigquery.py
@@ -42,6 +47,13 @@ src/vibe_piper/connectors/utils/__init__.py
 src/vibe_piper/connectors/utils/compression.py
 src/vibe_piper/connectors/utils/inference.py
 src/vibe_piper/connectors/utils/type_mapping.py
+src/vibe_piper/docs/__init__.py
+src/vibe_piper/docs/base.py
+src/vibe_piper/docs/catalog.py
+src/vibe_piper/docs/cli.py
+src/vibe_piper/docs/lineage.py
+src/vibe_piper/docs/schema.py
+src/vibe_piper/docs/site.py
 src/vibe_piper/integration/__init__.py
 src/vibe_piper/integration/auth.py
 src/vibe_piper/integration/base.py
@@ -59,6 +71,12 @@ src/vibe_piper/io_managers/registry.py
 src/vibe_piper/io_managers/s3.py
 src/vibe_piper/materialization/__init__.py
 src/vibe_piper/materialization/strategies.py
+src/vibe_piper/transformations/__init__.py
+src/vibe_piper/transformations/aggregations.py
+src/vibe_piper/transformations/builder.py
+src/vibe_piper/transformations/joins.py
+src/vibe_piper/transformations/pivot.py
+src/vibe_piper/transformations/windows.py
 src/vibe_piper/validation/__init__.py
 src/vibe_piper/validation/checks.py
 src/vibe_piper/validation/decorators.py
@@ -80,4 +98,5 @@ tests/test_protocols.py
 tests/test_quality.py
 tests/test_schema_definitions.py
 tests/test_testing_infrastructure.py
+tests/test_transformations.py
 tests/test_types.py

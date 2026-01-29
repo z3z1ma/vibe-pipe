@@ -299,8 +299,7 @@ class Rollup:
 
             for _, group in df.groupby(level_groups, as_index=False, dropna=False):
                 group_records = [
-                    DataRecord(data=row, schema=data[0].schema)
-                    for _, row in group.iterrows()
+                    DataRecord(data=row, schema=data[0].schema) for _, row in group.iterrows()
                 ]
                 subtotal = self._aggregate_level(group_records, {})
                 results.append(subtotal)
@@ -437,9 +436,7 @@ class Cube:
                             for _, row in group.iterrows()
                         ]
                         group_values = {
-                            col: row[col]
-                            for _, row in group.iterrows()
-                            for col in combo
+                            col: row[col] for _, row in group.iterrows() for col in combo
                         }
                         result = self._aggregate_level(group_records, group_values)
                         results.append(result)

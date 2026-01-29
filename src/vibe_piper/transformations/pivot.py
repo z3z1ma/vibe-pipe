@@ -108,9 +108,7 @@ class Pivot:
         elif callable(self.values):
             # Use all non-index, non-columns columns
             temp_values = [
-                col
-                for col in df.columns
-                if col not in self.index and col != self.columns
+                col for col in df.columns if col not in self.index and col != self.columns
             ]
             if len(temp_values) != 1:
                 msg = "When values is callable, DataFrame must have exactly one value column"

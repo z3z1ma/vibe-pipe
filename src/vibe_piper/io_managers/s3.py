@@ -59,9 +59,7 @@ class S3IOManager(IOManagerAdapter):
         try:
             import boto3
         except ImportError as e:
-            msg = (
-                "boto3 is required for S3IOManager. Install it with: pip install boto3"
-            )
+            msg = "boto3 is required for S3IOManager. Install it with: pip install boto3"
             raise ImportError(msg) from e
 
         self.bucket = bucket

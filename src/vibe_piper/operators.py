@@ -438,9 +438,7 @@ def validate_schema(
     ) -> list[DataRecord]:
         # Validation happens in DataRecord.__post_init__
         # This operator just re-creates records to trigger validation
-        return [
-            DataRecord(data=r.data, schema=schema, metadata=r.metadata) for r in data
-        ]
+        return [DataRecord(data=r.data, schema=schema, metadata=r.metadata) for r in data]
 
     return Operator(
         name=name,
@@ -783,9 +781,7 @@ def check_quality_uniqueness(
         ctx: PipelineContext,  # noqa: ARG001
     ) -> list[DataRecord]:
         # Run uniqueness check
-        result = check_uniqueness(
-            data, unique_fields=unique_fields, threshold=threshold
-        )
+        result = check_uniqueness(data, unique_fields=unique_fields, threshold=threshold)
 
         # Store result in context for later retrieval
         ctx.set_state(f"{name}_result", result)
@@ -840,9 +836,7 @@ def check_quality_freshness(
         ctx: PipelineContext,  # noqa: ARG001
     ) -> list[DataRecord]:
         # Run freshness check
-        result = check_freshness(
-            data, timestamp_field=timestamp_field, max_age_hours=max_age_hours
-        )
+        result = check_freshness(data, timestamp_field=timestamp_field, max_age_hours=max_age_hours)
 
         # Store result in context for later retrieval
         ctx.set_state(f"{name}_result", result)

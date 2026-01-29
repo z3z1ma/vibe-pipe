@@ -80,9 +80,7 @@ def test_site_generator_initialization(tmp_path: Path) -> None:
     assert generator.lineage_gen is not None
 
 
-def test_site_generator_creates_directories(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_directories(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates all required directories."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -93,9 +91,7 @@ def test_site_generator_creates_directories(
     assert (tmp_path / "static" / "js").exists()
 
 
-def test_site_generator_creates_index_page(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_index_page(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates index.html."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets, pipeline_name="Test Pipeline")
@@ -108,9 +104,7 @@ def test_site_generator_creates_index_page(
     assert "Vibe Piper Documentation" in content
 
 
-def test_site_generator_creates_catalog_page(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_catalog_page(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates catalog.html."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -124,9 +118,7 @@ def test_site_generator_creates_catalog_page(
     assert "logs" in content
 
 
-def test_site_generator_creates_lineage_page(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_lineage_page(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates lineage.html."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -139,9 +131,7 @@ def test_site_generator_creates_lineage_page(
     assert "graph TD" in content  # Mermaid syntax
 
 
-def test_site_generator_creates_asset_pages(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_asset_pages(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates individual asset pages."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -158,9 +148,7 @@ def test_site_generator_creates_asset_pages(
     assert "User table" in users_content
 
 
-def test_site_generator_creates_schema_pages(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_schema_pages(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates schema pages."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -175,9 +163,7 @@ def test_site_generator_creates_schema_pages(
     assert "name" in content
 
 
-def test_site_generator_copies_static_files(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_copies_static_files(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator copies static CSS and JS files."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -191,9 +177,7 @@ def test_site_generator_copies_static_files(
     assert search_index.exists()
 
 
-def test_site_generator_creates_search_index(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_creates_search_index(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates search index."""
     import json
 
@@ -210,9 +194,7 @@ def test_site_generator_creates_search_index(
     assert len(data["schemas"]) == 1
 
 
-def test_site_generator_with_custom_parameters(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_site_generator_with_custom_parameters(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test generator with custom pipeline name and description."""
     generator = HTMLSiteGenerator(output_dir=tmp_path)
     generator.generate(

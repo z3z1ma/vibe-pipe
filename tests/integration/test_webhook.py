@@ -2,7 +2,6 @@
 Tests for webhook handler.
 """
 
-
 import pytest
 
 from vibe_piper.integration.webhook import (

@@ -5,6 +5,7 @@ Comprehensive tests covering all transformation operations including edge cases.
 """
 
 import pytest
+
 from vibe_piper import DataRecord, DataType, PipelineContext, Schema, SchemaField
 from vibe_piper.transformations import (
     Avg,
@@ -57,9 +58,15 @@ def order_schema() -> Schema:
 def customers(customer_schema: Schema) -> list[DataRecord]:
     """Create customer records."""
     return [
-        DataRecord(data={"customer_id": 1, "name": "Alice", "region": "North"}, schema=customer_schema),
-        DataRecord(data={"customer_id": 2, "name": "Bob", "region": "South"}, schema=customer_schema),
-        DataRecord(data={"customer_id": 3, "name": "Charlie", "region": "North"}, schema=customer_schema),
+        DataRecord(
+            data={"customer_id": 1, "name": "Alice", "region": "North"}, schema=customer_schema
+        ),
+        DataRecord(
+            data={"customer_id": 2, "name": "Bob", "region": "South"}, schema=customer_schema
+        ),
+        DataRecord(
+            data={"customer_id": 3, "name": "Charlie", "region": "North"}, schema=customer_schema
+        ),
     ]
 
 
@@ -196,7 +203,9 @@ class TestJoinOperators:
         # Left join with empty right should return all left records with nulls
         assert len(result) == len(customers)
 
-    def test_join_missing_column(self, customers: list[DataRecord], orders: list[DataRecord]) -> None:
+    def test_join_missing_column(
+        self, customers: list[DataRecord], orders: list[DataRecord]
+    ) -> None:
         """Test join with missing column raises error."""
         join_op = Join(
             name="missing_column",
@@ -501,9 +510,7 @@ class TestTransformationBuilder:
 
     def test_transform_convenience(self, customers: list[DataRecord]) -> None:
         """Test transform convenience function."""
-        result = (
-            transform(customers).filter(lambda r: r.get("region") == "North").execute()
-        )
+        result = transform(customers).filter(lambda r: r.get("region") == "North").execute()
 
         assert len(result) == 2
 

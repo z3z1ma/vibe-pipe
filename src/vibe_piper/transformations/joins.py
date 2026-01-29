@@ -215,9 +215,7 @@ class Join:
                 from vibe_piper.types import SchemaField
 
                 new_fields.append(
-                    SchemaField(
-                        name=col, data_type=dtype, required=False, nullable=True
-                    )
+                    SchemaField(name=col, data_type=dtype, required=False, nullable=True)
                 )
 
         new_schema = Schema(

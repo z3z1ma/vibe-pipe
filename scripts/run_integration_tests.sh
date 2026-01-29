@@ -27,8 +27,8 @@ export MYSQL_PASSWORD=testpass
 
 # Run integration tests
 echo "Running integration tests..."
-pytest tests/connectors/test_postgres_integration.py -v -m integration
-pytest tests/connectors/test_mysql_integration.py -v -m integration
+uv run pytest tests/connectors/test_postgres_integration.py -v -m integration
+uv run pytest tests/connectors/test_mysql_integration.py -v -m integration
 
 # Cleanup
 echo "Stopping test environment..."

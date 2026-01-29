@@ -18,11 +18,10 @@ import re
 import statistics
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from vibe_piper.types import DataRecord, DataType, ValidationResult
-
 
 # =============================================================================
 # Validation Result with Details
@@ -620,9 +619,7 @@ def expect_column_values_to_not_be_null(
         if null_count > 0:
             return ValidationResult(
                 is_valid=False,
-                errors=(
-                    f"Column '{column}': {null_count}/{len(records)} values are null",
-                ),
+                errors=(f"Column '{column}': {null_count}/{len(records)} values are null",),
             )
 
         return ValidationResult(is_valid=True)
@@ -903,8 +900,7 @@ def expect_column_pair_values_a_to_be_greater_than_b(
             return ValidationResult(
                 is_valid=False,
                 errors=(
-                    f"Column '{column_a}' > '{column_b}': "
-                    f"{violations}/{len(records)} violations",
+                    f"Column '{column_a}' > '{column_b}': {violations}/{len(records)} violations",
                 ),
             )
 
@@ -996,9 +992,7 @@ def expect_column_groupby_value_counts_to_be_between(
                 violations.append((group_val, count))
 
         if violations:
-            violation_details = ", ".join(
-                f"{group}={count}" for group, count in violations[:5]
-            )
+            violation_details = ", ".join(f"{group}={count}" for group, count in violations[:5])
             return ValidationResult(
                 is_valid=False,
                 errors=(
@@ -1055,9 +1049,7 @@ def expect_column_groupby_mean_to_be_between(
                 violations.append((group_val, mean_val))
 
         if violations:
-            violation_details = ", ".join(
-                f"{group}={mean:.2f}" for group, mean in violations[:5]
-            )
+            violation_details = ", ".join(f"{group}={mean:.2f}" for group, mean in violations[:5])
             return ValidationResult(
                 is_valid=False,
                 errors=(
@@ -1084,9 +1076,7 @@ def expect_table_row_count_to_be_between(
         if not passed:
             return ValidationResult(
                 is_valid=False,
-                errors=(
-                    f"Row count {row_count} is not between {min_value} and {max_value}",
-                ),
+                errors=(f"Row count {row_count} is not between {min_value} and {max_value}",),
             )
 
         return ValidationResult(is_valid=True)
@@ -1095,7 +1085,7 @@ def expect_table_row_count_to_be_between(
 
 
 def expect_table_row_count_to_equal(
-    expected_value: int
+    expected_value: int,
 ) -> Callable[[Sequence[DataRecord]], ValidationResult]:
     """Expect table row count to equal a specific value."""
 
@@ -1105,9 +1095,7 @@ def expect_table_row_count_to_equal(
         if row_count != expected_value:
             return ValidationResult(
                 is_valid=False,
-                errors=(
-                    f"Row count {row_count} does not equal expected {expected_value}",
-                ),
+                errors=(f"Row count {row_count} does not equal expected {expected_value}",),
             )
 
         return ValidationResult(is_valid=True)

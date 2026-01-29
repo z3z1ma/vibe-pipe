@@ -112,8 +112,7 @@ class SchemaDocGenerator(DocumentationGenerator):
             required_str = "required" if field.required else "optional"
             nullable_str = "nullable" if field.nullable else "non-nullable"
             lines.append(
-                f"  - {field.name}: {field.data_type.name.lower()} "
-                f"({required_str}, {nullable_str})"
+                f"  - {field.name}: {field.data_type.name.lower()} ({required_str}, {nullable_str})"
             )
 
             if field.description:

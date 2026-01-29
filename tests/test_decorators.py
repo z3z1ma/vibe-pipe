@@ -470,9 +470,7 @@ class TestExpectationDecorator:
         assert result.is_valid is True
 
         # Invalid data
-        result = email_format.validate(
-            [{"email": "valid@example.com"}, {"email": "invalid-email"}]
-        )
+        result = email_format.validate([{"email": "valid@example.com"}, {"email": "invalid-email"}])
         assert result.is_valid is False
         assert len(result.errors) == 1
         assert "Record 1" in result.errors[0]

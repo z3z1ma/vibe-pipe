@@ -267,9 +267,7 @@ class TestRESTClientErrors:
 
     async def test_default_params(self):
         """Test default query parameters."""
-        client = RESTClient(
-            "https://api.example.com", default_params={"api_key": "test"}
-        )
+        client = RESTClient("https://api.example.com", default_params={"api_key": "test"})
 
         async with client:
             mock_response = MagicMock(spec=httpx.Response)

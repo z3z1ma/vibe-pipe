@@ -166,23 +166,8 @@ def test_cli_serve_command_not_implemented_fully(
     tmp_path: Path, sample_pipeline_file: Path
 ) -> None:
     """Test that serve command exists (full test would require HTTP server)."""
-    output_dir = tmp_path / "docs"
     runner = CliRunner()
 
-    # We can't fully test the server without actually running it,
-    # but we can test that the command is recognized
-    result = runner.invoke(
-        serve,
-        [
-            str(sample_pipeline_file.parent),
-            "--port",
-            "8001",
-            "--output",
-            str(output_dir),
-        ],
-        catch_exceptions=False,
-    )
-
-    # The serve command starts a server, so it will block
-    # We just verify it starts correctly
-    # In a real test, we'd run it in a thread and make HTTP requests
+    # `serve` is a long-running command; just verify it is wired up.
+    result = runner.invoke(serve, ["--help"], catch_exceptions=False)
+    assert result.exit_code == 0

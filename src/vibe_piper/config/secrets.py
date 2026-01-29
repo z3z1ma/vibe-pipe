@@ -214,9 +214,7 @@ def interpolate_secrets(value: str, secrets: dict[str, str]) -> str:
     return re.sub(pattern, replacer, value)
 
 
-def mask_secrets(
-    _config: Config, data: dict[str, Any], secrets: dict[str, str]
-) -> dict[str, Any]:
+def mask_secrets(_config: Config, data: dict[str, Any], secrets: dict[str, str]) -> dict[str, Any]:
     """Mask secret values in data structure for logging.
 
     Args:
@@ -268,11 +266,7 @@ def validate_secret_spec(spec: SecretSpec) -> list[str]:
         warnings.append("Secret cannot have both required=true and a default value")
 
     # Check vault path format
-    if (
-        spec.from_ == SecretSource.VAULT
-        and spec.path
-        and not spec.path.startswith("secret/")
-    ):
+    if spec.from_ == SecretSource.VAULT and spec.path and not spec.path.startswith("secret/"):
         warnings.append(f"Vault path should start with 'secret/' (got: {spec.path})")
 
     return warnings

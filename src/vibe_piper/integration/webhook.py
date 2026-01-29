@@ -120,15 +120,9 @@ class SignatureVerifier:
             raise ValueError(msg)
 
         # Set default prefix based on algorithm
-        if (
-            self.algorithm == SignatureAlgorithm.HMAC_SHA256
-            and self.signature_prefix == "sha1="
-        ):
+        if self.algorithm == SignatureAlgorithm.HMAC_SHA256 and self.signature_prefix == "sha1=":
             self.signature_prefix = "sha256="
-        elif (
-            self.algorithm == SignatureAlgorithm.HMAC_SHA512
-            and self.signature_prefix == "sha1="
-        ):
+        elif self.algorithm == SignatureAlgorithm.HMAC_SHA512 and self.signature_prefix == "sha1=":
             self.signature_prefix = "sha512="
 
     def verify(self, request: WebhookRequest) -> bool:
@@ -283,9 +277,7 @@ class WebhookHandler:
         self._default_handler = func
         return func
 
-    async def handle(
-        self, request: WebhookRequest, event_type: str | None = None
-    ) -> Any:
+    async def handle(self, request: WebhookRequest, event_type: str | None = None) -> Any:
         """
         Handle webhook request.
 

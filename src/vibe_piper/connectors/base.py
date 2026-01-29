@@ -5,7 +5,7 @@ This module provides base protocols for both database and file I/O connectors.
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,7 +14,6 @@ from typing import Any, Protocol, TypeVar, runtime_checkable
 from pydantic import BaseModel
 
 from vibe_piper.types import DataRecord, Schema
-
 
 # =============================================================================
 # Database Connector Protocol
@@ -110,13 +109,14 @@ class QueryBuilder:
     and DELETE queries without writing raw SQL.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, table: str) -> None:
+        self._table = table
         self._select: list[str] = []
-        self._from: str | None = None
         self._where: list[str] = []
-        self._join: list[tuple[str, str, str]] = []
+        self._params: dict[str, Any] = {}
+        self._joins: list[tuple[str, str, str]] = []
         self._group_by: list[str] = []
-        self._order_by: list[tuple[str, bool]] = []
+        self._order_by: list[str] = []
         self._limit: int | None = None
         self._offset: int | None = None
 
@@ -125,19 +125,15 @@ class QueryBuilder:
         self._select = list(columns)
         return self
 
-    def from_table(self, table: str) -> "QueryBuilder":
-        """Set table to select from."""
-        self._from = table
-        return self
-
-    def where(self, condition: str) -> "QueryBuilder":
-        """Add WHERE clause."""
+    def where(self, condition: str, **params: Any) -> "QueryBuilder":
+        """Add WHERE clause and bind parameters."""
         self._where.append(condition)
+        self._params.update(params)
         return self
 
     def join(self, table: str, on: str, join_type: str = "INNER") -> "QueryBuilder":
         """Add JOIN clause."""
-        self._join.append((table, on, join_type))
+        self._joins.append((table, on, join_type))
         return self
 
     def group_by(self, *columns: str) -> "QueryBuilder":
@@ -145,9 +141,9 @@ class QueryBuilder:
         self._group_by = list(columns)
         return self
 
-    def order_by(self, column: str, ascending: bool = True) -> "QueryBuilder":
+    def order_by(self, *clauses: str) -> "QueryBuilder":
         """Add ORDER BY clause."""
-        self._order_by.append((column, ascending))
+        self._order_by.extend(clauses)
         return self
 
     def limit(self, count: int) -> "QueryBuilder":
@@ -160,17 +156,13 @@ class QueryBuilder:
         self._offset = count
         return self
 
-    def build(self) -> str:
-        """Build the SQL query string."""
-        if not self._select or not self._from:
-            msg = "SELECT and FROM clauses are required"
-            raise ValueError(msg)
+    def build_select(self) -> tuple[str, dict[str, Any]]:
+        """Build a SELECT query and return (sql, params)."""
+        select_cols = ", ".join(self._select) if self._select else "*"
+        query_parts = [f"SELECT {select_cols}", f"FROM {self._table}"]
 
-        query_parts = [f"SELECT {', '.join(self._select)}", f"FROM {self._from}"]
-
-        if self._join:
-            for table, on, join_type in self._join:
-                query_parts.append(f"{join_type} JOIN {table} ON {on}")
+        for table, on, join_type in self._joins:
+            query_parts.append(f"{join_type} JOIN {table} ON {on}")
 
         if self._where:
             query_parts.append(f"WHERE {' AND '.join(self._where)}")
@@ -179,8 +171,7 @@ class QueryBuilder:
             query_parts.append(f"GROUP BY {', '.join(self._group_by)}")
 
         if self._order_by:
-            order_parts = [f"{col} {'ASC' if asc else 'DESC'}" for col, asc in self._order_by]
-            query_parts.append(f"ORDER BY {', '.join(order_parts)}")
+            query_parts.append(f"ORDER BY {', '.join(self._order_by)}")
 
         if self._limit is not None:
             query_parts.append(f"LIMIT {self._limit}")
@@ -188,7 +179,58 @@ class QueryBuilder:
         if self._offset is not None:
             query_parts.append(f"OFFSET {self._offset}")
 
-        return " ".join(query_parts)
+        return " ".join(query_parts), dict(self._params)
+
+    @staticmethod
+    def build_insert(
+        table: str, data: dict[str, Any] | list[dict[str, Any]]
+    ) -> tuple[str, dict[str, Any]]:
+        """Build an INSERT query for a single row and return (sql, params)."""
+        if isinstance(data, list):
+            if not data:
+                msg = "Cannot build INSERT query with no data"
+                raise ValueError(msg)
+            row = data[0]
+        else:
+            row = data
+
+        columns = list(row.keys())
+        placeholders = [f":{c}" for c in columns]
+        query = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join(placeholders)})"
+        return query, dict(row)
+
+    @staticmethod
+    def build_update(
+        table: str,
+        data: dict[str, Any],
+        where_clause: str,
+        where_params: dict[str, Any] | None = None,
+    ) -> tuple[str, dict[str, Any]]:
+        """Build an UPDATE query and return (sql, params)."""
+        if not data:
+            msg = "Cannot build UPDATE query with no data"
+            raise ValueError(msg)
+
+        set_parts: list[str] = []
+        params: dict[str, Any] = {}
+        for col, value in data.items():
+            key = f"update_{col}"
+            set_parts.append(f"{col} = :{key}")
+            params[key] = value
+
+        if where_params:
+            params.update(where_params)
+
+        query = f"UPDATE {table} SET {', '.join(set_parts)} WHERE {where_clause}"
+        return query, params
+
+    @staticmethod
+    def build_delete(
+        table: str, where_clause: str, where_params: dict[str, Any] | None = None
+    ) -> tuple[str, dict[str, Any]]:
+        """Build a DELETE query and return (sql, params)."""
+        query = f"DELETE FROM {table} WHERE {where_clause}"
+        return query, dict(where_params or {})
 
 
 # =============================================================================

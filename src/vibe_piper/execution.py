@@ -15,11 +15,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from vibe_piper.error_handling import (
-    CheckpointManager,
-    CheckpointState,
-    capture_error_context,
-)
 from vibe_piper.io_managers import get_io_manager
 from vibe_piper.materialization import (
     FileStrategy,
@@ -382,9 +377,7 @@ class ExecutionEngine:
 
         # Determine execution order
         if target_assets:
-            execution_order = self._get_execution_order_for_targets(
-                graph, target_assets
-            )
+            execution_order = self._get_execution_order_for_targets(graph, target_assets)
         else:
             execution_order = graph.topological_order()
 
@@ -411,9 +404,7 @@ class ExecutionEngine:
             }
 
             # Execute the asset
-            result = self._execute_asset_with_retry(
-                asset, context, upstream_results, retry_counts
-            )
+            result = self._execute_asset_with_retry(asset, context, upstream_results, retry_counts)
 
             asset_results[asset_name] = result
 
@@ -549,9 +540,7 @@ class ExecutionEngine:
         metrics = {
             "total_assets": len(asset_results),
             "total_duration_ms": total_duration,
-            "avg_duration_ms": (
-                total_duration / len(asset_results) if asset_results else 0
-            ),
+            "avg_duration_ms": (total_duration / len(asset_results) if asset_results else 0),
             "total_rows": total_rows,
         }
 

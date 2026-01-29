@@ -97,9 +97,7 @@ class RetryConfig:
     jitter: bool = True
     """Add random jitter to prevent thundering herd."""
 
-    retryable_status_codes: set[int] = field(
-        default_factory=lambda: {408, 429, 500, 502, 503, 504}
-    )
+    retryable_status_codes: set[int] = field(default_factory=lambda: {408, 429, 500, 502, 503, 504})
     """HTTP status codes that trigger a retry."""
 
     def calculate_delay(self, attempt: int) -> float:
@@ -226,9 +224,7 @@ class APIClient(ABC):
         """
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-        self.retry_config = retry_config or RetryConfig(
-            max_attempts=self.DEFAULT_MAX_RETRIES
-        )
+        self.retry_config = retry_config or RetryConfig(max_attempts=self.DEFAULT_MAX_RETRIES)
         self.rate_limiter = rate_limiter
         self.default_headers = headers or {}
         self.verify_ssl = verify_ssl

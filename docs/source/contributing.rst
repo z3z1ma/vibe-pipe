@@ -62,7 +62,7 @@ Code Style
 
 Vibe Piper uses:
 
-* **Black** for code formatting
+* **Ruff** for code formatting
 * **Ruff** for linting
 * **MyPy** for type checking
 
@@ -70,7 +70,7 @@ Format code:
 
 .. code-block:: bash
 
-   black src/ tests/
+   uv run ruff format src tests
 
 Run linters:
 
@@ -136,7 +136,7 @@ Workflow
 .. code-block:: bash
 
    pytest
-   black src/ tests/
+   uv run ruff format src tests
    ruff check src/ tests/
    mypy src/
 

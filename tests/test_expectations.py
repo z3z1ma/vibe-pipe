@@ -250,14 +250,10 @@ class TestExpectationSuite:
     def test_suite_with_failure_strategy(self) -> None:
         """Test creating suite with different failure strategies."""
 
-        suite_fail_fast = ExpectationSuite(
-            name="test", failure_strategy=FailureStrategy.FAIL_FAST
-        )
+        suite_fail_fast = ExpectationSuite(name="test", failure_strategy=FailureStrategy.FAIL_FAST)
         assert suite_fail_fast.failure_strategy == FailureStrategy.FAIL_FAST
 
-        suite_collect = ExpectationSuite(
-            name="test", failure_strategy=FailureStrategy.COLLECT_ALL
-        )
+        suite_collect = ExpectationSuite(name="test", failure_strategy=FailureStrategy.COLLECT_ALL)
         assert suite_collect.failure_strategy == FailureStrategy.COLLECT_ALL
 
     def test_add_expectation(self) -> None:
@@ -344,9 +340,7 @@ class TestExpectationSuite:
     def test_validate_collect_all(self) -> None:
         """Test that COLLECT_ALL strategy runs all expectations."""
 
-        suite = ExpectationSuite(
-            name="test_suite", failure_strategy=FailureStrategy.COLLECT_ALL
-        )
+        suite = ExpectationSuite(name="test_suite", failure_strategy=FailureStrategy.COLLECT_ALL)
 
         @expect
         def expect_positive(value: Any) -> bool:
@@ -373,9 +367,7 @@ class TestExpectationSuite:
         @expect
         def expect_with_warning(value: Any) -> ValidationResult:
             if value is None:
-                return ValidationResult(
-                    is_valid=True, warnings=("Value is None but allowed",)
-                )
+                return ValidationResult(is_valid=True, warnings=("Value is None but allowed",))
             return ValidationResult(is_valid=True)
 
         suite.add_expectation(expect_with_warning)
@@ -584,13 +576,9 @@ class TestExpectationIntegration:
         ) -> ValidationResult:
             """Validate with detailed result."""
             if value is None:
-                return ValidationResult(
-                    is_valid=False, errors=("Value cannot be None",)
-                )
+                return ValidationResult(is_valid=False, errors=("Value cannot be None",))
             if isinstance(value, int) and value < 0:
-                return ValidationResult(
-                    is_valid=False, errors=("Value must be non-negative",)
-                )
+                return ValidationResult(is_valid=False, errors=("Value must be non-negative",))
             return ValidationResult(is_valid=True)
 
         suite = ExpectationSuite(name="detailed_suite")
@@ -688,9 +676,7 @@ class TestColumnTypeExpectations:
         assert "has type INTEGER" in result.errors[0]
         assert "expected STRING" in result.errors[0]
 
-    def test_expect_column_type_to_be_nonexistent_column(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_type_to_be_nonexistent_column(self, sample_schema: Schema) -> None:
         """Test expecting type on non-existent column."""
         expectation = expect_column_type_to_be("missing", DataType.STRING)
         result = expectation.validate(sample_schema)
@@ -706,34 +692,26 @@ class TestColumnTypeExpectations:
 class TestColumnCountExpectations:
     """Tests for column count expectations."""
 
-    def test_expect_table_column_count_to_equal_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_column_count_to_equal_valid(self, sample_schema: Schema) -> None:
         """Test expecting correct column count."""
         expectation = expect_table_column_count_to_equal(4)
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_table_column_count_to_equal_invalid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_column_count_to_equal_invalid(self, sample_schema: Schema) -> None:
         """Test expecting incorrect column count."""
         expectation = expect_table_column_count_to_equal(5)
         result = expectation.validate(sample_schema)
         assert result.is_valid is False
         assert "Expected 5 columns, but found 4" in result.errors[0]
 
-    def test_expect_table_column_count_to_be_between_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_column_count_to_be_between_valid(self, sample_schema: Schema) -> None:
         """Test expecting column count within range."""
         expectation = expect_table_column_count_to_be_between(3, 5)
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_table_column_count_to_be_between_too_few(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_column_count_to_be_between_too_few(self, sample_schema: Schema) -> None:
         """Test expecting column count within range (too few)."""
         expectation = expect_table_column_count_to_be_between(5, 10)
         result = expectation.validate(sample_schema)
@@ -741,9 +719,7 @@ class TestColumnCountExpectations:
         assert "between 5 and 10" in result.errors[0]
         assert "but found 4" in result.errors[0]
 
-    def test_expect_table_column_count_to_be_between_too_many(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_column_count_to_be_between_too_many(self, sample_schema: Schema) -> None:
         """Test expecting column count within range (too many)."""
         expectation = expect_table_column_count_to_be_between(1, 3)
         result = expectation.validate(sample_schema)
@@ -760,17 +736,13 @@ class TestColumnCountExpectations:
 class TestColumnSetExpectations:
     """Tests for column set expectations."""
 
-    def test_expect_table_columns_to_match_set_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_columns_to_match_set_valid(self, sample_schema: Schema) -> None:
         """Test expecting exact column set match."""
         expectation = expect_table_columns_to_match_set({"id", "email", "age", "name"})
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_table_columns_to_match_set_missing(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_columns_to_match_set_missing(self, sample_schema: Schema) -> None:
         """Test expecting exact column set with missing columns."""
         expectation = expect_table_columns_to_match_set({"id", "email", "password"})
         result = expectation.validate(sample_schema)
@@ -784,9 +756,7 @@ class TestColumnSetExpectations:
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_table_columns_to_contain_invalid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_columns_to_contain_invalid(self, sample_schema: Schema) -> None:
         """Test expecting schema to contain columns (missing)."""
         expectation = expect_table_columns_to_contain({"id", "password"})
         result = expectation.validate(sample_schema)
@@ -794,17 +764,13 @@ class TestColumnSetExpectations:
         assert "Missing required columns" in result.errors[0]
         assert "password" in result.errors[0]
 
-    def test_expect_table_columns_to_not_contain_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_columns_to_not_contain_valid(self, sample_schema: Schema) -> None:
         """Test expecting schema to not contain columns."""
         expectation = expect_table_columns_to_not_contain({"password", "ssn"})
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_table_columns_to_not_contain_invalid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_table_columns_to_not_contain_invalid(self, sample_schema: Schema) -> None:
         """Test expecting schema to not contain columns (found)."""
         expectation = expect_table_columns_to_not_contain({"id", "password"})
         result = expectation.validate(sample_schema)
@@ -860,17 +826,13 @@ class TestColumnPropertyExpectations:
         assert result.is_valid is False
         assert "does not allow null values" in result.errors[0]
 
-    def test_expect_column_to_be_non_nullable_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_to_be_non_nullable_valid(self, sample_schema: Schema) -> None:
         """Test expecting a non-nullable column."""
         expectation = expect_column_to_be_non_nullable("id")
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_column_to_be_non_nullable_invalid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_to_be_non_nullable_invalid(self, sample_schema: Schema) -> None:
         """Test expecting a non-nullable column (nullable field)."""
         expectation = expect_column_to_be_non_nullable("age")
         result = expectation.validate(sample_schema)
@@ -886,34 +848,26 @@ class TestColumnPropertyExpectations:
 class TestConstraintExpectations:
     """Tests for constraint expectations."""
 
-    def test_expect_column_to_have_constraint_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_to_have_constraint_valid(self, sample_schema: Schema) -> None:
         """Test expecting a column to have a constraint."""
         expectation = expect_column_to_have_constraint("email", "max_length")
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_column_to_have_constraint_invalid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_to_have_constraint_invalid(self, sample_schema: Schema) -> None:
         """Test expecting a column to have a constraint (missing)."""
         expectation = expect_column_to_have_constraint("id", "max_length")
         result = expectation.validate(sample_schema)
         assert result.is_valid is False
         assert "does not have constraint 'max_length'" in result.errors[0]
 
-    def test_expect_column_constraint_to_equal_valid(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_constraint_to_equal_valid(self, sample_schema: Schema) -> None:
         """Test expecting a constraint value to match."""
         expectation = expect_column_constraint_to_equal("email", "max_length", 255)
         result = expectation.validate(sample_schema)
         assert result.is_valid is True
 
-    def test_expect_column_constraint_to_equal_invalid_value(
-        self, sample_schema: Schema
-    ) -> None:
+    def test_expect_column_constraint_to_equal_invalid_value(self, sample_schema: Schema) -> None:
         """Test expecting a constraint value to match (incorrect)."""
         expectation = expect_column_constraint_to_equal("email", "max_length", 100)
         result = expectation.validate(sample_schema)
@@ -950,9 +904,7 @@ class TestIntegrationExpectations:
 
         for expectation in expectations:
             result = expectation.validate(sample_schema)
-            assert (
-                result.is_valid is True
-            ), f"{expectation.name} failed: {result.errors}"
+            assert result.is_valid is True, f"{expectation.name} failed: {result.errors}"
 
     def test_expectation_with_declarative_schema(self) -> None:
         """Test expectations with declarative schema definitions."""

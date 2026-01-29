@@ -600,8 +600,7 @@ class SchemaMeta(type):
 
         # Build the Schema object
         schema_fields: tuple[SchemaField, ...] = tuple(
-            field_obj.to_schema_field(field_name)
-            for field_name, field_obj in fields.items()
+            field_obj.to_schema_field(field_name) for field_name, field_obj in fields.items()
         )
 
         schema = Schema(
@@ -720,8 +719,7 @@ def define_schema(
 
         # Build schema fields
         schema_fields = tuple(
-            field_obj.to_schema_field(field_name)
-            for field_name, field_obj in fields.items()
+            field_obj.to_schema_field(field_name) for field_name, field_obj in fields.items()
         )
 
         # Create Schema object

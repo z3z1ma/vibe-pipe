@@ -68,8 +68,7 @@ def infer_dependencies_from_signature(
         name
         for name, param in sig.parameters.items()
         if name not in _SPECIAL_PARAMS
-        and param.kind
-        not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+        and param.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
     ]
 
     # Filter to only known assets if provided
@@ -178,9 +177,7 @@ class PipelineBuilder:
         resolved_dependencies: list[str] | None = None
         if depends_on is None:
             # Infer dependencies from function signature
-            inferred = infer_dependencies_from_signature(
-                fn, known_assets=set(self._assets.keys())
-            )
+            inferred = infer_dependencies_from_signature(fn, known_assets=set(self._assets.keys()))
             resolved_dependencies = inferred if inferred else None
         else:
             resolved_dependencies = list(depends_on)
@@ -200,9 +197,7 @@ class PipelineBuilder:
                 return fn(data, context)  # type: ignore
 
         # Determine operator type based on dependencies
-        operator_type = (
-            OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
-        )
+        operator_type = OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
 
         # Create operator from the wrapped function
         operator = Operator(
@@ -288,9 +283,7 @@ class PipelineBuilder:
 
         # Convert to tuples for immutable AssetGraph
         assets_tuple = tuple(self._assets.values())
-        dependencies_tuple = {
-            name: tuple(deps) for name, deps in self._dependencies.items()
-        }
+        dependencies_tuple = {name: tuple(deps) for name, deps in self._dependencies.items()}
 
         return AssetGraph(
             name=self.name,
@@ -431,9 +424,7 @@ class PipelineContext:
 
             # Determine operator type based on dependencies
             operator_type = (
-                OperatorType.SOURCE
-                if not resolved_dependencies
-                else OperatorType.TRANSFORM
+                OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
             )
 
             # Generate URI if not provided

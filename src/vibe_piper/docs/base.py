@@ -50,9 +50,7 @@ class DocumentationGenerator(ABC):
         """Create the output directory if it doesn't exist."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def get_context(
-        self, additional_context: Mapping[str, Any] | None = None
-    ) -> dict[str, Any]:
+    def get_context(self, additional_context: Mapping[str, Any] | None = None) -> dict[str, Any]:
         """
         Get the full rendering context.
 

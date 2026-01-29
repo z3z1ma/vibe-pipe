@@ -19,7 +19,6 @@ from vibe_piper.validation.suite import (
     ValidationContext,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -53,7 +52,13 @@ def sample_records(sample_schema):
             schema=sample_schema,
         ),
         DataRecord(
-            data={"id": 3, "name": "Charlie", "age": 35, "email": "charlie@example.com", "score": 92.5},
+            data={
+                "id": 3,
+                "name": "Charlie",
+                "age": 35,
+                "email": "charlie@example.com",
+                "score": 92.5,
+            },
             schema=sample_schema,
         ),
     )

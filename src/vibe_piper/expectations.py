@@ -330,9 +330,7 @@ class ExpectationSuite:
         self._expectations[expectation.name] = expectation
         return self
 
-    def add_expectations(
-        self, expectations: Sequence[Expectation]
-    ) -> ExpectationSuite:
+    def add_expectations(self, expectations: Sequence[Expectation]) -> ExpectationSuite:
         """
         Add multiple expectations to this suite.
 
@@ -704,8 +702,7 @@ def expect_column_type_to_be(column: str, expected_type: DataType) -> Expectatio
         return ValidationResult(
             is_valid=False,
             errors=(
-                f"Column '{column}' has type {field.data_type.name}, "
-                f"expected {expected_type.name}",
+                f"Column '{column}' has type {field.data_type.name}, expected {expected_type.name}",
             ),
         )
 
@@ -756,9 +753,7 @@ def expect_table_column_count_to_equal(count: int) -> Expectation:
     )
 
 
-def expect_table_column_count_to_be_between(
-    min_count: int, max_count: int
-) -> Expectation:
+def expect_table_column_count_to_be_between(min_count: int, max_count: int) -> Expectation:
     """
     Expect the schema to have a column count within a range.
 
@@ -1175,9 +1170,7 @@ def expect_column_constraint_to_equal(
         if constraint_key not in field.constraints:
             return ValidationResult(
                 is_valid=False,
-                errors=(
-                    f"Column '{column}' does not have constraint '{constraint_key}'",
-                ),
+                errors=(f"Column '{column}' does not have constraint '{constraint_key}'",),
             )
 
         actual_value = field.constraints[constraint_key]

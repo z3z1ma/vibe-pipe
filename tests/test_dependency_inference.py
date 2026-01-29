@@ -22,9 +22,7 @@ class TestInferDependenciesFromSignature:
         def process_data(raw_data, context):
             return [x * 2 for x in raw_data]
 
-        deps = infer_dependencies_from_signature(
-            process_data, known_assets={"raw_data", "other"}
-        )
+        deps = infer_dependencies_from_signature(process_data, known_assets={"raw_data", "other"})
         assert deps == ["raw_data"]
 
     def test_infer_multiple_dependencies(self) -> None:
@@ -44,9 +42,7 @@ class TestInferDependenciesFromSignature:
         def process(data, context, ctx):
             return data
 
-        deps = infer_dependencies_from_signature(
-            process, known_assets={"data", "context", "ctx"}
-        )
+        deps = infer_dependencies_from_signature(process, known_assets={"data", "context", "ctx"})
         # Only 'context' and 'ctx' are filtered, 'data' is inferred
         assert deps == ["data"]
 
@@ -59,9 +55,7 @@ class TestInferDependenciesFromSignature:
         def transform(data, upstream, context):
             return upstream
 
-        deps = infer_dependencies_from_signature(
-            transform, known_assets={"data", "upstream"}
-        )
+        deps = infer_dependencies_from_signature(transform, known_assets={"data", "upstream"})
         # Both 'data' and 'upstream' should be inferred, 'context' is filtered
         assert set(deps) == {"data", "upstream"}
 

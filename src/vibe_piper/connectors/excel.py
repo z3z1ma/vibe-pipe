@@ -220,9 +220,7 @@ class ExcelReader(FileReader):
             read_kwargs["engine"] = self.engine
 
         # Read all sheets (sample only)
-        all_sheets = pd.read_excel(
-            self.path, sheet_name=None, nrows=1000, **read_kwargs
-        )
+        all_sheets = pd.read_excel(self.path, sheet_name=None, nrows=1000, **read_kwargs)
 
         # Infer schema for each sheet
         result: dict[str, Schema] = {}
@@ -252,9 +250,7 @@ class ExcelReader(FileReader):
             # Read first row of each sheet to get column info
             sheet_info: dict[str, dict[str, Any]] = {}
             for sheet_name in sheet_names:
-                df_sample = pd.read_excel(
-                    xl_file, sheet_name=sheet_name, nrows=1, **kwargs
-                )
+                df_sample = pd.read_excel(xl_file, sheet_name=sheet_name, nrows=1, **kwargs)
                 sheet_info[sheet_name] = {
                     "columns": len(df_sample.columns),
                     "column_names": list(df_sample.columns),
@@ -394,29 +390,23 @@ class ExcelWriter(FileWriter):
 
         # Combine kwargs
         write_kwargs = {**self.kwargs, **kwargs}
+        write_kwargs.pop("engine", None)
 
         # Convert records to DataFrame
         df = self._records_to_dataframe(data, schema)
 
-        # Set engine
-        write_kwargs["engine"] = self.engine
-
         # Write to Excel
         if mode == "a" and self.path.exists():
-            # Append mode: use ExcelWriter with mode='a'
             with pd.ExcelWriter(
-                self.path, mode="a", engine=self.engine, if_sheet_exists="replace"
+                self.path,
+                mode="a",
+                engine=self.engine,
+                if_sheet_exists="replace",
             ) as writer:
                 df.to_excel(writer, sheet_name=sheet_name, index=False, **write_kwargs)
         else:
-            # Overwrite mode: write directly
-            df.to_excel(
-                self.path,
-                sheet_name=sheet_name,
-                index=False,
-                engine=self.engine,
-                **write_kwargs,
-            )
+            with pd.ExcelWriter(self.path, mode="w", engine=self.engine) as writer:
+                df.to_excel(writer, sheet_name=sheet_name, index=False, **write_kwargs)
 
         return len(data)
 
@@ -451,8 +441,7 @@ class ExcelWriter(FileWriter):
         # Combine kwargs
         write_kwargs = {**self.kwargs, **kwargs}
 
-        # Set engine
-        write_kwargs["engine"] = self.engine
+        write_kwargs.pop("engine", None)
 
         # Write all sheets
         with pd.ExcelWriter(self.path, engine=self.engine) as writer:
@@ -539,9 +528,7 @@ class ExcelWriter(FileWriter):
             partition_writer = ExcelWriter(partition_path, engine=self.engine)
             partition_writer.write(
                 [
-                    self._row_to_record(
-                        row, schema or infer_schema_from_pandas(group_df)
-                    )
+                    self._row_to_record(row, schema or infer_schema_from_pandas(group_df))
                     for _, row in group_df.iterrows()
                 ],
                 schema,
@@ -568,9 +555,7 @@ class ExcelWriter(FileWriter):
         data = [record.data for record in records]
 
         # Create DataFrame
-        df = pd.DataFrame(
-            data, columns=columns if set(columns) == set(data[0].keys()) else None
-        )
+        df = pd.DataFrame(data, columns=columns if set(columns) == set(data[0].keys()) else None)
 
         return df
 

@@ -124,12 +124,8 @@ class TestExcelReader:
             # Create Excel file with multiple sheets
             temp_path = Path(tmpdir) / "test.xlsx"
             with pd.ExcelWriter(temp_path, engine="openpyxl") as writer:
-                pd.DataFrame(sample_excel_data).to_excel(
-                    writer, sheet_name="Data", index=False
-                )
-                pd.DataFrame([{"x": 1, "y": 2}]).to_excel(
-                    writer, sheet_name="Other", index=False
-                )
+                pd.DataFrame(sample_excel_data).to_excel(writer, sheet_name="Data", index=False)
+                pd.DataFrame([{"x": 1, "y": 2}]).to_excel(writer, sheet_name="Other", index=False)
 
             # Read all sheets
             reader = ExcelReader(temp_path)
@@ -146,12 +142,8 @@ class TestExcelReader:
             # Create Excel file with multiple sheets
             temp_path = Path(tmpdir) / "test.xlsx"
             with pd.ExcelWriter(temp_path, engine="openpyxl") as writer:
-                pd.DataFrame(sample_excel_data).to_excel(
-                    writer, sheet_name="Data", index=False
-                )
-                pd.DataFrame([{"x": 1, "y": 2}]).to_excel(
-                    writer, sheet_name="Other", index=False
-                )
+                pd.DataFrame(sample_excel_data).to_excel(writer, sheet_name="Data", index=False)
+                pd.DataFrame([{"x": 1, "y": 2}]).to_excel(writer, sheet_name="Other", index=False)
 
             # Infer schemas
             reader = ExcelReader(temp_path)
@@ -178,9 +170,7 @@ class TestExcelWriter:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
 
             # Write to Excel
             writer = ExcelWriter(output_path)
@@ -200,9 +190,7 @@ class TestExcelWriter:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
 
             # Write to Excel
             writer = ExcelWriter(output_path)
@@ -218,9 +206,7 @@ class TestExcelWriter:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
 
             # Write to custom sheet
             writer = ExcelWriter(output_path)
@@ -237,10 +223,15 @@ class TestExcelWriter:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records1 = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
-            records2 = [DataRecord(data={"x": 1, "y": 2}, schema=sample_schema)]
+            records1 = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
+            other_schema = Schema(
+                name="other_schema",
+                fields=(
+                    SchemaField(name="x", data_type=DataType.INTEGER),
+                    SchemaField(name="y", data_type=DataType.INTEGER),
+                ),
+            )
+            records2 = [DataRecord(data={"x": 1, "y": 2}, schema=other_schema)]
 
             # Write multiple sheets
             writer = ExcelWriter(output_path)
@@ -259,10 +250,15 @@ class TestExcelWriter:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records1 = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
-            records2 = [DataRecord(data={"x": 1, "y": 2}, schema=sample_schema)]
+            records1 = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
+            other_schema = Schema(
+                name="other_schema",
+                fields=(
+                    SchemaField(name="x", data_type=DataType.INTEGER),
+                    SchemaField(name="y", data_type=DataType.INTEGER),
+                ),
+            )
+            records2 = [DataRecord(data={"x": 1, "y": 2}, schema=other_schema)]
 
             # Write all sheets
             writer = ExcelWriter(output_path)
@@ -276,17 +272,13 @@ class TestExcelWriter:
             assert len(sheets["Data"]) == 3
             assert len(sheets["Other"]) == 1
 
-    def test_write_with_compression_raises_error(
-        self, sample_excel_data, sample_schema
-    ):
+    def test_write_with_compression_raises_error(self, sample_excel_data, sample_schema):
         """Test that compression raises an error for Excel."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "output.xlsx"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
 
             writer = ExcelWriter(output_path)
 
@@ -313,9 +305,7 @@ class TestExcelWriter:
                 row["category"] = ["A", "B", "A"][i]
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_excel_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_excel_data]
 
             # Write partitioned data
             writer = ExcelWriter(output_path)

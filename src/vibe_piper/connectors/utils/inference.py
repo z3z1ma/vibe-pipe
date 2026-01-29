@@ -342,6 +342,4 @@ def refine_schema_with_sample(
             )
         )
 
-    return Schema(
-        name=schema.name, fields=tuple(refined_fields), description=schema.description
-    )
+    return Schema(name=schema.name, fields=tuple(refined_fields), description=schema.description)

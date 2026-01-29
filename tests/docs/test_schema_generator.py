@@ -99,9 +99,7 @@ def test_schema_doc_generator_creates_output_dir(
     assert output_dir.is_dir()
 
 
-def test_schema_doc_generator_generates_json(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_schema_doc_generator_generates_json(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that generator creates JSON files for schemas."""
     generator = SchemaDocGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)
@@ -121,9 +119,7 @@ def test_schema_doc_generator_generates_json(
     assert len(data["used_by"]) == 2
 
 
-def test_schema_doc_generator_field_structure(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_schema_doc_generator_field_structure(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that field structure is correctly serialized."""
     generator = SchemaDocGenerator(output_dir=tmp_path)
     generator.generate(sample_assets)

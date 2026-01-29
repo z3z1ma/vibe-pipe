@@ -29,18 +29,17 @@ from vibe_piper.validation.checks import (
     expect_column_values_to_be_between,
     expect_column_values_to_be_dateutil_parseable,
     expect_column_values_to_be_decreasing,
-    expect_column_values_to_be_increasing,
     expect_column_values_to_be_in_set,
-    expect_column_values_to_not_be_null,
+    expect_column_values_to_be_increasing,
     # expect_column_values_to_not_in_set,  # Temporarily disabled due to import issue
     expect_column_values_to_be_of_type,
     expect_column_values_to_be_unique,
     expect_column_values_to_match_regex,
+    expect_column_values_to_not_be_null,
     expect_column_values_to_not_match_regex,
     expect_table_row_count_to_be_between,
     expect_table_row_count_to_equal,
 )
-
 
 # =============================================================================
 # Test Fixtures
@@ -75,7 +74,13 @@ def sample_records(sample_schema):
             schema=sample_schema,
         ),
         DataRecord(
-            data={"id": 3, "name": "Charlie", "age": 35, "email": "charlie@example.com", "score": 92.5},
+            data={
+                "id": 3,
+                "name": "Charlie",
+                "age": 35,
+                "email": "charlie@example.com",
+                "score": 92.5,
+            },
             schema=sample_schema,
         ),
     )
@@ -344,27 +349,21 @@ class TestCrossColumnValidation:
 
     def test_expect_column_pair_values_to_be_equal_fail(self, sample_schema):
         """Test equal columns check fails."""
-        records = (
-            DataRecord(data={"a": 1, "b": 2}, schema=sample_schema),
-        )
+        records = (DataRecord(data={"a": 1, "b": 2}, schema=sample_schema),)
         check = expect_column_pair_values_to_be_equal("a", "b")
         result = check(records)
         assert not result.is_valid
 
     def test_expect_column_pair_values_to_be_not_equal_pass(self, sample_schema):
         """Test not equal columns check passes."""
-        records = (
-            DataRecord(data={"a": 1, "b": 2}, schema=sample_schema),
-        )
+        records = (DataRecord(data={"a": 1, "b": 2}, schema=sample_schema),)
         check = expect_column_pair_values_to_be_not_equal("a", "b")
         result = check(records)
         assert result.is_valid
 
     def test_expect_column_pair_values_a_to_be_greater_than_b_pass(self, sample_schema):
         """Test A > B check passes."""
-        records = (
-            DataRecord(data={"start": 10, "end": 20}, schema=sample_schema),
-        )
+        records = (DataRecord(data={"start": 10, "end": 20}, schema=sample_schema),)
         check = expect_column_pair_values_a_to_be_greater_than_b("end", "start")
         result = check(records)
         assert result.is_valid

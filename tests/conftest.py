@@ -11,6 +11,14 @@ import pytest
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+
+def pytest_collection_modifyitems(config: Any, items: list[pytest.Item]) -> None:
+    """Mark tests under tests/integration as integration."""
+    for item in items:
+        if "/tests/integration/" in str(item.fspath):
+            item.add_marker(pytest.mark.integration)
+
+
 from vibe_piper.types import (
     Asset,
     AssetGraph,
@@ -40,15 +48,17 @@ def basic_schema() -> Schema:
         fields=(
             SchemaField(name="id", data_type=DataType.INTEGER, required=True),
             SchemaField(name="name", data_type=DataType.STRING, required=True),
-            SchemaField(
-                name="email", data_type=DataType.STRING, required=False, nullable=True
-            ),
-            SchemaField(
-                name="age", data_type=DataType.INTEGER, required=False, nullable=True
-            ),
+            SchemaField(name="email", data_type=DataType.STRING, required=False, nullable=True),
+            SchemaField(name="age", data_type=DataType.INTEGER, required=False, nullable=True),
         ),
         description="Basic schema with common field types",
     )
+
+
+@pytest.fixture
+def sample_schema(basic_schema: Schema) -> Schema:
+    """Alias fixture used by expectation tests."""
+    return basic_schema
 
 
 @pytest.fixture
@@ -82,9 +92,7 @@ def product_schema() -> Schema:
             SchemaField(name="name", data_type=DataType.STRING, required=True),
             SchemaField(name="price", data_type=DataType.FLOAT, required=True),
             SchemaField(name="quantity", data_type=DataType.INTEGER, required=False),
-            SchemaField(
-                name="tags", data_type=DataType.ARRAY, required=False, nullable=True
-            ),
+            SchemaField(name="tags", data_type=DataType.ARRAY, required=False, nullable=True),
         ),
         description="Product catalog schema",
     )
@@ -99,9 +107,7 @@ def event_schema() -> Schema:
             SchemaField(name="event_id", data_type=DataType.STRING, required=True),
             SchemaField(name="timestamp", data_type=DataType.DATETIME, required=True),
             SchemaField(name="event_type", data_type=DataType.STRING, required=True),
-            SchemaField(
-                name="payload", data_type=DataType.OBJECT, required=False, nullable=True
-            ),
+            SchemaField(name="payload", data_type=DataType.OBJECT, required=False, nullable=True),
         ),
         description="Event tracking schema",
     )
@@ -295,9 +301,7 @@ def empty_pipeline() -> Pipeline:
 
 
 @pytest.fixture
-def simple_pipeline(
-    source_operator: Operator, transform_operator: Operator
-) -> Pipeline:
+def simple_pipeline(source_operator: Operator, transform_operator: Operator) -> Pipeline:
     """A simple pipeline with source and transform operators."""
     return Pipeline(
         name="simple_pipeline",
@@ -646,9 +650,7 @@ def all_asset_types(request: Any) -> str:
     return request.param
 
 
-@pytest.fixture(
-    params=[DataType.STRING, DataType.INTEGER, DataType.FLOAT, DataType.BOOLEAN]
-)
+@pytest.fixture(params=[DataType.STRING, DataType.INTEGER, DataType.FLOAT, DataType.BOOLEAN])
 def primitive_data_types(request: Any) -> DataType:
     """Parameterized fixture for primitive data types."""
     return request.param

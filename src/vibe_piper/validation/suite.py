@@ -14,7 +14,6 @@ from typing import Any
 
 from vibe_piper.types import DataRecord, ValidationResult
 
-
 # =============================================================================
 # Validation Strategy
 # =============================================================================
@@ -228,9 +227,7 @@ class ValidationSuite:
         self.strategy = strategy
         self.description = description
         self.metadata = dict(metadata) if metadata else {}
-        self._checks: dict[
-            str, Callable[[Sequence[DataRecord]], ValidationResult]
-        ] = {}
+        self._checks: dict[str, Callable[[Sequence[DataRecord]], ValidationResult]] = {}
 
     def add_check(
         self,
@@ -291,9 +288,7 @@ class ValidationSuite:
             raise KeyError(msg)
         return self._checks.pop(name)
 
-    def get_check(
-        self, name: str
-    ) -> Callable[[Sequence[DataRecord]], ValidationResult] | None:
+    def get_check(self, name: str) -> Callable[[Sequence[DataRecord]], ValidationResult] | None:
         """
         Get a check by name.
 
@@ -370,9 +365,7 @@ class ValidationSuite:
                 error_msg = f"Check '{check_name}' failed with exception: {e}"
                 all_errors.append(error_msg)
                 failed.append(check_name)
-                check_results[check_name] = ValidationResult(
-                    is_valid=False, errors=(error_msg,)
-                )
+                check_results[check_name] = ValidationResult(is_valid=False, errors=(error_msg,))
 
                 # Stop on exception for fail-fast
                 if self.strategy == ValidationStrategy.FAIL_FAST:

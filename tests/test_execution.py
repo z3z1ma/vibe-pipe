@@ -148,9 +148,7 @@ class TestExecutionResult:
             "asset2": AssetResult(asset_name="asset2", success=False),
         }
 
-        result = ExecutionResult(
-            success=False, asset_results=asset_results, assets_executed=2
-        )
+        result = ExecutionResult(success=False, asset_results=asset_results, assets_executed=2)
 
         assert result.get_asset_result("asset1") is not None
         assert result.get_asset_result("asset1").success is True  # type: ignore
@@ -164,9 +162,7 @@ class TestExecutionResult:
             "asset3": AssetResult(asset_name="asset3", success=False),
         }
 
-        result = ExecutionResult(
-            success=False, asset_results=asset_results, assets_executed=3
-        )
+        result = ExecutionResult(success=False, asset_results=asset_results, assets_executed=3)
 
         failed = result.get_failed_assets()
         assert set(failed) == {"asset2", "asset3"}
@@ -179,9 +175,7 @@ class TestExecutionResult:
             "asset3": AssetResult(asset_name="asset3", success=True),
         }
 
-        result = ExecutionResult(
-            success=False, asset_results=asset_results, assets_executed=3
-        )
+        result = ExecutionResult(success=False, asset_results=asset_results, assets_executed=3)
 
         succeeded = result.get_succeeded_assets()
         assert set(succeeded) == {"asset1", "asset3"}
@@ -562,18 +556,10 @@ class TestExecutionEngine:
         #   b   c
         #    \ /
         #     d
-        a = Asset(
-            name="a", asset_type=AssetType.MEMORY, uri="memory://a", operator=operator
-        )
-        b = Asset(
-            name="b", asset_type=AssetType.MEMORY, uri="memory://b", operator=operator
-        )
-        c = Asset(
-            name="c", asset_type=AssetType.MEMORY, uri="memory://c", operator=operator
-        )
-        d = Asset(
-            name="d", asset_type=AssetType.MEMORY, uri="memory://d", operator=operator
-        )
+        a = Asset(name="a", asset_type=AssetType.MEMORY, uri="memory://a", operator=operator)
+        b = Asset(name="b", asset_type=AssetType.MEMORY, uri="memory://b", operator=operator)
+        c = Asset(name="c", asset_type=AssetType.MEMORY, uri="memory://c", operator=operator)
+        d = Asset(name="d", asset_type=AssetType.MEMORY, uri="memory://d", operator=operator)
 
         graph = AssetGraph(
             name="diamond",

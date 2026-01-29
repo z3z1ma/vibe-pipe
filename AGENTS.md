@@ -1,5 +1,110 @@
 # AGENTS
 
+## Repo Commands (Use UV)
+
+This repo is Python (src layout) and is meant to be driven via `uv`.
+
+Hard rules:
+- Use `uv` and only `uv` for dependency management and running tools.
+- Do not use Poetry (`poetry`, `poetry.lock`) in this repo.
+- Do not use Black. Formatting is done with `ruff format`.
+
+### Setup
+
+- Install dev deps (matches CI): `uv sync --dev` then `uv pip install -e .`
+- Optional connector extras (as needed): `uv pip install -e ".[postgres,mysql,snowflake,bigquery]"`
+
+### Format / Lint / Typecheck
+
+- Format (preferred): `uv run ruff format src tests`
+- Lint: `uv run ruff check src tests`
+- Lint + autofix: `uv run ruff check --fix src tests`
+- Typecheck (strict): `uv run mypy src`
+
+Notes:
+- Ruff config is in `pyproject.toml` (`[tool.ruff]`, `[tool.ruff.lint]`).
+- Formatting is `ruff format` only (no Black).
+
+### Tests (pytest)
+
+- All tests: `uv run pytest`
+- Fast unit-only (skip integration): `uv run pytest -m "not integration"`
+- Single file: `uv run pytest tests/test_pipeline.py -q`
+- Single test (node id): `uv run pytest tests/test_pipeline.py::test_pipeline_execution -q`
+- By keyword: `uv run pytest -k "pipeline_execution" -q`
+- With coverage (local): `uv run pytest --cov=src --cov-report=term-missing`
+
+### Integration tests (Docker)
+
+- Spin up test DBs: `docker-compose -f docker-compose.test.yml up -d`
+- Run integration tests: `uv run pytest -m integration`
+- Tear down: `docker-compose -f docker-compose.test.yml down`
+- Scripted: `./scripts/run_integration_tests.sh`
+
+### Docs
+
+- Build docs: `cd docs && uv run sphinx-build -b html source build/html`
+- Sphinx Make targets: `cd docs && make html`
+
+### CLI
+
+- CLI entrypoint is `vibepiper` (see `pyproject.toml` `[project.scripts]`).
+- Examples: `uv run vibepiper --help`, `uv run vibepiper validate .`, `uv run vibepiper run . --env=dev`
+- Note: Some docs mention `vibe-piper`, but the configured script is `vibepiper`.
+
+## Code Style (Enforced By Ruff + MyPy)
+
+### Formatting
+
+- Keep lines <= 100 chars (see `pyproject.toml` `[tool.ruff] line-length = 100`).
+- Prefer Ruff's formatter (`uv run ruff format`) over manual alignment.
+
+### Imports
+
+- Ruff enforces import sorting (`pyproject.toml` selects `I`).
+- Group imports in this order: stdlib, third-party, local `vibe_piper.*`.
+- Prefer `from collections.abc import ...` over `typing.*` collections.
+
+### Types
+
+- Code targets Python 3.12+ (use `X | Y`, `list[str]`, `dict[str, Any]`).
+- MyPy is strict for `src/` (see `pyproject.toml` `[tool.mypy] strict = true`).
+- Every public function/method must have type hints; avoid untyped `Any` in APIs.
+- Prefer `Protocol` for extensibility points and `TypeAlias` for readability (see `src/vibe_piper/types.py`).
+
+### Naming
+
+- Modules, functions, variables: `snake_case`.
+- Classes, protocols, dataclasses: `CamelCase`.
+- Exceptions: `SomethingError`.
+- Constants: `UPPER_SNAKE_CASE`.
+- Type variables: `T`, `R`, or more explicit `T_input`, `T_output`.
+
+### Data structures
+
+- Prefer `@dataclass(frozen=True)` for value objects (schemas, results, records).
+- Use `Mapping[...]` for read-only inputs and `dict[...]` only when mutation is intended.
+
+### Error handling
+
+- Prefer explicit exception types and clear messages.
+- Follow the pattern used across the repo:
+  - `msg = "..."; raise ValueError(msg)` / `raise KeyError(msg)`
+  - Wrap with context when re-raising: `raise ValueError(msg) from e`
+- Don’t swallow exceptions; either re-raise or convert to a domain error with `from e`.
+- For retryable operations, use `vibe_piper.error_handling.retry_with_backoff` or `RetryConfig`.
+- Logging: use `logger = logging.getLogger(__name__)` and log at `warning` for retries, `error` on final failure.
+
+### Tests
+
+- Use pytest; prefer fixtures from `tests/conftest.py`.
+- Use `@pytest.mark.integration` for DB/network tests (marker declared in `pyproject.toml`).
+- Prefer assertion helpers in `tests/helpers/` for schema/graph comparisons.
+
+## Editor / Copilot / Cursor Rules
+
+- No `.cursorrules`, `.cursor/rules/`, or `.github/copilot-instructions.md` found in this repo.
+
 ## Compound (OpenCode)
 
 These blocks are maintained by the Loom compound OpenCode plugin.

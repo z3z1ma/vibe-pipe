@@ -151,9 +151,7 @@ class JSONReader(FileReader):
                     first_record = json.loads(first_line)
                 else:
                     data = json.load(f)
-                    first_record = (
-                        data[0] if isinstance(data, list) and len(data) > 0 else data
-                    )
+                    first_record = data[0] if isinstance(data, list) and len(data) > 0 else data
 
             if isinstance(first_record, dict):
                 fields_count = len(first_record.keys())
@@ -376,19 +374,13 @@ class JSONWriter(FileWriter):
             partition_dir.mkdir(parents=True, exist_ok=True)
 
             # Write partition file
-            extension = (
-                ".jsonl"
-                if self.path.suffix.lower() in (".jsonl", ".ndjson")
-                else ".json"
-            )
+            extension = ".jsonl" if self.path.suffix.lower() in (".jsonl", ".ndjson") else ".json"
             partition_path = partition_dir / f"data{extension}"
 
             partition_writer = JSONWriter(partition_path, encoding=self.encoding)
             partition_writer.write(
                 [
-                    self._row_to_record(
-                        row, schema or infer_schema_from_pandas(group_df)
-                    )
+                    self._row_to_record(row, schema or infer_schema_from_pandas(group_df))
                     for _, row in group_df.iterrows()
                 ],
                 schema,
@@ -416,9 +408,7 @@ class JSONWriter(FileWriter):
         data = [record.data for record in records]
 
         # Create DataFrame
-        df = pd.DataFrame(
-            data, columns=columns if set(columns) == set(data[0].keys()) else None
-        )
+        df = pd.DataFrame(data, columns=columns if set(columns) == set(data[0].keys()) else None)
 
         return df
 

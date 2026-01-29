@@ -7,6 +7,8 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 def mock_http_client():

@@ -75,9 +75,7 @@ class TestPostgreSQLConnector:
         )
 
         # Insert data
-        insert_sql = (
-            "INSERT INTO test_users (name, email, age) VALUES (:name, :email, :age)"
-        )
+        insert_sql = "INSERT INTO test_users (name, email, age) VALUES (:name, :email, :age)"
         affected = self.connector.execute(
             insert_sql, {"name": "John Doe", "email": "john@example.com", "age": 30}
         )
@@ -141,12 +139,8 @@ class TestPostgreSQLConnector:
 
         # Execute transaction
         with self.connector.transaction():
-            self.connector.execute(
-                "INSERT INTO test_accounts (balance) VALUES (100.00)"
-            )
-            self.connector.execute(
-                "INSERT INTO test_accounts (balance) VALUES (200.00)"
-            )
+            self.connector.execute("INSERT INTO test_accounts (balance) VALUES (100.00)")
+            self.connector.execute("INSERT INTO test_accounts (balance) VALUES (200.00)")
 
         # Verify both inserts succeeded
         result = self.connector.query("SELECT COUNT(*) as count FROM test_accounts")
@@ -170,9 +164,7 @@ class TestPostgreSQLConnector:
         # Execute transaction that fails
         with pytest.raises(Exception):
             with self.connector.transaction():
-                self.connector.execute(
-                    "INSERT INTO test_accounts (balance) VALUES (100.00)"
-                )
+                self.connector.execute("INSERT INTO test_accounts (balance) VALUES (100.00)")
                 # This should fail
                 self.connector.execute("INVALID SQL")
 

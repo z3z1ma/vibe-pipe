@@ -1,9 +1,8 @@
 """Configuration loading and parsing for Vibe Piper."""
 
+import tomllib
 from pathlib import Path
 from typing import Any
-
-import tomli
 
 from vibe_piper.config.schema import (
     Config,
@@ -64,8 +63,8 @@ def load_config(
 
     try:
         with path.open("rb") as f:
-            data = tomli.load(f)
-    except tomli.TOMLDecodeError as e:
+            data = tomllib.load(f)
+    except tomllib.TOMLDecodeError as e:
         msg = "Invalid TOML syntax"
         raise ConfigLoadError(msg, path=path, cause=e) from e
     except OSError as e:
@@ -225,6 +224,4 @@ def load_config_from_environment(
         msg = "No configuration file found. Please create a vibepiper.toml file."
         raise ConfigLoadError(msg)
 
-    return load_config(
-        config_path, environment=environment, cli_overrides=cli_overrides
-    )
+    return load_config(config_path, environment=environment, cli_overrides=cli_overrides)

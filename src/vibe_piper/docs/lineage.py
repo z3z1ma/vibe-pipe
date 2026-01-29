@@ -96,14 +96,8 @@ class LineageVisualizer(DocumentationGenerator):
             pass
 
         # Add styling
-        lines.append(
-            "\n    classDef asset fill:#e1f5fe,stroke:#01579b,stroke-width:2px;"
-        )
-        lines.append(
-            "    class "
-            + ",".join(self._sanitize_id(a.name) for a in assets)
-            + " asset;"
-        )
+        lines.append("\n    classDef asset fill:#e1f5fe,stroke:#01579b,stroke-width:2px;")
+        lines.append("    class " + ",".join(self._sanitize_id(a.name) for a in assets) + " asset;")
 
         return "\n".join(lines)
 

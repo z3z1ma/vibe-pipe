@@ -89,9 +89,7 @@ class MaterializationStrategyBase(ABC):
         """
         ...
 
-    def get_storage_metadata(
-        self, context: PipelineContext
-    ) -> Mapping[str, Any]:  # noqa: ARG002
+    def get_storage_metadata(self, context: PipelineContext) -> Mapping[str, Any]:  # noqa: ARG002
         """
         Get metadata about how data should be stored.
 
@@ -259,9 +257,7 @@ class FileStrategy(MaterializationStrategyBase):
         """
         return data
 
-    def get_storage_metadata(
-        self, context: PipelineContext
-    ) -> Mapping[str, Any]:  # noqa: ARG002
+    def get_storage_metadata(self, context: PipelineContext) -> Mapping[str, Any]:  # noqa: ARG002
         """
         Get file storage metadata.
 
@@ -438,9 +434,7 @@ class IncrementalStrategy(MaterializationStrategyBase):
         # Simple dict merge (new values overwrite existing)
         return {**existing_data, **new_data}
 
-    def get_storage_metadata(
-        self, context: PipelineContext
-    ) -> Mapping[str, Any]:  # noqa: ARG002
+    def get_storage_metadata(self, context: PipelineContext) -> Mapping[str, Any]:  # noqa: ARG002
         """
         Get incremental storage metadata.
 

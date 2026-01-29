@@ -156,9 +156,7 @@ def capture_error_context(
     return ErrorContext(
         error_type=type(error).__name__,
         error_message=str(error),
-        stack_trace="".join(
-            traceback.format_exception(type(error), error, error.__traceback__)
-        ),
+        stack_trace="".join(traceback.format_exception(type(error), error, error.__traceback__)),
         timestamp=datetime.now(),
         asset_name=asset_name,
         inputs=inputs or {},
@@ -209,8 +207,7 @@ def retry_with_backoff(
         backoff_strategy = BackoffStrategy.FIXED
     elif backoff != "exponential":
         raise ValueError(
-            f"Invalid backoff strategy: {backoff}. "
-            "Must be 'linear', 'exponential', or 'fixed'"
+            f"Invalid backoff strategy: {backoff}. Must be 'linear', 'exponential', or 'fixed'"
         )
 
     retry_config = RetryConfig(

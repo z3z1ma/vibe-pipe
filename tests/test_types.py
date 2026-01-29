@@ -298,9 +298,7 @@ class TestOperator:
 
     def test_operator_is_frozen(self) -> None:
         """Test that Operator is immutable."""
-        op = Operator(
-            name="test", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
-        )
+        op = Operator(name="test", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
         with pytest.raises(Exception):  # FrozenInstanceError
             op.name = "changed"  # type: ignore[misc]
 
@@ -385,9 +383,7 @@ class TestPipeline:
     def test_pipeline_with_operators(self) -> None:
         """Test creating a pipeline with operators."""
         op1 = Operator(name="op1", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
-        op2 = Operator(
-            name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
-        )
+        op2 = Operator(name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
         pipeline = Pipeline(name="test_pipeline", operators=(op1, op2))
         assert len(pipeline.operators) == 2
 
@@ -410,21 +406,15 @@ class TestPipeline:
 
     def test_pipeline_duplicate_operators_raises_error(self) -> None:
         """Test that duplicate operator names raise ValueError."""
-        op1 = Operator(
-            name="duplicate", operator_type=OperatorType.SOURCE, fn=self.sample_fn
-        )
-        op2 = Operator(
-            name="duplicate", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
-        )
+        op1 = Operator(name="duplicate", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
+        op2 = Operator(name="duplicate", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
         with pytest.raises(ValueError, match="Duplicate operator names"):
             Pipeline(name="test_pipeline", operators=(op1, op2))
 
     def test_add_operator(self) -> None:
         """Test adding an operator to a pipeline."""
         op1 = Operator(name="op1", operator_type=OperatorType.SOURCE, fn=self.sample_fn)
-        op2 = Operator(
-            name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn
-        )
+        op2 = Operator(name="op2", operator_type=OperatorType.TRANSFORM, fn=self.sample_fn)
         pipeline = Pipeline(name="test_pipeline", operators=(op1,))
         new_pipeline = pipeline.add_operator(op2)
         assert len(new_pipeline.operators) == 2
@@ -452,12 +442,8 @@ class TestPipeline:
         def add_ten_fn(value: int, ctx: PipelineContext) -> int:
             return value + 10
 
-        op1 = Operator(
-            name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn
-        )
-        op2 = Operator(
-            name="add_ten", operator_type=OperatorType.TRANSFORM, fn=add_ten_fn
-        )
+        op1 = Operator(name="double", operator_type=OperatorType.TRANSFORM, fn=double_fn)
+        op2 = Operator(name="add_ten", operator_type=OperatorType.TRANSFORM, fn=add_ten_fn)
         pipeline = Pipeline(name="test_pipeline", operators=(op1, op2))
         ctx = PipelineContext(pipeline_id="test_pipeline", run_id="run_1")
 
@@ -470,9 +456,7 @@ class TestPipeline:
         def identity_fn(value: str, ctx: PipelineContext) -> str:
             return value
 
-        op = Operator(
-            name="identity", operator_type=OperatorType.TRANSFORM, fn=identity_fn
-        )
+        op = Operator(name="identity", operator_type=OperatorType.TRANSFORM, fn=identity_fn)
         pipeline = Pipeline(name="test_pipeline", operators=(op,))
 
         result = pipeline.execute("test")
@@ -485,9 +469,7 @@ class TestPipeline:
             fields=(SchemaField(name="value", data_type=DataType.INTEGER),),
         )
 
-        def double_records(
-            records: list[DataRecord], ctx: PipelineContext
-        ) -> list[DataRecord]:
+        def double_records(records: list[DataRecord], ctx: PipelineContext) -> list[DataRecord]:
             return [
                 DataRecord(
                     data={"value": r.get("value") * 2},
@@ -496,9 +478,7 @@ class TestPipeline:
                 for r in records
             ]
 
-        op = Operator(
-            name="double", operator_type=OperatorType.TRANSFORM, fn=double_records
-        )
+        op = Operator(name="double", operator_type=OperatorType.TRANSFORM, fn=double_records)
         pipeline = Pipeline(name="test_pipeline", operators=(op,))
         ctx = PipelineContext(pipeline_id="test_pipeline", run_id="run_1")
 
@@ -601,20 +581,14 @@ class TestAssetGraph:
 
     def test_graph_duplicate_asset_names_raises_error(self) -> None:
         """Test that duplicate asset names raise ValueError."""
-        asset1 = Asset(
-            name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
-        asset2 = Asset(
-            name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
-        )
+        asset1 = Asset(name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
+        asset2 = Asset(name="duplicate", asset_type=AssetType.TABLE, uri="postgresql://db/a2")
         with pytest.raises(ValueError, match="Duplicate asset names"):
             AssetGraph(name="test_graph", assets=(asset1, asset2))
 
     def test_dependency_asset_not_in_graph_raises_error(self) -> None:
         """Test that dependencies must reference assets in the graph."""
-        asset = Asset(
-            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
-        )
+        asset = Asset(name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test")
         with pytest.raises(ValueError, match="not found in assets"):
             AssetGraph(
                 name="test_graph",
@@ -624,9 +598,7 @@ class TestAssetGraph:
 
     def test_dependency_reference_not_found_raises_error(self) -> None:
         """Test that dependency references must exist."""
-        asset1 = Asset(
-            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
+        asset1 = Asset(name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
         with pytest.raises(ValueError, match="not found in assets"):
             AssetGraph(
                 name="test_graph",
@@ -659,12 +631,8 @@ class TestAssetGraph:
 
     def test_get_asset(self) -> None:
         """Test getting an asset by name."""
-        asset1 = Asset(
-            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
-        asset2 = Asset(
-            name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv"
-        )
+        asset1 = Asset(name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
+        asset2 = Asset(name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv")
         graph = AssetGraph(name="test_graph", assets=(asset1, asset2))
         assert graph.get_asset("asset1") == asset1
         assert graph.get_asset("asset2") == asset2
@@ -673,9 +641,7 @@ class TestAssetGraph:
     def test_get_dependencies(self) -> None:
         """Test getting upstream dependencies."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         aggregated = Asset(
             name="aggregated",
             asset_type=AssetType.TABLE,
@@ -693,9 +659,7 @@ class TestAssetGraph:
     def test_get_dependents(self) -> None:
         """Test getting downstream dependents."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         aggregated = Asset(
             name="aggregated",
             asset_type=AssetType.TABLE,
@@ -713,9 +677,7 @@ class TestAssetGraph:
     def test_topological_order_simple(self) -> None:
         """Test topological sorting with simple chain."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         graph = AssetGraph(
             name="test_graph",
             assets=(raw, cleaned),
@@ -745,15 +707,9 @@ class TestAssetGraph:
 
     def test_topological_order_independent_assets(self) -> None:
         """Test topological sorting with independent assets."""
-        asset1 = Asset(
-            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
-        asset2 = Asset(
-            name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
-        )
-        asset3 = Asset(
-            name="asset3", asset_type=AssetType.TABLE, uri="postgresql://db/a3"
-        )
+        asset1 = Asset(name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
+        asset2 = Asset(name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2")
+        asset3 = Asset(name="asset3", asset_type=AssetType.TABLE, uri="postgresql://db/a3")
         graph = AssetGraph(name="test_graph", assets=(asset1, asset2, asset3))
         order = graph.topological_order()
         # All should be present
@@ -761,25 +717,17 @@ class TestAssetGraph:
 
     def test_add_asset_no_dependencies(self) -> None:
         """Test adding an asset without dependencies."""
-        asset1 = Asset(
-            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
+        asset1 = Asset(name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
         graph = AssetGraph(name="test_graph", assets=(asset1,))
-        asset2 = Asset(
-            name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv"
-        )
+        asset2 = Asset(name="asset2", asset_type=AssetType.FILE, uri="s3://bucket/data.csv")
         new_graph = graph.add_asset(asset2)
         assert len(new_graph.assets) == 2
         assert len(graph.assets) == 1  # Original unchanged
 
     def test_add_asset_with_dependencies(self) -> None:
         """Test adding an asset with dependencies."""
-        source = Asset(
-            name="source", asset_type=AssetType.TABLE, uri="postgresql://db/source"
-        )
-        derived = Asset(
-            name="derived", asset_type=AssetType.TABLE, uri="postgresql://db/derived"
-        )
+        source = Asset(name="source", asset_type=AssetType.TABLE, uri="postgresql://db/source")
+        derived = Asset(name="derived", asset_type=AssetType.TABLE, uri="postgresql://db/derived")
         graph = AssetGraph(name="test_graph", assets=(source,))
         new_graph = graph.add_asset(derived, depends_on=("source",))
         assert len(new_graph.assets) == 2
@@ -787,30 +735,22 @@ class TestAssetGraph:
 
     def test_add_asset_nonexistent_dependency_raises_error(self) -> None:
         """Test that adding an asset with missing dependencies raises error."""
-        asset1 = Asset(
-            name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1"
-        )
+        asset1 = Asset(name="asset1", asset_type=AssetType.TABLE, uri="postgresql://db/a1")
         graph = AssetGraph(name="test_graph", assets=(asset1,))
-        asset2 = Asset(
-            name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2"
-        )
+        asset2 = Asset(name="asset2", asset_type=AssetType.TABLE, uri="postgresql://db/a2")
         with pytest.raises(ValueError, match="not found in graph"):
             graph.add_asset(asset2, depends_on=("nonexistent",))
 
     def test_graph_is_frozen(self) -> None:
         """Test that AssetGraph is immutable."""
-        asset = Asset(
-            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
-        )
+        asset = Asset(name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test")
         graph = AssetGraph(name="test_graph", assets=(asset,))
         with pytest.raises(Exception):  # FrozenInstanceError
             graph.name = "changed"  # type: ignore[misc]
 
     def test_graph_with_metadata(self) -> None:
         """Test creating a graph with metadata."""
-        asset = Asset(
-            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
-        )
+        asset = Asset(name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test")
         graph = AssetGraph(
             name="test_graph",
             assets=(asset,),
@@ -824,9 +764,7 @@ class TestAssetGraph:
     def test_get_upstream_dependencies(self) -> None:
         """Test getting upstream dependencies."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         aggregated = Asset(
             name="aggregated",
             asset_type=AssetType.TABLE,
@@ -851,9 +789,7 @@ class TestAssetGraph:
     def test_get_downstream_dependents(self) -> None:
         """Test getting downstream dependents."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         aggregated = Asset(
             name="aggregated",
             asset_type=AssetType.TABLE,
@@ -878,9 +814,7 @@ class TestAssetGraph:
     def test_get_lineage_graph(self) -> None:
         """Test getting complete lineage graph."""
         raw = Asset(name="raw", asset_type=AssetType.TABLE, uri="postgresql://db/raw")
-        cleaned = Asset(
-            name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned"
-        )
+        cleaned = Asset(name="cleaned", asset_type=AssetType.TABLE, uri="postgresql://db/cleaned")
         graph = AssetGraph(
             name="test_graph",
             assets=(raw, cleaned),
@@ -908,9 +842,7 @@ class TestAssetGraph:
 
     def test_get_upstream_nonexistent_raises_error(self) -> None:
         """Test that getting upstream for nonexistent asset raises error."""
-        asset = Asset(
-            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
-        )
+        asset = Asset(name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test")
         graph = AssetGraph(name="test_graph", assets=(asset,))
 
         with pytest.raises(ValueError, match="not found in graph"):
@@ -918,9 +850,7 @@ class TestAssetGraph:
 
     def test_get_downstream_nonexistent_raises_error(self) -> None:
         """Test that getting downstream for nonexistent asset raises error."""
-        asset = Asset(
-            name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test"
-        )
+        asset = Asset(name="test", asset_type=AssetType.TABLE, uri="postgresql://db/test")
         graph = AssetGraph(name="test_graph", assets=(asset,))
 
         with pytest.raises(ValueError, match="not found in graph"):

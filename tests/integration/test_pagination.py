@@ -162,9 +162,7 @@ class TestOffsetPagination:
 
     async def test_get_next_page_params(self):
         """Test getting next page parameters."""
-        strategy = OffsetPagination(
-            page_size=10, offset_param="offset", limit_param="limit"
-        )
+        strategy = OffsetPagination(page_size=10, offset_param="offset", limit_param="limit")
 
         mock_response = MagicMock(spec=RESTResponse)
         mock_response.data = {"items": [{"id": i} for i in range(10)]}

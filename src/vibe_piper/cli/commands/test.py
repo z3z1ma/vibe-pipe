@@ -54,12 +54,8 @@ def test(
     tests_path = project_path / "tests"
 
     if not tests_path.exists():
-        console.print(
-            f"[bold red]Error:[/bold red] Tests directory not found: {tests_path}"
-        )
-        console.print(
-            "\n[dim]Hint: Make sure your project has a 'tests/' directory[/dim]"
-        )
+        console.print(f"[bold red]Error:[/bold red] Tests directory not found: {tests_path}")
+        console.print("\n[dim]Hint: Make sure your project has a 'tests/' directory[/dim]")
         raise typer.Exit(1)
 
     console.print(f"\n[bold cyan]Running tests for:[/bold cyan] {project_path.name}\n")
@@ -91,9 +87,7 @@ def test(
     if file:
         test_file = tests_path / file
         if not test_file.exists():
-            console.print(
-                f"[bold red]Error:[/bold red] Test file not found: {test_file}"
-            )
+            console.print(f"[bold red]Error:[/bold red] Test file not found: {test_file}")
             raise typer.Exit(1)
         pytest_args = ["pytest", str(test_file)]
         if verbose:

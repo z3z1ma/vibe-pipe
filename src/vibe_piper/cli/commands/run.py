@@ -48,9 +48,7 @@ def load_config(project_path: Path, environment: str) -> dict[str, Any]:
     config_path = project_path / "config" / "pipeline.toml"
 
     if not config_path.exists():
-        console.print(
-            f"[bold red]Error:[/bold red] Configuration file not found: {config_path}"
-        )
+        console.print(f"[bold red]Error:[/bold red] Configuration file not found: {config_path}")
         raise typer.Exit(1)
 
     config: dict[str, Any] = load_toml(config_path)
@@ -142,9 +140,7 @@ def run(
     # Import pipeline
     console.print("[dim]→ Importing pipeline...[/dim]")
     pipeline_obj = import_pipeline(project_path)
-    console.print(
-        f"[bold green]  ✓[/bold green] Pipeline '{pipeline_obj.name}' imported"
-    )
+    console.print(f"[bold green]  ✓[/bold green] Pipeline '{pipeline_obj.name}' imported")
 
     # Display pipeline info
     console.print(f"\n[bold]Pipeline:[/bold] {pipeline_obj.name}")
@@ -197,9 +193,7 @@ def run(
 
             progress.update(task, description="Pipeline execution complete")
 
-        console.print(
-            "\n[bold green]✓[/bold green] Pipeline execution completed successfully!"
-        )
+        console.print("\n[bold green]✓[/bold green] Pipeline execution completed successfully!")
 
         console.print(
             Panel(

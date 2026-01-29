@@ -71,9 +71,7 @@ def test_lineage_visualizer_creates_mermaid_file(
     assert mermaid_file.exists()
 
 
-def test_lineage_visualizer_mermaid_content(
-    tmp_path: Path, sample_assets: list[Asset]
-) -> None:
+def test_lineage_visualizer_mermaid_content(tmp_path: Path, sample_assets: list[Asset]) -> None:
     """Test that Mermaid file has correct content."""
     generator = LineageVisualizer(output_dir=tmp_path)
     generator.generate(sample_assets)

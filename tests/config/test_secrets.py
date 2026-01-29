@@ -97,9 +97,7 @@ class TestLoadSecrets:
         spec = SecretSpec(from_=SecretSource.VAULT, path="secret/test")
         config = Config(project=project, secrets={"SECRET": spec})
 
-        with pytest.raises(
-            NotImplementedError, match="Vault integration not yet implemented"
-        ):
+        with pytest.raises(NotImplementedError, match="Vault integration not yet implemented"):
             load_secrets(config)
 
     def test_load_multiple_secrets(self) -> None:
@@ -304,8 +302,6 @@ class TestValidateSecretSpec:
 
     def test_validate_vault_path_correct_format(self) -> None:
         """Test validating vault path with correct format."""
-        spec = SecretSpec(
-            from_=SecretSource.VAULT, path="secret/my-secret", required=True
-        )
+        spec = SecretSpec(from_=SecretSource.VAULT, path="secret/my-secret", required=True)
         warnings = validate_secret_spec(spec)
         assert warnings == []

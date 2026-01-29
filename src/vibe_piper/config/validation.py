@@ -76,9 +76,7 @@ def _validate_environments(config: Config) -> None:
         _validate_environment_config(config, env_name, env_config)
 
 
-def _validate_environment_config(
-    _config: Config, env_name: str, env_config: Any
-) -> None:
+def _validate_environment_config(_config: Config, env_name: str, env_config: Any) -> None:
     """Validate a single environment configuration.
 
     Args:
@@ -185,8 +183,7 @@ def validate_environment_override(
         valid_log_levels = {"debug", "info", "warning", "error", "critical"}
         if override_value not in valid_log_levels:
             msg = (
-                f"Invalid log_level override '{override_value}'. "
-                f"Must be one of {valid_log_levels}"
+                f"Invalid log_level override '{override_value}'. Must be one of {valid_log_levels}"
             )
             raise ConfigValidationError(msg, field=override_key)
 

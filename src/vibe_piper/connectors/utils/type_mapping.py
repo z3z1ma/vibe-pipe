@@ -16,9 +16,7 @@ from vibe_piper.types import DataType
 # =============================================================================
 
 
-def map_type_to_vibepiper(
-    file_type: str | pd_dtype | Any, format: str = "auto"
-) -> DataType:
+def map_type_to_vibepiper(file_type: Any, format: str = "auto") -> DataType:
     """
     Map a file format type to a VibePiper DataType.
 
@@ -61,7 +59,7 @@ def map_type_to_vibepiper(
 
     # JSON type mapping
     if format == "json":
-        return _map_json_type(file_type)
+        return _map_json_type(file_type_str)
 
     # Parquet type mapping
     if format == "parquet":
@@ -179,9 +177,7 @@ def _map_parquet_type(type_name: str) -> DataType:
 # =============================================================================
 
 
-def map_type_from_vibepiper(
-    data_type: DataType, format: str = "auto"
-) -> str | tuple[str, str]:
+def map_type_from_vibepiper(data_type: DataType, format: str = "auto") -> str:
     """
     Map a VibePiper DataType to a file format type.
 
@@ -190,8 +186,7 @@ def map_type_from_vibepiper(
         format: The target file format ('csv', 'json', 'parquet', 'excel', 'auto')
 
     Returns:
-        The type string for the target format. For Parquet, returns a tuple
-        of (logical_type, converted_type) if applicable.
+        The type string for the target format.
 
     Raises:
         ValueError: If the type cannot be mapped for the format.
@@ -305,10 +300,7 @@ def map_schema_to_vibepiper(
         >>> map_schema_to_vibepiper({"id": "int64", "name": "string"})
         {"id": <DataType.INTEGER: 2>, "name": <DataType.STRING: 1>}
     """
-    return {
-        name: map_type_to_vibepiper(dtype, format)
-        for name, dtype in schema_dict.items()
-    }
+    return {name: map_type_to_vibepiper(dtype, format) for name, dtype in schema_dict.items()}
 
 
 def map_schema_from_vibepiper(
@@ -328,7 +320,4 @@ def map_schema_from_vibepiper(
         >>> map_schema_from_vibepiper({\"id\": DataType.INTEGER, \"name\": DataType.STRING})
         {"id": "int64", "name": "string"}
     """
-    return {
-        name: map_type_from_vibepiper(dtype, format)
-        for name, dtype in schema_dict.items()
-    }
+    return {name: map_type_from_vibepiper(dtype, format) for name, dtype in schema_dict.items()}

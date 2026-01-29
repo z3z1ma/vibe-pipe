@@ -307,9 +307,7 @@ class CompressedFileReader:
         ...     data = f.read()
     """
 
-    def __init__(
-        self, path: str | Path, compression: str | None = None, mode: str = "rt"
-    ) -> None:
+    def __init__(self, path: str | Path, compression: str | None = None, mode: str = "rt") -> None:
         """
         Initialize the compressed file reader.
 
@@ -360,9 +358,7 @@ class CompressedFileWriter:
         ...     f.write("data")
     """
 
-    def __init__(
-        self, path: str | Path, compression: str = "gzip", mode: str = "wt"
-    ) -> None:
+    def __init__(self, path: str | Path, compression: str = "gzip", mode: str = "wt") -> None:
         """
         Initialize the compressed file writer.
 

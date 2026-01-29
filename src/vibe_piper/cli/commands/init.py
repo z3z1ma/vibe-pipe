@@ -52,9 +52,7 @@ def init(
     project_path = directory / project_name
 
     if project_path.exists():
-        console.print(
-            f"[bold red]Error:[/bold red] Directory '{project_path}' already exists"
-        )
+        console.print(f"[bold red]Error:[/bold red] Directory '{project_path}' already exists")
         raise typer.Exit(1)
 
     template_path = TEMPLATE_DIR / template

@@ -21,7 +21,8 @@ Example usage:
 
 # Import checks using importlib to avoid circular issues
 import importlib
-checks = importlib.import_module('.checks', package='vibe_piper.validation')
+
+checks = importlib.import_module(".checks", package="vibe_piper.validation")
 
 # TODO: Investigate why expect_column_values_to_not_in_set cannot be imported
 # from checks module when accessed through package
@@ -32,15 +33,21 @@ _expect_not_in_set = None
 ColumnValidationResult = checks.ColumnValidationResult
 create_custom_validation = checks.create_custom_validation
 expect_column_groupby_mean_to_be_between = checks.expect_column_groupby_mean_to_be_between
-expect_column_groupby_value_counts_to_be_between = checks.expect_column_groupby_value_counts_to_be_between
+expect_column_groupby_value_counts_to_be_between = (
+    checks.expect_column_groupby_value_counts_to_be_between
+)
 expect_column_max_to_be_between = checks.expect_column_max_to_be_between
 expect_column_mean_to_be_between = checks.expect_column_mean_to_be_between
 expect_column_median_to_be_between = checks.expect_column_median_to_be_between
 expect_column_min_to_be_between = checks.expect_column_min_to_be_between
-expect_column_pair_values_a_to_be_greater_than_b = checks.expect_column_pair_values_a_to_be_greater_than_b
+expect_column_pair_values_a_to_be_greater_than_b = (
+    checks.expect_column_pair_values_a_to_be_greater_than_b
+)
 expect_column_pair_values_to_be_equal = checks.expect_column_pair_values_to_be_equal
 expect_column_pair_values_to_be_not_equal = checks.expect_column_pair_values_to_be_not_equal
-expect_column_proportion_of_nulls_to_be_between = checks.expect_column_proportion_of_nulls_to_be_between
+expect_column_proportion_of_nulls_to_be_between = (
+    checks.expect_column_proportion_of_nulls_to_be_between
+)
 expect_column_std_dev_to_be_between = checks.expect_column_std_dev_to_be_between
 expect_column_sum_to_equal_other_column_sum = checks.expect_column_sum_to_equal_other_column_sum
 expect_column_value_lengths_to_be_between = checks.expect_column_value_lengths_to_be_between
@@ -64,16 +71,16 @@ from vibe_piper.validation.decorators import (
     ExpectationBuilder,
     MultiColumnExpectationBuilder,
     TableExpectationBuilder,
-    ValidationConfig,
     ValidateDecorator,
+    ValidationConfig,
     expect,
     validate,
 )
 from vibe_piper.validation.suite import (
     LazyValidationStrategy,
     ValidationContext,
-    ValidationSuite,
     ValidationStrategy,
+    ValidationSuite,
     create_validation_suite,
 )
 
@@ -123,6 +130,7 @@ __all__ = [
     "ColumnExpectationBuilder",
     "MultiColumnExpectationBuilder",
     "TableExpectationBuilder",
+    "ValidateDecorator",
 ]
 
 __version__ = "1.0.0"

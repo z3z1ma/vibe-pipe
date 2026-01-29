@@ -64,14 +64,10 @@ def check_completeness(
             # Check if field is missing or null
             if field_name not in record.data or record.data[field_name] is None:
                 total_missing += 1
-                field_missing_counts[field_name] = (
-                    field_missing_counts.get(field_name, 0) + 1
-                )
+                field_missing_counts[field_name] = field_missing_counts.get(field_name, 0) + 1
 
     # Calculate overall completeness
-    completeness_score = (
-        1.0 - (total_missing / total_fields) if total_fields > 0 else 1.0
-    )
+    completeness_score = 1.0 - (total_missing / total_fields) if total_fields > 0 else 1.0
     passed = completeness_score >= threshold
 
     # Add overall completeness metric
@@ -114,9 +110,7 @@ def check_completeness(
 
         # Warn if field completeness is low
         if field_completeness < 0.9:
-            warnings.append(
-                f"Field '{field_name}' has low completeness: {field_completeness:.2%}"
-            )
+            warnings.append(f"Field '{field_name}' has low completeness: {field_completeness:.2%}")
 
     if not passed:
         errors.append(
@@ -176,9 +170,7 @@ def check_validity(
             # DataRecord already validates in __post_init__, but we check again
             for schema_field in record.schema.fields:
                 if schema_field.required and schema_field.name not in record.data:
-                    validation_errors.append(
-                        f"Record missing required field: {schema_field.name}"
-                    )
+                    validation_errors.append(f"Record missing required field: {schema_field.name}")
 
                 if (
                     not schema_field.nullable
@@ -233,9 +225,7 @@ def check_validity(
     )
 
     if not passed:
-        errors.append(
-            f"Validity score {validity_score:.2%} is below threshold {threshold:.2%}"
-        )
+        errors.append(f"Validity score {validity_score:.2%} is below threshold {threshold:.2%}")
 
     # Add first few validation errors
     for error in validation_errors[:10]:
@@ -420,9 +410,7 @@ def check_freshness(
             timestamp = timestamp_value
         elif isinstance(timestamp_value, str):
             try:
-                timestamp = datetime.fromisoformat(
-                    timestamp_value.replace("Z", "+00:00")
-                )
+                timestamp = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
             except ValueError:
                 errors.append(f"Invalid timestamp format: {timestamp_value}")
                 continue
@@ -482,9 +470,7 @@ def check_freshness(
         )
 
         if not passed:
-            errors.append(
-                f"Found {stale_count} stale records (older than {max_age_hours} hours)"
-            )
+            errors.append(f"Found {stale_count} stale records (older than {max_age_hours} hours)")
 
     else:
         # No valid timestamps found

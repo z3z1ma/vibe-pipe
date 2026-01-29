@@ -219,9 +219,7 @@ class HTMLSiteGenerator(DocumentationGenerator):
         for asset in assets:
             node_id = asset.name.replace("-", "_").replace(".", "_")
             lines.append(f'    {node_id}["{asset.name}"]')
-        lines.append(
-            "\n    classDef asset fill:#e1f5fe,stroke:#01579b,stroke-width:2px;"
-        )
+        lines.append("\n    classDef asset fill:#e1f5fe,stroke:#01579b,stroke-width:2px;")
         lines.append(
             "    class "
             + ",".join(a.name.replace("-", "_").replace(".", "_") for a in assets)
@@ -305,11 +303,11 @@ class HTMLSiteGenerator(DocumentationGenerator):
                 <p><strong>URI:</strong> <code>{asset.uri}</code></p>
                 <p><strong>I/O Manager:</strong> {asset.io_manager}</p>
 
-                {f'<p><strong>Description:</strong></p><p>{asset.description}</p>' if asset.description else ''}
+                {f"<p><strong>Description:</strong></p><p>{asset.description}</p>" if asset.description else ""}
 
-                {f'<h2>Schema</h2><p><a href="../schemas/{asset.schema.name}.html">{asset.schema.name}</a></p>' if asset.schema else ''}
+                {f'<h2>Schema</h2><p><a href="../schemas/{asset.schema.name}.html">{asset.schema.name}</a></p>' if asset.schema else ""}
 
-                {'<h2>Metadata</h2><dl>' + ''.join(f'<dt>{k}</dt><dd>{v}</dd>' for k, v in asset.metadata.items()) + '</dl>' if asset.metadata else ''}
+                {"<h2>Metadata</h2><dl>" + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in asset.metadata.items()) + "</dl>" if asset.metadata else ""}
             </div>
         </main>
         <footer>
@@ -346,9 +344,7 @@ class HTMLSiteGenerator(DocumentationGenerator):
         schemas = set(a.schema.name for a in assets if a.schema)
         for schema_name in schemas:
             # Find the actual schema object
-            schema = next(
-                a.schema for a in assets if a.schema and a.schema.name == schema_name
-            )
+            schema = next(a.schema for a in assets if a.schema and a.schema.name == schema_name)
             search_index["schemas"].append(
                 {
                     "name": schema.name,

@@ -7,7 +7,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Development Status](https://img.shields.io/badge/status-alpha-orange.svg)](https://github.com/your-org/vibe-piper)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 [Features](#features) • [Quick Start](#quick-start) • [Installation](#installation) • [Examples](#usage-examples) • [Documentation](#documentation)
 
@@ -766,13 +766,13 @@ docker-compose -f docker-compose.test.yml down
 
 ```bash
 # Format code
-uv run black src/ tests/
+uv run ruff format src tests
 
 # Type checking
 uv run mypy src/
 
 # Linting
-uv run ruff check src/ tests/
+uv run ruff check src tests
 ```
 
 ---

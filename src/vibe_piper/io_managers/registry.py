@@ -155,9 +155,7 @@ class IOManagerRegistry:
             db_config = config or {}
             connection_string = db_config.get("connection_string", "")
             if not connection_string:
-                msg = (
-                    "Database IO manager requires 'connection_string' in configuration"
-                )
+                msg = "Database IO manager requires 'connection_string' in configuration"
                 raise ValueError(msg)
             table_name = db_config.get("table_name", "asset_data")
             schema = db_config.get("schema")

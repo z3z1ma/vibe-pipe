@@ -142,9 +142,7 @@ class TestJSONWriter:
             output_path = Path(tmpdir) / "output.json"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_json_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data]
 
             # Write to JSON
             writer = JSONWriter(output_path)
@@ -164,9 +162,7 @@ class TestJSONWriter:
             output_path = Path(tmpdir) / "output.jsonl"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_json_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data]
 
             # Write to NDJSON
             writer = JSONWriter(output_path)
@@ -189,9 +185,7 @@ class TestJSONWriter:
             output_path = Path(tmpdir) / "output.json"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_json_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data]
 
             # Write with indentation
             writer = JSONWriter(output_path)
@@ -208,9 +202,7 @@ class TestJSONWriter:
             output_path = Path(tmpdir) / "output.json.gz"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_json_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data]
 
             # Write to compressed JSON
             writer = JSONWriter(output_path)
@@ -225,14 +217,8 @@ class TestJSONWriter:
             output_path = Path(tmpdir) / "output.jsonl"
 
             # Create DataRecord objects
-            records1 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_json_data[:1]
-            ]
-            records2 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_json_data[1:]
-            ]
+            records1 = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data[:1]]
+            records2 = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data[1:]]
 
             # Write initial data
             writer = JSONWriter(output_path)
@@ -266,9 +252,7 @@ class TestJSONWriter:
                 row["category"] = ["A", "B", "A"][i]
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_json_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_json_data]
 
             # Write partitioned data
             writer = JSONWriter(output_path)

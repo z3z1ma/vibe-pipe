@@ -149,10 +149,7 @@ class TestParquetWriter:
             output_path = Path(tmpdir) / "output.parquet"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_parquet_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data]
 
             # Write to Parquet
             writer = ParquetWriter(output_path)
@@ -174,8 +171,7 @@ class TestParquetWriter:
 
                 # Create DataRecord objects
                 records = [
-                    DataRecord(data=row, schema=sample_schema)
-                    for row in sample_parquet_data
+                    DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data
                 ]
 
                 # Write with compression
@@ -190,18 +186,13 @@ class TestParquetWriter:
                 read_records = reader.read()
                 assert len(read_records) == 3
 
-    def test_write_with_unsupported_compression(
-        self, sample_parquet_data, sample_schema
-    ):
+    def test_write_with_unsupported_compression(self, sample_parquet_data, sample_schema):
         """Test that unsupported compression raises an error."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "output.parquet"
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_parquet_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data]
 
             writer = ParquetWriter(output_path)
 
@@ -215,12 +206,10 @@ class TestParquetWriter:
 
             # Create DataRecord objects
             records1 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_parquet_data[:1]
+                DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data[:1]
             ]
             records2 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_parquet_data[1:]
+                DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data[1:]
             ]
 
             # Write initial data
@@ -245,10 +234,7 @@ class TestParquetWriter:
                 row["category"] = ["A", "B", "A"][i]
 
             # Create DataRecord objects
-            records = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_parquet_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_parquet_data]
 
             # Write partitioned data
             writer = ParquetWriter(output_path)

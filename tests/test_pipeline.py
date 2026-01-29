@@ -575,9 +575,7 @@ class TestPipelineValidation:
             depends_on=["nonexistent"],
         )
 
-        with pytest.raises(
-            ValueError, match="depends on 'nonexistent' which is not defined"
-        ):
+        with pytest.raises(ValueError, match="depends on 'nonexistent' which is not defined"):
             builder.build()
 
     def test_multiple_missing_dependencies_raises_error(self) -> None:
@@ -594,9 +592,7 @@ class TestPipelineValidation:
         )
 
         # Should raise on the first missing dependency
-        with pytest.raises(
-            ValueError, match="depends on 'missing1' which is not defined"
-        ):
+        with pytest.raises(ValueError, match="depends on 'missing1' which is not defined"):
             builder.build()
 
     def test_self_dependency_raises_error(self) -> None:
@@ -609,9 +605,7 @@ class TestPipelineValidation:
             depends_on=["self_dep"],
         )
 
-        with pytest.raises(
-            ValueError, match="Circular dependency detected: self_dep -> self_dep"
-        ):
+        with pytest.raises(ValueError, match="Circular dependency detected: self_dep -> self_dep"):
             builder.build()
 
     def test_simple_circular_dependency_raises_error(self) -> None:
@@ -733,7 +727,5 @@ class TestPipelineValidation:
             def derived(data: list[int], ctx: PipelineContext) -> list[int]:
                 return data
 
-        with pytest.raises(
-            ValueError, match="depends on 'nonexistent' which is not defined"
-        ):
+        with pytest.raises(ValueError, match="depends on 'nonexistent' which is not defined"):
             pipeline.build()

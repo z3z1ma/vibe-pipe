@@ -169,9 +169,7 @@ class Window:
         """
         self.name = name
         self.functions = functions
-        self.partition_by = (
-            [partition_by] if isinstance(partition_by, str) else partition_by
-        )
+        self.partition_by = [partition_by] if isinstance(partition_by, str) else partition_by
         self.order_by = [order_by] if isinstance(order_by, str) else order_by
         self.description = description or "Window function"
 

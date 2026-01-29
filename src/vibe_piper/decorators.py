@@ -231,9 +231,7 @@ class ExpectationDecorator:
         self,
         func_or_name: Callable[[Any], ValidationResult | bool] | str | None = None,
         **kwargs: Any,
-    ) -> (
-        Expectation | Callable[[Callable[[Any], ValidationResult | bool]], Expectation]
-    ):
+    ) -> Expectation | Callable[[Callable[[Any], ValidationResult | bool]], Expectation]:
         """
         Decorator to convert a function into an Expectation.
 

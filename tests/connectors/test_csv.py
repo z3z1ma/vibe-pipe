@@ -178,9 +178,7 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_csv_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data]
 
             # Write to CSV
             writer = CSVWriter(output_path)
@@ -202,9 +200,7 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_csv_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data]
 
             # Write to CSV
             writer = CSVWriter(output_path)
@@ -222,9 +218,7 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_csv_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data]
 
             # Write to compressed CSV
             writer = CSVWriter(output_path)
@@ -241,14 +235,8 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records1 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_csv_data[:2]
-            ]
-            records2 = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_csv_data[2:]
-            ]
+            records1 = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data[:2]]
+            records2 = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data[2:]]
 
             # Write initial data
             writer = CSVWriter(output_path)
@@ -284,9 +272,7 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records = [
-                DataRecord(data=row, schema=sample_schema) for row in sample_csv_data
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data]
 
             # Write partitioned data
             writer = CSVWriter(output_path)
@@ -303,10 +289,7 @@ class TestCSVWriter:
             # Create DataRecord objects
             from vibe_piper.types import DataRecord
 
-            records = [
-                DataRecord(data=row, schema=sample_schema)
-                for row in sample_csv_data[:2]
-            ]
+            records = [DataRecord(data=row, schema=sample_schema) for row in sample_csv_data[:2]]
 
             # Write with semicolon delimiter
             writer = CSVWriter(output_path)
