@@ -59,11 +59,20 @@ expect_table_row_count_to_equal = checks.expect_table_row_count_to_equal
 # Import decorators and suite
 # Import advanced validation modules
 from vibe_piper.validation.anomaly_detection import (
+    AnomalyRankingResult,
     AnomalyResult,
+    BaselineComparisonResult,
+    detect_anomalies_against_baseline,
     detect_anomalies_iqr,
     detect_anomalies_isolation_forest,
     detect_anomalies_multi_method,
+    detect_anomalies_one_class_svm,
     detect_anomalies_zscore,
+    expect_column_no_anomalies_iqr,
+    expect_column_no_anomalies_isolation_forest,
+    expect_column_no_anomalies_one_class_svm,
+    expect_column_no_anomalies_zscore,
+    rank_anomalies,
 )
 from vibe_piper.validation.data_profiling import (
     ColumnStatistics,
@@ -156,10 +165,19 @@ __all__ = [
     "ValidateDecorator",
     # Advanced validation: anomaly detection
     "AnomalyResult",
+    "AnomalyRankingResult",
+    "BaselineComparisonResult",
     "detect_anomalies_zscore",
     "detect_anomalies_iqr",
     "detect_anomalies_isolation_forest",
+    "detect_anomalies_one_class_svm",
     "detect_anomalies_multi_method",
+    "detect_anomalies_against_baseline",
+    "rank_anomalies",
+    "expect_column_no_anomalies_zscore",
+    "expect_column_no_anomalies_iqr",
+    "expect_column_no_anomalies_isolation_forest",
+    "expect_column_no_anomalies_one_class_svm",
     # Advanced validation: data profiling
     "ColumnStatistics",
     "DataProfile",
