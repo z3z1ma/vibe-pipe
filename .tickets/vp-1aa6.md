@@ -1,6 +1,6 @@
 ---
 "id": "vp-1aa6"
-"status": "open"
+"status": "in_progress"
 "deps": []
 "links": []
 "created": "2026-01-28T01:26:41Z"
@@ -79,3 +79,9 @@ Works with database connectors
 SQL dependency tracking
 Tests and documentation
 Test coverage > 85%
+
+## Notes
+
+**2026-01-29T10:14:16Z**
+
+Manager note: This is a P2 ticket. Please prioritize completing and merging the P1 tickets (vp-045b, vp-0862, vp-77b7, vp-e2b5) before working on this ticket. The SQL integration builds on top of database connectors.
