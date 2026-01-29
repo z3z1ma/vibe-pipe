@@ -67,3 +67,4 @@ docs/_build/
 .tickets/.locks/
 .team/
 .egg-info/
+.opencode/memory/observations.jsonl

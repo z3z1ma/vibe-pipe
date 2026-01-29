@@ -115,6 +115,17 @@ src/vibe_piper/validation/decorators.py
 src/vibe_piper/validation/drift_detection.py
 src/vibe_piper/validation/quality_scoring.py
 src/vibe_piper/validation/suite.py
+src/vibe_piper/web/__init__.py
+src/vibe_piper/web/api/__init__.py
+src/vibe_piper/web/api/router.py
+src/vibe_piper/web/api/endpoints/__init__.py
+src/vibe_piper/web/api/endpoints/auth.py
+src/vibe_piper/web/api/endpoints/health.py
+src/vibe_piper/web/api/endpoints/pipelines.py
+src/vibe_piper/web/middleware/__init__.py
+src/vibe_piper/web/middleware/error_handler.py
+src/vibe_piper/web/middleware/rate_limit.py
+src/vibe_piper/web/middleware/request_id.py
 tests/test_basic.py
 tests/test_decorators.py
 tests/test_dependency_inference.py
