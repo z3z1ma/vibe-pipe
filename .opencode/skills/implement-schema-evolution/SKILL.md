@@ -32,7 +32,7 @@ This skill provides comprehensive schema evolution capabilities for data pipelin
 1. **SemanticVersion**: Semantic versioning (MAJOR.MINOR.PATCH)
    ```python
    from vibe_piper.schema_evolution import SemanticVersion
-   
+
    v = SemanticVersion(1, 2, 3)  # 1.2.3
    v.is_compatible()  # Check version compatibility
    v.next_major()  # Increment major version
@@ -41,7 +41,7 @@ This skill provides comprehensive schema evolution capabilities for data pipelin
 2. **SchemaDiff**: Compare schemas and detect changes
    ```python
    from vibe_piper.schema_evolution import BreakingChangeDetector, SchemaDiff
-   
+
    detector = BreakingChangeDetector()
    diff = detector.detect(old_schema, new_schema)
    diff.changes  # List of SchemaChange objects
@@ -51,7 +51,7 @@ This skill provides comprehensive schema evolution capabilities for data pipelin
 3. **MigrationPlan**: Generate and execute migration plans
    ```python
    from vibe_piper.schema_evolution import MigrationPlanner, MigrationPlan
-   
+
    planner = MigrationPlanner()
    plan = planner.generate(diff)
    migrated_data = plan.execute(old_data)
@@ -60,7 +60,7 @@ This skill provides comprehensive schema evolution capabilities for data pipelin
 4. **SchemaHistory**: Track schema versions over time
    ```python
    from vibe_piper.schema_evolution import SchemaHistory, get_schema_history
-   
+
    history = get_schema_history()
    history.add_entry(entry)
    ```
@@ -68,7 +68,7 @@ This skill provides comprehensive schema evolution capabilities for data pipelin
 5. **@schema_version decorator**: Declarative versioning
    ```python
    from vibe_piper import define_schema, schema_version
-   
+
    @define_schema
    @schema_version("1.2.0", description="Add email field")
    class UserSchema:
@@ -105,12 +105,12 @@ def test_schema_evolution():
     v1 = SemanticVersion.parse("1.2.0")
     v2 = SemanticVersion(1, 3, 0)
     assert v2 > v1
-    
+
     # Test breaking change detection
     detector = BreakingChangeDetector()
     diff = detector.detect(old_schema, new_schema)
     assert diff.has_breaking_changes
-    
+
     # Test migration plan execution
     plan = MigrationPlanner().generate(diff)
     migrated = plan.execute(old_data)

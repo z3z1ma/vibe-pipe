@@ -152,6 +152,10 @@ This block is maintained by the compound plugin.
   - .opencode/skills/compound-workflows/SKILL.md
 - **data-cleaning-implementation** (v1): Implement comprehensive data cleaning utilities with deduplication, null handling, outlier detection/treatment, type normalization, standardization, and text cleaning
   - .opencode/skills/data-cleaning-implementation/SKILL.md
+- **fastapi-web-framework** (v1): Create FastAPI web server with standard middleware, JWT authentication, and REST API endpoints
+  - .opencode/skills/fastapi-web-framework/SKILL.md
+- **implement-schema-evolution** (v1): Implement schema evolution features including semantic versioning, migration planning, breaking change detection, and schema history tracking
+  - .opencode/skills/implement-schema-evolution/SKILL.md
 - **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
   - .opencode/skills/loom-manager-workflow/SKILL.md
 - **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, and handle no-op merges correctly.
@@ -168,16 +172,28 @@ This block is maintained by the compound plugin.
   - .opencode/skills/loom-workspace/SKILL.md
 - **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
   - .opencode/skills/monitoring-implementation/SKILL.md
+- **multi-format-config-management** (v1): Implement configuration management supporting TOML/YAML/JSON formats with inheritance and runtime overrides
+  - .opencode/skills/multi-format-config-management/SKILL.md
+- **quality-scoring-implementation** (v1): Implement comprehensive data quality scoring with multi-dimensional assessment, historical tracking, threshold alerts, and improvement recommendations
+  - .opencode/skills/quality-scoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
   - .opencode/skills/skill-authoring/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
   - .opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
+- **validation-history-integration** (v1): Integrate validation history auto-storage with existing validation framework
+  - .opencode/skills/validation-history-integration/SKILL.md
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->
 - **nullable-schema-fields-for-tests** (95%)
   - Trigger: Creating test fixtures with DataRecord objects that have null values in specific fields
   - Action: Set nullable=True on SchemaField definitions for any field that may contain None in test data. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
+- **yaml-dev-deps-for-mypy** (95%)
+  - Trigger: Adding YAML format support in strict MyPy project
+  - Action: Install pyyaml runtime dependency and types-pyamal as dev dependency to satisfy strict type checking
+- **retry-metrics-mutable-not-frozen** (95%)
+  - Trigger: During retry decorator implementation, encountered mypy error when trying to update RetryMetrics fields. RetryMetrics was frozen=True which prevented field mutations during retry loop.
+  - Action: Change RetryMetrics from @dataclass(frozen=True) to @dataclass to allow mutable updates during retry attempts. Fields like total_attempts, dlq_sent, and circuit_breaker_opened need to be updated.
 - **sync-ticket-updates** (90%)
   - Trigger: After any `loom ticket` command that changes state (close, add-note, update)
   - Action: Run `loom ticket sync` to commit ticket changes to repository
@@ -202,39 +218,33 @@ This block is maintained by the compound plugin.
 - **optional-scipy-type-checking** (90%)
   - Trigger: importing scipy.stats for KS/PSI/chi-square tests
   - Action: import scipy inside function body with TYPE_CHECKING guard to prevent ImportError when scipy is not installed, keep import localized
+- **two-pass-inheritance-parsing** (90%)
+  - Trigger: Implementing environment inheritance
+  - Action: Parse all environments first, then merge in second pass to handle forward references (child inherits from parent)
+- **catch-as-exception-check-isinstance** (90%)
+  - Trigger: Catching multiple parser exception types with MyPy strict mode
+  - Action: Catch as Exception, then use isinstance() to distinguish specific parser errors vs generic IO errors
+- **cloud-io-bucket-validation** (90%)
+  - Trigger: Validating environment configuration
+  - Action: When environment uses cloud IO manager (s3/gcs/azure), enforce that bucket parameter is provided
+- **inst-20250129-001** (90%)
+  - Trigger: validation_completed
+  - Action: store_validation_result
+- **retry-jitter-default-full** (90%)
+  - Trigger: Implemented jitter strategies (NONE, FULL, EQUAL, DECORRELATED) in retry system. Observed that FULL jitter (random 0 to delay) provides best protection against thundering herd when multiple clients re…
+  - Action: Set jitter_strategy=JitterStrategy.FULL as default in RetryConfig to prevent coordinated retry storms.
+- **fastapi-middleware-stack** (90%)
+  - Trigger: Creating new FastAPI application
+  - Action: Add CORS middleware (allow_origins=['http://localhost:5173', 'http://localhost:3000']), GZipMiddleware(minimum_size=1000), RequestIDMiddleware (X-Request-ID header), RateLimitMiddleware (token bucket:…
+- **tailwind-vite-setup** (90%)
+  - Trigger: Setting up new React + Vite + Tailwind project
+  - Action: Install @tailwindcss/postcss, configure postcss.config.js with '@tailwindcss/postcss' plugin, add @tailwind directives to src/index.css, configure tsconfig.json path aliases (@/* -> ./src/*), add path…
 - **verify-code-before-ticket-close** (85%)
   - Trigger: Worker marks ticket ready for review/merge
   - Action: Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementatio…
 - **datetime-none-coalescing** (85%)
   - Trigger: Performing datetime arithmetic with potentially None fields
   - Action: Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]
-- **float-to-int-outlier-replacement** (85%)
-  - Trigger: Replacing outliers with mean/median (always float) into integer columns
-  - Action: Either use .astype(float) on the column before replacement to allow float values, or cast mean_val to int explicitly using int(mean_val) when the target column is integer type.
-- **nullable-schema-test-fixture** (85%)
-  - Trigger: Testing null handling in DataRecords
-  - Action: Define SchemaField with nullable=True when fixture may contain None values to avoid DataRecord validation errors
-- **optional-dependency-type-ignore** (85%)
-  - Trigger: Importing sklearn or numpy with try/except for optional dependency
-  - Action: Include '# type: ignore[import-untyped]' on import statement to satisfy mypy strict mode while allowing graceful degradation
-- **drift-history-timestamp-tracking** (85%)
-  - Trigger: implementing DriftHistory class for drift monitoring
-  - Action: store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis
-- **statistical-test-min-samples** (85%)
-  - Trigger: calling detect_drift_ks, detect_drift_psi, or detect_drift_chi_square
-  - Action: check that both baseline and new data have at least min_samples (default 50) before running test, return DriftResult with error message if insufficient
-- **check-loom-permissions-early** (80%)
-  - Trigger: Acting as Team Manager for Loom team
-  - Action: Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.
-- **loom-manager-add-ticket-notes** (80%)
-  - Trigger: Created new ticket via loom ticket create
-  - Action: Immediately add a note to the ticket with: 1) Tasks numbered list, 2) Dependencies (if any), 3) Acceptance criteria, 4) Technical notes, 5) Example usage (if feature)
-- **merge-worker-workspace-cleanup** (80%)
-  - Trigger: Attempting to retire worker after merge
-  - Action: When 'loom team retire <worker>' fails with 'modified or untracked files' error, check worktree status with git status and either: 1) Stash uncommitted changes, 2) Use --force flag if safe to delete, …
-- **drift-baseline-storage-json** (80%)
-  - Trigger: implementing drift detection with historical comparison
-  - Action: save baseline data to JSON file with metadata (timestamp, sample_size, columns, schema_name) for efficient retrieval
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->

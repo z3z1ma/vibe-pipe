@@ -9,6 +9,12 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **nullable-schema-fields-for-tests** (95%)
   - Trigger: Creating test fixtures with DataRecord objects that have null values in specific fields
   - Action: Set nullable=True on SchemaField definitions for any field that may contain None in test data. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
+- **yaml-dev-deps-for-mypy** (95%)
+  - Trigger: Adding YAML format support in strict MyPy project
+  - Action: Install pyyaml runtime dependency and types-pyamal as dev dependency to satisfy strict type checking
+- **retry-metrics-mutable-not-frozen** (95%)
+  - Trigger: During retry decorator implementation, encountered mypy error when trying to update RetryMetrics fields. RetryMetrics was frozen=True which prevented field mutations during retry loop.
+  - Action: Change RetryMetrics from @dataclass(frozen=True) to @dataclass to allow mutable updates during retry attempts. Fields like total_attempts, dlq_sent, and circuit_breaker_opened need to be updated.
 - **sync-ticket-updates** (90%)
   - Trigger: After any `loom ticket` command that changes state (close, add-note, update)
   - Action: Run `loom ticket sync` to commit ticket changes to repository
@@ -33,6 +39,27 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **optional-scipy-type-checking** (90%)
   - Trigger: importing scipy.stats for KS/PSI/chi-square tests
   - Action: import scipy inside function body with TYPE_CHECKING guard to prevent ImportError when scipy is not installed, keep import localized
+- **two-pass-inheritance-parsing** (90%)
+  - Trigger: Implementing environment inheritance
+  - Action: Parse all environments first, then merge in second pass to handle forward references (child inherits from parent)
+- **catch-as-exception-check-isinstance** (90%)
+  - Trigger: Catching multiple parser exception types with MyPy strict mode
+  - Action: Catch as Exception, then use isinstance() to distinguish specific parser errors vs generic IO errors
+- **cloud-io-bucket-validation** (90%)
+  - Trigger: Validating environment configuration
+  - Action: When environment uses cloud IO manager (s3/gcs/azure), enforce that bucket parameter is provided
+- **inst-20250129-001** (90%)
+  - Trigger: validation_completed
+  - Action: store_validation_result
+- **retry-jitter-default-full** (90%)
+  - Trigger: Implemented jitter strategies (NONE, FULL, EQUAL, DECORRELATED) in retry system. Observed that FULL jitter (random 0 to delay) provides best protection against thundering herd when multiple clients re…
+  - Action: Set jitter_strategy=JitterStrategy.FULL as default in RetryConfig to prevent coordinated retry storms.
+- **fastapi-middleware-stack** (90%)
+  - Trigger: Creating new FastAPI application
+  - Action: Add CORS middleware (allow_origins=['http://localhost:5173', 'http://localhost:3000']), GZipMiddleware(minimum_size=1000), RequestIDMiddleware (X-Request-ID header), RateLimitMiddleware (token bucket:…
+- **tailwind-vite-setup** (90%)
+  - Trigger: Setting up new React + Vite + Tailwind project
+  - Action: Install @tailwindcss/postcss, configure postcss.config.js with '@tailwindcss/postcss' plugin, add @tailwind directives to src/index.css, configure tsconfig.json path aliases (@/* -> ./src/*), add path…
 - **verify-code-before-ticket-close** (85%)
   - Trigger: Worker marks ticket ready for review/merge
   - Action: Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementatio…
@@ -54,6 +81,24 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **statistical-test-min-samples** (85%)
   - Trigger: calling detect_drift_ks, detect_drift_psi, or detect_drift_chi_square
   - Action: check that both baseline and new data have at least min_samples (default 50) before running test, return DriftResult with error message if insufficient
+- **multi-format-config-detection** (85%)
+  - Trigger: Implementing multi-format configuration support
+  - Action: When supporting multiple config formats (TOML/YAML/JSON), search for files in preference order rather than requiring explicit format parameter
+- **runtime-override-merge-method** (85%)
+  - Trigger: Implementing runtime configuration overrides
+  - Action: Instead of modifying config in place, create a method that returns a new merged config with CLI overrides applied
+- **cli-override-merge-logic** (85%)
+  - Trigger: Applying runtime configuration overrides
+  - Action: When applying CLI overrides, merge them with environment configs while preserving environment-specific values that aren't being overridden
+- **circuit-breaker-configurable-thresholds** (85%)
+  - Trigger: Implemented circuit breaker with configurable failure_threshold, success_threshold, timeout_seconds, and exception_types. This allows fine-tuning for different service characteristics and failure patt…
+  - Action: Use CircuitBreakerConfig with sensible defaults (failure_threshold=5, success_threshold=2, timeout_seconds=60.0) to provide automatic protection while allowing customization for specific use cases.
+- **fastapi-jwt-auth-pattern** (85%)
+  - Trigger: Implementing FastAPI authentication
+  - Action: Use python-jose for JWT tokens (access expires 30min, refresh 7 days), passlib[bcrypt] for password hashing, OAuth2PasswordBearer for token scheme, store refresh tokens for rotation, return structured…
+- **react-api-service-layer** (85%)
+  - Trigger: Building React app that talks to API
+  - Action: Create src/services/api.ts with fetch wrapper, API_BASE_URL from env, headers with Authorization: Bearer token from localStorage, ApiError class with error/message/status fields, typed endpoints retur…
 - **check-loom-permissions-early** (80%)
   - Trigger: Acting as Team Manager for Loom team
   - Action: Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.
@@ -69,30 +114,18 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **validation-result-wrapper-pattern** (80%)
   - Trigger: creating check_drift_ks and check_drift_psi functions
   - Action: map drift detection results to ValidationResult: is_valid=(alert_level != 'critical'), errors=list for critical, warnings=list for recommendations and drifted columns
+- **resolve-ai-managed-conflicts** (80%)
+  - Trigger: Merge conflicts in AI-managed files (AGENTS.md, LOOM_ROADMAP.md, LOOM_PROJECT.md, CHANGELOG.md) when syncing merge-queue with origin/main
+  - Action: Accept incoming version with --theirs since AI-managed blocks are auto-generated by other agents. Use: git checkout --theirs AGENTS.md LOOM_ROADMAP.md
+- **config-module-docstring-examples** (80%)
+  - Trigger: Implementing configuration module
+  - Action: Include examples of all supported formats, inheritance patterns, and runtime override usage in module-level docstring
+- **react-auth-context-pattern** (80%)
+  - Trigger: Implementing auth in React app
+  - Action: Create AuthProvider with useState for user/loading, checkAuth on mount, login/logout methods that call API, useAuth hook that exposes user/loading/login/logout/refreshUser, wrap App in AuthProvider
 - **loom-manager-dependency-notes** (75%)
   - Trigger: Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on
   - Action: Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)
-- **formatter-type-separation** (75%)
-  - Trigger: MyPy complains about incompatible formatter assignments
-  - Action: Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion
-- **drift-threshold-validation** (75%)
-  - Trigger: creating DriftThresholds configuration class
-  - Action: validate that warning < critical, all thresholds in [0,1] range, and warning < psi_critical, with clear error messages
-- **datarecord-fixture-schema** (75%)
-  - Trigger: writing pytest fixtures for drift detection tests
-  - Action: define schema fixtures with proper SchemaFields and DataType enums, use schema parameter when creating DataRecord instances
-- **verify-code-before-closing-tickets** (70%)
-  - Trigger: Ticket marked 'ready to merge' or 'implementation complete'
-  - Action: Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connector tickets)
-- **loom-manager-check-merge-blockage** (70%)
-  - Trigger: Listing tickets shows in_progress status but implementation is complete
-  - Action: For each in_progress ticket: check if implementation is done (git log shows recent feature commits, ticket notes say 'implementation complete'), if yes but not merged: add URGENT note with commit hash…
-- **loom-manager-phase-organization** (70%)
-  - Trigger: Creating tickets for sequential project phases
-  - Action: Add phase tags (phase1, phase2, phase3) to tickets and ensure lower-priority tickets have dependency notes referencing higher-priority phase tickets that must complete first
-- **loom-manager-inspect-before-action** (65%)
-  - Trigger: About to merge a ticket branch or assess completion status
-  - Action: Run git log <branch> --oneline -5 to see recent commits, git diff main <branch> --stat to see change scope, check if commits look like implementation vs cleanup, verify branch exists and is ahead of m…
 
 ## Notes
 
