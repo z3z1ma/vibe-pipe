@@ -145,31 +145,31 @@ This block is maintained by the compound plugin.
 
 <!-- BEGIN:compound:skills-index -->
 - **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/author-agents-md-uv-python/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/author-agents-md-uv-python/SKILL.md
 - **compound-apply-spec** (v1): Write a CompoundSpec v1 JSON payload and apply it via compound_apply to create/update skills and docs.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/compound-apply-spec/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/compound-apply-spec/SKILL.md
 - **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/compound-workflows/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/compound-workflows/SKILL.md
 - **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-manager-workflow/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-manager-workflow/SKILL.md
 - **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, and handle no-op merges correctly.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-merge-queue-worker/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-merge-queue-worker/SKILL.md
 - **loom-team-lifecycle-management** (v1): Manage Loom team worker lifecycle from spawn to retire, including ticket assignment, progress tracking, merge operations, and workspace cleanup.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-team-lifecycle-management/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-team-lifecycle-management/SKILL.md
 - **loom-team-manager** (v1): Act as Team Manager for Loom team, handling ticket workflow when team commands may be unavailable
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-team-manager/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-team-manager/SKILL.md
 - **loom-team-manager-pane-dead-on-spawn** (v1): Diagnose and fix Loom team manager pane dying immediately (tmux pane status 1).
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
 - **loom-ticketing** (v1): Use loom ticket for ticket creation, status updates, deps, and notes.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-ticketing/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-ticketing/SKILL.md
 - **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/loom-workspace/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/loom-workspace/SKILL.md
 - **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/monitoring-implementation/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/monitoring-implementation/SKILL.md
 - **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/skill-authoring/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/skill-authoring/SKILL.md
 - **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
-  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-331b/.opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
+  - /Users/alexanderbutler/code_projects/personal/vibe-piper/.team/runs/MiyagiDo/worktrees/vp-e6da/.opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
 <!-- END:compound:skills-index -->
 
 <!-- BEGIN:compound:instincts-index -->

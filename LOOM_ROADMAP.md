@@ -3,8 +3,7 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (12)
-- - `vp-331b` P1 open - Advanced Validation Framework
+- # Tickets (11)
 - - `vp-6365` P1 open - Integration with External Quality Tools
 - - `vp-c4ef` P1 in_progress - Untitled
 - - `vp-cf95` P1 in_progress - Untitled
