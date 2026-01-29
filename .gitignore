@@ -59,12 +59,12 @@ docs/_build/
 uv.lock
 
 # Murmur
-.memos/index.sqlite3*
-.memos/personal/
+.memory/index.sqlite3*
+.memory/personal/
 .tickets/.audit/
 .tickets/.cache/
 .tickets/.locks/
-.murmur/
+.team/
 .claude/
 .opencode/
 coverage.xml
