@@ -5,13 +5,14 @@ High-level direction and priorities.
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (5)
 - - `vp-7c26` P1 in_progress - Implement Transformation Library - Fluent API
-- - `vp-8690` P1 in_progress - Implement Configuration-Driven Pipelines
+- - `vp-8690` P1 in_progress - Untitled
 - - `vp-acbc` P1 in_progress - Implement Built-in Quality & Monitoring
 - - `vp-f701` P1 in_progress - Implement Schema-First Mapping
 - - `vp-0429` P2 open - Untitled
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T05:42:07.125Z Align memory with current CompoundSpec v2 JSON format and correct polyrepo workflow guidance to use ticket-named branches + loom workspace worktrees per service.
 - 2026-01-30T05:29:55.113Z Session was idle; no new stable heuristics or procedures identified.
 - 2026-01-30T05:20:32.961Z Update Compound workflow/apply-spec skills to CompoundSpec v2 and reflect compound_apply() usage; reinforce autolearn constraints (JSON-only output, repo-relative paths, plan-mode read-only).
 - 2026-01-30T05:20:09.981Z Add instinct: treat workspace.json and services/index.json as loom-managed boundaries (add/remove via loom; regenerate index), plus small confidence bump on services.md deps normalization.
@@ -41,5 +42,4 @@ High-level direction and priorities.
 - 2026-01-30T01:14:06.447Z No memory updates proposed; no repo activity detected in this session.
 - 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
 - 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
-- 2026-01-30T00:15:14.423Z Updated memory to align compound-apply-spec with CompoundSpec v2 and reinforced data-cleaning pandas/text + dtype safety guidance; nudged confidence up on recurring pandas/nullable/int-cast instincts.
 <!-- END:compound:roadmap-ai-notes -->

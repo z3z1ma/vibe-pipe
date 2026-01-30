@@ -551,6 +551,23 @@
           "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
         }
       ]
+    },
+    {
+      "id": "inst-compound-autolearn-json-only-v2",
+      "title": "Autolearn responses are JSON-only CompoundSpec v2",
+      "trigger": "Prompt explicitly requests a background autolearn output and specifies 'Output only valid JSON' with 'CompoundSpec v2' schema.",
+      "action": "Return a single JSON object matching schema_version=2 (no commentary, no code fences). Prefer updating existing skills/docs over creating duplicates; avoid proposing product code changes.",
+      "tags": [],
+      "confidence": 0.72,
+      "status": "active",
+      "created_at": "2026-01-30T05:42:05.560Z",
+      "updated_at": "2026-01-30T05:42:05.560Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T05:42:05.560Z",
+          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
+        }
+      ]
     }
   ]
 }

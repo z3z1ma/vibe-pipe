@@ -72,6 +72,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-workspace-add-remove-only-via-loom** (72%)
   - Trigger: About to add/remove a service repo, or you notice workspace.json needs changes (new repo, remote, default branch).
   - Action: Use `loom workspace add/remove` (not manual edits). Then run `loom workspace sync --clone` and `loom workspace services refresh-index` so clones and services/index.json stay consistent and derived.
+- **inst-compound-autolearn-json-only-v2** (72%)
+  - Trigger: Prompt explicitly requests a background autolearn output and specifies 'Output only valid JSON' with 'CompoundSpec v2' schema.
+  - Action: Return a single JSON object matching schema_version=2 (no commentary, no code fences). Prefer updating existing skills/docs over creating duplicates; avoid proposing product code changes.
 - **validation-result-wrapper-mapping** (70%)
   - Trigger: Creating wrapper functions that convert domain types to validation framework ValidationResult
   - Action: Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). …

@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T05:42:07.125Z Align memory with current CompoundSpec v2 JSON format and correct polyrepo workflow guidance to use ticket-named branches + loom workspace worktrees per service.
 - 2026-01-30T05:29:55.113Z Session was idle; no new stable heuristics or procedures identified.
 - 2026-01-30T05:20:32.961Z Update Compound workflow/apply-spec skills to CompoundSpec v2 and reflect compound_apply() usage; reinforce autolearn constraints (JSON-only output, repo-relative paths, plan-mode read-only).
 - 2026-01-30T05:20:09.981Z Add instinct: treat workspace.json and services/index.json as loom-managed boundaries (add/remove via loom; regenerate index), plus small confidence bump on services.md deps normalization.

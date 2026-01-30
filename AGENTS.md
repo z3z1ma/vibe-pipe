@@ -222,9 +222,9 @@ Do not edit inside the BEGIN/END fences.
 <!-- BEGIN:compound:skills-index -->
 - **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
   - .opencode/skills/author-agents-md-uv-python/SKILL.md
-- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
+- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills, instincts, and AI-managed docs blocks.
   - .opencode/skills/compound-apply-spec/SKILL.md
-- **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
+- **compound-workflows** (v1): Use Plan → Work → Review → Compound loop with loom ticket + loom workspace in a polyrepo workspace (ticket-named branches, worktrees per service).
   - .opencode/skills/compound-workflows/SKILL.md
 - **data-cleaning-implementation** (v1): Update data-cleaning-implementation skill with critical pandas patterns and testing learnings from vp-e62a
   - .opencode/skills/data-cleaning-implementation/SKILL.md
