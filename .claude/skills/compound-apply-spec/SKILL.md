@@ -50,10 +50,15 @@ Notes:
 - `blocks.upsert[]`: `{ file, id, content }` updates AI-managed blocks only.
   - Use repo-root-relative paths, e.g. `AGENTS.md`, `LOOM_ROADMAP.md`.
 
+## Output hygiene
+
+- If a prompt requires **JSON-only**, output a single JSON object (no code fences, no commentary).
+- Follow any prompt constraints (e.g., max skills/instincts per run).
+
 ## Apply
 
 1. Produce a single valid JSON object (the CompoundSpec v2).
-2. Run `compound_apply()`.
+2. Run `compound_apply()` to apply it.
 <!-- END:compound:skill-managed -->
 
 ## Manual notes

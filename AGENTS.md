@@ -150,9 +150,15 @@ This block is maintained by the compound plugin.
 - **pandas-string-accessor-error-pattern** (98%)
   - Trigger: Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations
   - Action: When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column…
+- **inst-autolearn-json-only** (96%)
+  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
+  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
+- **inst-autolearn-repo-relative-paths** (90%)
+  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
+  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -165,9 +171,6 @@ This block is maintained by the compound plugin.
 - **inst-20260130-001** (85%)
   - Trigger: Producing a CompoundSpec v2 with skills.update entries
   - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
-- **inst-autolearn-json-only** (85%)
-  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
-  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
 - **inst-20250129-001** (85%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -177,9 +180,6 @@ This block is maintained by the compound plugin.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
-- **inst-autolearn-repo-relative-paths** (83%)
-  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
-  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.

@@ -4,6 +4,16 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T07:41:53.586Z Reinforced autolearn output hygiene: JSON-only responses and repo-relative path discipline.
+- 2026-01-30T07:36:40.764Z Reinforced confidence in Plan Mode read-only compliance and autolearn JSON-only + repo-relative path hygiene.
+- 2026-01-30T07:31:50.233Z Reinforced Plan Mode read-only constraint and added always-on AGENTS context for uv-only tooling + repo-relative path hygiene.
+- 2026-01-30T07:26:57.024Z No memory updates proposed; prompt context shows no meaningful changes to generalize.
+- 2026-01-30T07:15:56.859Z Reinforce plan-mode read-only constraint as a first-class instinct.
+- 2026-01-30T07:13:07.013Z Harden CompoundSpec authoring guidance: JSON-only output hygiene + reinforce repo-relative paths and prompt-specific constraints.
+- 2026-01-30T07:09:30.072Z Reinforce Plan Mode read-only instinct based on explicit system reminder; no new procedures needed.
+- 2026-01-30T06:56:53.303Z Idle autolearn: no new observations or git changes; no memory updates proposed.
+- 2026-01-30T06:50:59.513Z Idle autolearn run: no new tool activity or code changes observed; no memory updates proposed.
+- 2026-01-30T06:45:38.180Z Idle session with no new repo/tool activity; insufficient evidence to justify memory or docs changes.
 - 2026-01-30T06:34:09.676Z Raised confidence in the Plan Mode read-only safety instinct after an explicit system reminder.
 - 2026-01-30T05:57:14.907Z Increase confidence in Plan Mode read-only guard after explicit reminder; no code changes.
 - 2026-01-30T05:56:16.413Z Update CompoundSpec guidance to v2 (schema_version=2) and current compound_apply() usage; reinforce plan-mode read-only instinct.
