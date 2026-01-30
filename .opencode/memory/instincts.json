@@ -287,14 +287,53 @@
       "trigger": "Producing a CompoundSpec v2 with skills.update entries",
       "action": "Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.",
       "tags": [],
-      "confidence": 0.75,
+      "confidence": 0.8,
       "status": "active",
       "created_at": "2026-01-30T00:15:12.873Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
+      "updated_at": "2026-01-30T01:09:11.730Z",
       "evidence": [
         {
           "ts": "2026-01-30T00:15:12.873Z",
           "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e"
+        },
+        {
+          "ts": "2026-01-30T01:09:11.730Z",
+          "sessionID": "ses_3f39fd14fffe3C00AJzxtXyAqh",
+          "note": "This session's autolearn prompt reiterated the mandatory rule: skills.update[].body must re-emit the entire final managed body (no snippets/diffs)."
+        }
+      ]
+    },
+    {
+      "id": "avoid-committing-egg-info",
+      "title": "Treat egg-info diffs as build artifacts",
+      "trigger": "Git diff shows changes under `src/*.egg-info/` (e.g., `PKG-INFO`, `requires.txt`) without intentional packaging/version work",
+      "action": "Assume the changes are generated; do not include them in commits/PRs and instead regenerate/clean the working tree via the repo's normal install workflow before re-checking diffs",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-30T00:47:20.149Z",
+      "updated_at": "2026-01-30T00:47:20.149Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T00:47:20.149Z",
+          "sessionID": "ses_3f3b9f29dffeLfwiKyS5pJk6x9"
+        }
+      ]
+    },
+    {
+      "id": "egg-info-churn-is-build-noise",
+      "title": "Treat .egg-info diffs as build noise",
+      "trigger": "git diff shows only src/vibe_piper.egg-info/* changes (PKG-INFO, SOURCES.txt, requires.txt) with no src/ or tests/ edits",
+      "action": "Assume these are generated artifacts; avoid proposing learnings from them and avoid including them in commits unless the repo explicitly tracks egg-info as source of truth.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-30T01:09:11.730Z",
+      "updated_at": "2026-01-30T01:09:11.730Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T01:09:11.730Z",
+          "sessionID": "ses_3f39fd14fffe3C00AJzxtXyAqh"
         }
       ]
     }

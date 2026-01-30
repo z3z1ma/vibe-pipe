@@ -4,6 +4,10 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T01:17:14.715Z No new learnings from this idle cycle; only compound state changed.
+- 2026-01-30T01:14:06.447Z No memory updates proposed; no repo activity detected in this session.
+- 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
+- 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
 - 2026-01-30T00:15:14.423Z Updated memory to align compound-apply-spec with CompoundSpec v2 and reinforced data-cleaning pandas/text + dtype safety guidance; nudged confidence up on recurring pandas/nullable/int-cast instincts.
 - 2026-01-29T23:54:29.524Z Implemented drift detection features: baseline storage, history tracking, configurable thresholds, and validation check wrappers for @validate decorator integration
 - 2026-01-29T23:52:32.816Z Implemented comprehensive Data Cleaning Utilities (vp-e62a) with @clean_data() decorator, 20+ functions covering deduplication, null handling (6 strategies), outlier detection (4 methods), outlier treatment (6 actions), type normalization, standardization, and text cleaning. Created CleaningConfig and CleaningReport classes. Wrote 73 tests achieving 77% pass rate, 73% module coverage. Identified critical pandas 2.x string accessor pattern issues and test fixture nullable field requirements.
