@@ -68,3 +68,6 @@ docs/_build/
 .team/
 .egg-info/
 .opencode/memory/observations.jsonl
+frontend/node_modules
+frontend/dist
+frontend/.env.local
