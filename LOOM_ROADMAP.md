@@ -9,6 +9,7 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T03:21:22.411Z No memory updates proposed; only .opencode/compound/state.json changed.
 - 2026-01-30T03:10:18.003Z Strengthened instincts for CompoundSpec v2 full-body skill updates and uv editable-install egg-info diff hygiene; synced derived docs/indexes.
 - 2026-01-30T03:03:57.303Z Add instinct to treat src/*.egg-info diffs as generated artifacts from uv editable installs; avoid committing unless explicitly intended.
 - 2026-01-30T02:50:09.689Z No new procedural learnings extracted; synced docs/indexes after adding ticket vp-db50 and updating LOOM roadmap/changelog.
@@ -38,5 +39,4 @@ High-level direction and priorities.
 - 2026-01-29T23:00:21.255Z Implemented automatic retry with backoff, jitter strategies, dead letter queue, circuit breaker, and retry metrics tracking. Added comprehensive tests.
 - 2026-01-29T22:59:00.665Z Add validation history integration skill
 - 2026-01-29T22:56:20.700Z Implemented comprehensive configuration management with multi-format support (TOML/YAML/JSON), environment inheritance, and runtime CLI overrides
-- 2026-01-29T22:56:13.877Z Merge worker: Successfully merged vp-2386 (anomaly detection validation). Handled local changes and AI-managed file conflicts during origin/main sync.
 <!-- END:compound:roadmap-ai-notes -->
