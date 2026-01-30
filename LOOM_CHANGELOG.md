@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T03:43:45.661Z No memory updates proposed (no recent activity captured).
 - 2026-01-30T03:21:22.411Z No memory updates proposed; only .opencode/compound/state.json changed.
 - 2026-01-30T03:10:18.003Z Strengthened instincts for CompoundSpec v2 full-body skill updates and uv editable-install egg-info diff hygiene; synced derived docs/indexes.
 - 2026-01-30T03:03:57.303Z Add instinct to treat src/*.egg-info diffs as generated artifacts from uv editable installs; avoid committing unless explicitly intended.
