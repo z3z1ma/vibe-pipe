@@ -4,11 +4,12 @@ High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (2)
-- - `vp-09e9` P1 in_progress - Untitled
-- - `vp-0429` P2 in_progress - Untitled
+- - `vp-5299` P1 in_progress - Untitled
+- - `vp-0429` P2 open - Untitled
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T04:04:24.690Z No memory updates proposed (no new signals in this session).
 - 2026-01-30T03:43:45.661Z No memory updates proposed (no recent activity captured).
 - 2026-01-30T03:21:22.411Z No memory updates proposed; only .opencode/compound/state.json changed.
 - 2026-01-30T03:10:18.003Z Strengthened instincts for CompoundSpec v2 full-body skill updates and uv editable-install egg-info diff hygiene; synced derived docs/indexes.
@@ -38,5 +39,4 @@ High-level direction and priorities.
 - 2026-01-29T23:15:16.739Z Implemented testing infrastructure with snapshot testing, performance benchmarking, and data quality validation frameworks using Plan → Work → Review → Compound workflow.
 - 2026-01-29T23:01:16.247Z feat: Add web framework foundation with FastAPI backend and React frontend. FastAPI server with JWT auth, rate limiting, and 12 API endpoints. React app with Tailwind CSS, type-safe API service, and authentication context. Both tested and approved for merge.
 - 2026-01-29T23:00:21.255Z Implemented automatic retry with backoff, jitter strategies, dead letter queue, circuit breaker, and retry metrics tracking. Added comprehensive tests.
-- 2026-01-29T22:59:00.665Z Add validation history integration skill
 <!-- END:compound:roadmap-ai-notes -->
