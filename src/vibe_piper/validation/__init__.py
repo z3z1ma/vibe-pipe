@@ -107,28 +107,9 @@ from vibe_piper.validation.drift_detection import (
     detect_drift_multi_method,
     detect_drift_psi,
 )
-from vibe_piper.validation.quality_scoring import (
-    ColumnQualityResult,
-    QualityScore,
-    calculate_column_quality,
-    calculate_completeness,
-    calculate_consistency,
-    calculate_quality_score,
-    calculate_uniqueness,
-    calculate_validity,
-)
-from vibe_piper.validation.suite import (
-    LazyValidationStrategy,
-    SuiteValidationResult,
-    ValidationContext,
-    ValidationStrategy,
-    ValidationSuite,
-    create_validation_suite,
-)
 
 # Validation history storage and analysis
 from vibe_piper.validation.history import (
-    BaselineComparisonResult,
     FailurePattern,
     PostgreSQLValidationHistoryStore,
     TrendAnalysisResult,
@@ -145,6 +126,34 @@ from vibe_piper.validation.integration import (
     store_validation_result,
     suite_result_to_check_records,
     suite_result_to_run_metadata,
+)
+from vibe_piper.validation.quality_scoring import (
+    ColumnQualityResult,
+    QualityAlert,
+    QualityDashboard,
+    QualityHistory,
+    QualityRecommendation,
+    QualityScore,
+    QualityThresholdConfig,
+    QualityTrend,
+    calculate_column_quality,
+    calculate_completeness,
+    calculate_consistency,
+    calculate_quality_score,
+    calculate_uniqueness,
+    calculate_validity,
+    create_quality_dashboard,
+    generate_quality_alerts,
+    generate_quality_recommendations,
+    track_quality_history,
+)
+from vibe_piper.validation.suite import (
+    LazyValidationStrategy,
+    SuiteValidationResult,
+    ValidationContext,
+    ValidationStrategy,
+    ValidationSuite,
+    create_validation_suite,
 )
 
 __all__ = [
@@ -233,19 +242,28 @@ __all__ = [
     # Advanced validation: quality scoring
     "QualityScore",
     "ColumnQualityResult",
+    "QualityThresholdConfig",
+    "QualityAlert",
+    "QualityRecommendation",
+    "QualityTrend",
+    "QualityHistory",
+    "QualityDashboard",
     "calculate_completeness",
     "calculate_validity",
     "calculate_uniqueness",
     "calculate_consistency",
     "calculate_quality_score",
     "calculate_column_quality",
+    "track_quality_history",
+    "generate_quality_alerts",
+    "generate_quality_recommendations",
+    "create_quality_dashboard",
     # Validation history storage and analysis
     "ValidationRunMetadata",
     "ValidationCheckRecord",
     "ValidationMetric",
     "TrendAnalysisResult",
     "FailurePattern",
-    "BaselineComparisonResult",
     "ValidationHistoryStore",
     "PostgreSQLValidationHistoryStore",
     "ValidationHistoryAnalyzer",
