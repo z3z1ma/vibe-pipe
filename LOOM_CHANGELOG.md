@@ -4,6 +4,8 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T03:10:18.003Z Strengthened instincts for CompoundSpec v2 full-body skill updates and uv editable-install egg-info diff hygiene; synced derived docs/indexes.
+- 2026-01-30T03:03:57.303Z Add instinct to treat src/*.egg-info diffs as generated artifacts from uv editable installs; avoid committing unless explicitly intended.
 - 2026-01-30T02:50:09.689Z No new procedural learnings extracted; synced docs/indexes after adding ticket vp-db50 and updating LOOM roadmap/changelog.
 - 2026-01-30T02:36:38.057Z No durable learnings extracted from this session; only internal compound state changed.
 - 2026-01-30T02:25:31.464Z Add instinct + skill for resolving merge conflict markers in compound-managed LOOM_CHANGELOG.md / LOOM_ROADMAP.md while preserving BEGIN/END fences; request docs sync after conflict resolution.

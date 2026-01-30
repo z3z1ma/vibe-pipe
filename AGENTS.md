@@ -211,6 +211,9 @@ This block is maintained by the compound plugin.
 - **float-to-int-type-safety-in-outlier-replacement** (88%)
   - Trigger: Replacing outliers (always float mean/median) into DataFrame columns with integer dtype
   - Action: Either convert integer column to float before replacement (df[col] = df[col].astype(float)), or explicitly cast mean/median to int (int(mean_val)) when assigning back. Pandas will raise TypeError sett…
+- **inst-20260130-001** (85%)
+  - Trigger: Producing a CompoundSpec v2 with skills.update entries
+  - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
 - **inst-20250129-001** (85%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -220,6 +223,9 @@ This block is maintained by the compound plugin.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
+- **inst-20260130-002** (83%)
+  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
+  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
@@ -235,12 +241,9 @@ This block is maintained by the compound plugin.
 - **drift-baseline-storage-json** (80%)
   - Trigger: Implementing drift detection with historical baseline comparison
   - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
-- **inst-20260130-001** (80%)
-  - Trigger: Producing a CompoundSpec v2 with skills.update entries
-  - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
-- **inst-20260130-002** (78%)
-  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
-  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
+- **egg-info-diffs-uv-editable-install** (78%)
+  - Trigger: git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps
+  - Action: Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly want…
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
@@ -256,9 +259,6 @@ This block is maintained by the compound plugin.
 - **avoid-committing-egg-info** (70%)
   - Trigger: Git diff shows changes under `src/*.egg-info/` (e.g., `PKG-INFO`, `requires.txt`) without intentional packaging/version work
   - Action: Assume the changes are generated; do not include them in commits/PRs and instead regenerate/clean the working tree via the repo's normal install workflow before re-checking diffs
-- **egg-info-churn-is-build-noise** (70%)
-  - Trigger: git diff shows only src/vibe_piper.egg-info/* changes (PKG-INFO, SOURCES.txt, requires.txt) with no src/ or tests/ edits
-  - Action: Assume these are generated artifacts; avoid proposing learnings from them and avoid including them in commits unless the repo explicitly tracks egg-info as source of truth.
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->
