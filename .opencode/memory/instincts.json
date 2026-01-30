@@ -2,393 +2,247 @@
   "version": 1,
   "instincts": [
     {
-      "id": "verify-code-before-closing-tickets",
-      "title": "Verify code exists before closing completed tickets",
-      "trigger": "Ticket marked 'ready to merge' or 'implementation complete'",
-      "action": "Use glob/read to verify actual code files exist in codebase before closing the ticket. Look for expected file paths (e.g., src/vibe_piper/connectors/*.py for database connector tickets)",
+      "id": "optional-type-checking-guard",
+      "title": "Use TYPE_CHECKING guard for optional type imports",
+      "trigger": "Importing types only for type checking (Schema, DataType) used only in annotations",
+      "action": "Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.",
       "tags": [],
-      "confidence": 0.7,
+      "confidence": 0.8200000000000001,
       "status": "active",
-      "created_at": "2026-01-29T10:20:06.338Z",
-      "updated_at": "2026-01-29T10:20:06.338Z",
+      "created_at": "2026-01-29T23:33:07.624Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
       "evidence": [
         {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
+          "ts": "2026-01-29T23:33:07.624Z",
+          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+        },
+        {
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
+          "note": "Optional dependency typing pattern remains a repeated integration concern; worth reinforcing."
         }
       ]
     },
     {
-      "id": "check-loom-permissions-early",
-      "title": "Check Loom command permissions before acting as Team Manager",
-      "trigger": "Acting as Team Manager for Loom team",
-      "action": "Verify permission rules allow `loom team *` commands early. If only `loom ticket *` is allowed, document blocker immediately and proceed with ticket-only workflow.",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T10:20:06.338Z",
-      "updated_at": "2026-01-29T10:20:06.338Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
-        }
-      ]
-    },
-    {
-      "id": "sync-ticket-updates",
-      "title": "Sync ticket updates after modifications",
-      "trigger": "After any `loom ticket` command that changes state (close, add-note, update)",
-      "action": "Run `loom ticket sync` to commit ticket changes to repository",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T10:20:06.338Z",
-      "updated_at": "2026-01-29T10:20:06.338Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T10:20:06.338Z",
-          "sessionID": "ses_3f6c7f020ffeQih6L1ac9Qpcwz"
-        }
-      ]
-    },
-    {
-      "id": "loom-manager-add-ticket-notes",
-      "title": "Add detailed notes when creating tickets",
-      "trigger": "Created new ticket via loom ticket create",
-      "action": "Immediately add a note to the ticket with: 1) Tasks numbered list, 2) Dependencies (if any), 3) Acceptance criteria, 4) Technical notes, 5) Example usage (if feature)",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T10:20:56.342Z",
-      "updated_at": "2026-01-29T10:20:56.342Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
-      ]
-    },
-    {
-      "id": "loom-manager-check-merge-blockage",
-      "title": "Check for complete-but-unmerged tickets",
-      "trigger": "Listing tickets shows in_progress status but implementation is complete",
-      "action": "For each in_progress ticket: check if implementation is done (git log shows recent feature commits, ticket notes say 'implementation complete'), if yes but not merged: add URGENT note with commit hash and branch name, request merge to merge-queue",
-      "tags": [],
-      "confidence": 0.7,
-      "status": "active",
-      "created_at": "2026-01-29T10:20:56.342Z",
-      "updated_at": "2026-01-29T10:20:56.342Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
-      ]
-    },
-    {
-      "id": "loom-manager-dependency-notes",
-      "title": "Document ticket dependencies in notes",
-      "trigger": "Starting work on a ticket that depends on others or creating a ticket that other tickets will depend on",
-      "action": "Add a note starting with 'DEPENDENCIES:' listing all ticket IDs this ticket depends on, with brief explanation of relationship and priority guidance (when to work on this)",
+      "id": "baseline-json-storage-pattern",
+      "title": "Store reference data as JSON with metadata",
+      "trigger": "Implementing historical data storage with timestamp, sample_size, columns for later retrieval",
+      "action": "Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.",
       "tags": [],
       "confidence": 0.75,
       "status": "active",
-      "created_at": "2026-01-29T10:20:56.342Z",
-      "updated_at": "2026-01-29T10:20:56.342Z",
+      "created_at": "2026-01-29T23:33:07.624Z",
+      "updated_at": "2026-01-29T23:33:07.624Z",
       "evidence": [
         {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+          "ts": "2026-01-29T23:33:07.624Z",
+          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
         }
       ]
     },
     {
-      "id": "loom-manager-inspect-before-action",
-      "title": "Inspect git state before ticket actions",
-      "trigger": "About to merge a ticket branch or assess completion status",
-      "action": "Run git log <branch> --oneline -5 to see recent commits, git diff main <branch> --stat to see change scope, check if commits look like implementation vs cleanup, verify branch exists and is ahead of main",
+      "id": "jsonl-append-only-time-series",
+      "title": "Use JSONL format for append-only time-series data",
+      "trigger": "Storing time-series drift history that only grows",
+      "action": "Write each entry as a line to JSONL file (json.dumps(entry) + newline). Efficient append-only, easy to read latest N entries with tail.",
+      "tags": [],
+      "confidence": 0.72,
+      "status": "active",
+      "created_at": "2026-01-29T23:33:07.624Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T23:33:07.624Z",
+          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+        },
+        {
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
+          "note": "History/time-series persistence patterns continue to prefer append-only JSONL for drift/validation events."
+        }
+      ]
+    },
+    {
+      "id": "validation-result-wrapper-mapping",
+      "title": "Map domain results to ValidationResult format",
+      "trigger": "Creating wrapper functions that convert domain types to validation framework ValidationResult",
+      "action": "Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). Map fields appropriately.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-29T23:33:07.624Z",
+      "updated_at": "2026-01-29T23:33:07.624Z",
+      "evidence": [
+        {
+          "ts": "2026-01-29T23:33:07.624Z",
+          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+        }
+      ]
+    },
+    {
+      "id": "immutable-result-dataclass-frozen",
+      "title": "Use @dataclass(frozen=True) for immutable result types",
+      "trigger": "Creating result types that should never be modified after creation",
+      "action": "Mark result dataclasses with frozen=True to ensure immutability and enable hashability.",
       "tags": [],
       "confidence": 0.65,
       "status": "active",
-      "created_at": "2026-01-29T10:20:56.342Z",
-      "updated_at": "2026-01-29T10:20:56.342Z",
+      "created_at": "2026-01-29T23:33:07.624Z",
+      "updated_at": "2026-01-29T23:33:07.624Z",
       "evidence": [
         {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
+          "ts": "2026-01-29T23:33:07.624Z",
+          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
         }
       ]
     },
     {
-      "id": "loom-manager-phase-organization",
-      "title": "Organize tickets by phase in tags",
-      "trigger": "Creating tickets for sequential project phases",
-      "action": "Add phase tags (phase1, phase2, phase3) to tickets and ensure lower-priority tickets have dependency notes referencing higher-priority phase tickets that must complete first",
-      "tags": [],
-      "confidence": 0.7,
-      "status": "active",
-      "created_at": "2026-01-29T10:20:56.342Z",
-      "updated_at": "2026-01-29T10:20:56.342Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T10:20:56.342Z",
-          "sessionID": "ses_3f6cb10cdffefQ8XTkC2OcKXcv"
-        }
-      ]
-    },
-    {
-      "id": "verify-code-before-ticket-close",
-      "title": "Verify code exists before closing tickets",
-      "trigger": "Worker marks ticket ready for review/merge",
-      "action": "Before closing ticket, use glob to verify expected code files exist in codebase (e.g., src/vibe_piper/connectors/*.py for database connector tickets). This prevents closing tickets where implementation notes exist but no actual code was committed.",
+      "id": "inst-20250129-001",
+      "title": "Auto-store validation results in history",
+      "trigger": "validation_suite_completed",
+      "action": "store_validation_result",
       "tags": [],
       "confidence": 0.85,
       "status": "active",
-      "created_at": "2026-01-29T12:18:15.165Z",
-      "updated_at": "2026-01-29T12:18:15.165Z",
+      "created_at": "2026-01-29T23:36:28.501Z",
+      "updated_at": "2026-01-29T23:36:28.501Z",
       "evidence": [
         {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+          "ts": "2026-01-29T23:36:28.501Z",
+          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
         }
       ]
     },
     {
-      "id": "merge-worker-workspace-cleanup",
-      "title": "Handle git workspace cleanup failures",
-      "trigger": "Attempting to retire worker after merge",
-      "action": "When 'loom team retire <worker>' fails with 'modified or untracked files' error, check worktree status with git status and either: 1) Stash uncommitted changes, 2) Use --force flag if safe to delete, or 3) Manually clean up files before retrying retirement.",
+      "id": "inst-20250129-002",
+      "title": "Initialize database schema for new history stores",
+      "trigger": "new_history_store_created",
+      "action": "initialize_schema",
       "tags": [],
       "confidence": 0.8,
       "status": "active",
-      "created_at": "2026-01-29T12:18:15.165Z",
-      "updated_at": "2026-01-29T12:18:15.165Z",
+      "created_at": "2026-01-29T23:36:28.501Z",
+      "updated_at": "2026-01-29T23:36:28.501Z",
       "evidence": [
         {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+          "ts": "2026-01-29T23:36:28.501Z",
+          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
         }
       ]
     },
     {
-      "id": "phase3-ticket-sequencing",
-      "title": "Phase 3 P1 tickets depend on orchestration engine",
-      "trigger": "Starting Phase 3 ticket implementation",
-      "action": "Orchestration Engine (vp-cf95) must complete before CLI (vp-6cf1), Scheduling (vp-7d49), and Monitoring (vp-f17e) can fully integrate. Verify orchestration engine is in codebase before spawning workers for dependent tickets.",
+      "id": "inst-20250129-003",
+      "title": "Auto-store validation results when suite completes",
+      "trigger": "validation_suite_completed",
+      "action": "store_validation_result",
       "tags": [],
       "confidence": 0.9,
       "status": "active",
-      "created_at": "2026-01-29T12:18:15.165Z",
-      "updated_at": "2026-01-29T12:18:15.165Z",
+      "created_at": "2026-01-29T23:40:14.274Z",
+      "updated_at": "2026-01-29T23:40:14.274Z",
       "evidence": [
         {
-          "ts": "2026-01-29T12:18:15.165Z",
-          "sessionID": "ses_3f6c5ab2bffemqV19OsZcMHJSo"
+          "ts": "2026-01-29T23:40:14.274Z",
+          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
         }
       ]
     },
     {
-      "id": "optional-dependency-import-pattern",
-      "title": "Import optional dependencies with try/except and type ignore",
-      "trigger": "Need to use external library that may not be installed",
-      "action": "1. Wrap import in try/except block\n2. Add type: ignore[import-untyped] comment for mypy\n3. Set flag variable to track availability\n4. Provide fallback behavior when unavailable\n5. Document degradation in docstring",
+      "id": "inst-20250129-004",
+      "title": "Initialize database schema for new validation history stores",
+      "trigger": "new_history_store_created",
+      "action": "initialize_schema",
       "tags": [],
-      "confidence": 0.9,
+      "confidence": 0.8,
       "status": "active",
-      "created_at": "2026-01-29T11:00:04.777Z",
-      "updated_at": "2026-01-29T11:00:04.777Z",
+      "created_at": "2026-01-29T23:40:14.274Z",
+      "updated_at": "2026-01-29T23:40:14.274Z",
       "evidence": [
         {
-          "ts": "2026-01-29T11:00:04.777Z",
-          "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"
+          "ts": "2026-01-29T23:40:14.274Z",
+          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
         }
       ]
     },
     {
-      "id": "datetime-none-coalescing",
-      "title": "Coalesce None datetime values before arithmetic",
-      "trigger": "Performing datetime arithmetic with potentially None fields",
-      "action": "Always use: (field or datetime.utcnow()) to ensure arithmetic operations have datetime, not Optional[datetime]",
+      "id": "pandas-string-accessor-error-pattern",
+      "title": "Pandas Series.str accessor missing in text cleaning",
+      "trigger": "Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations",
+      "action": "When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column values.",
       "tags": [],
-      "confidence": 0.85,
+      "confidence": 0.98,
       "status": "active",
-      "created_at": "2026-01-29T11:00:04.777Z",
-      "updated_at": "2026-01-29T11:00:04.777Z",
+      "created_at": "2026-01-29T23:52:31.831Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
       "evidence": [
         {
-          "ts": "2026-01-29T11:00:04.777Z",
-          "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"
-        }
-      ]
-    },
-    {
-      "id": "formatter-type-separation",
-      "title": "Use separate variables for different formatter types",
-      "trigger": "MyPy complains about incompatible formatter assignments",
-      "action": "Create distinct variables (json_formatter, colored_formatter, simple_formatter) instead of reusing single 'formatter' variable to avoid type checker confusion",
-      "tags": [],
-      "confidence": 0.75,
-      "status": "active",
-      "created_at": "2026-01-29T11:00:04.777Z",
-      "updated_at": "2026-01-29T11:00:04.777Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T11:00:04.777Z",
-          "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"
-        }
-      ]
-    },
-    {
-<<<<<<< HEAD
-      "id": "pandas-string-accessor-pattern",
-      "title": "Use Series.str accessor for text operations on DataFrames",
-      "trigger": "Applying string methods (trim, upper, lower, title) to pandas DataFrame columns",
-      "action": "Always use df[col].str.method() for column operations, never operate on individual strings. The Series.str accessor returns a StringMethods object that operates on the entire series efficiently.",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:42:09.139Z",
-      "updated_at": "2026-01-29T22:42:09.139Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:42:09.139Z",
+          "ts": "2026-01-29T23:52:31.831Z",
           "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
+        },
+        {
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
+          "note": "Repeated failures/notes around pandas 2.x string ops; guidance kept emphasizing Series.str usage."
         }
       ]
     },
     {
-      "id": "nullable-schema-fields-for-tests",
-      "title": "Mark schema fields nullable when test data contains None values",
-      "trigger": "Creating test fixtures with DataRecord objects that have null values in specific fields",
-      "action": "Set nullable=True on SchemaField definitions for any field that may contain None in test data. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.",
+      "id": "nullable-schema-fields-for-data-with-nones",
+      "title": "Set nullable=True on SchemaField when test data contains None values",
+      "trigger": "Creating test fixtures with DataRecord objects that will have None/null values in specific fields",
+      "action": "When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.",
       "tags": [],
-      "confidence": 0.95,
+      "confidence": 0.92,
       "status": "active",
-      "created_at": "2026-01-29T22:42:09.139Z",
-      "updated_at": "2026-01-29T22:42:09.139Z",
+      "created_at": "2026-01-29T23:52:31.831Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:42:09.139Z",
+          "ts": "2026-01-29T23:52:31.831Z",
           "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
+        },
+        {
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
+          "note": "Test fixture/schema nullability noted as a frequent source of ValueError when records contain None."
         }
       ]
     },
     {
-      "id": "float-to-int-outlier-replacement",
-      "title": "Handle float-to-int type conversion when replacing outliers",
-      "trigger": "Replacing outliers with mean/median (always float) into integer columns",
-      "action": "Either use .astype(float) on the column before replacement to allow float values, or cast mean_val to int explicitly using int(mean_val) when the target column is integer type.",
+      "id": "float-to-int-type-safety-in-outlier-replacement",
+      "title": "Handle type mismatch when replacing outliers with mean/median into integer columns",
+      "trigger": "Replacing outliers (always float mean/median) into DataFrame columns with integer dtype",
+      "action": "Either convert integer column to float before replacement (df[col] = df[col].astype(float)), or explicitly cast mean/median to int (int(mean_val)) when assigning back. Pandas will raise TypeError setting float into int64 Series.",
       "tags": [],
-      "confidence": 0.85,
+      "confidence": 0.88,
       "status": "active",
-      "created_at": "2026-01-29T22:42:09.139Z",
-      "updated_at": "2026-01-29T22:42:09.139Z",
+      "created_at": "2026-01-29T23:52:31.831Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:42:09.139Z",
+          "ts": "2026-01-29T23:52:31.831Z",
           "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
-        }
-      ]
-    },
-    {
-      "id": "export-new-transformation-modules",
-      "title": "Update transformations/__init__.py exports for new transformation modules",
-      "trigger": "Creating new transformation modules (aggregations, cleaning, windows, etc.)",
-      "action": "Immediately update src/vibe_piper/transformations/__init__.py to include __all__ exports from the new module with descriptive docstring categories (e.g., # Cleaning, # Aggregations).",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:42:09.139Z",
-      "updated_at": "2026-01-29T22:42:09.139Z",
-      "evidence": [
+        },
         {
-          "ts": "2026-01-29T22:42:09.139Z",
-          "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
-        }
-      ]
-    },
-    {
-      "id": "sklearn-max-samples-auto",
-      "title": "Use 'auto' for Isolation Forest max_samples",
-      "trigger": "Using sklearn.ensemble.IsolationForest",
-      "action": "Set max_samples='auto' instead of None (scikit-learn v1.5+ requires explicit value)",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:43:46.406Z",
-      "updated_at": "2026-01-29T22:43:46.406Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:43:46.406Z",
-          "sessionID": "ses_3f423cae8ffedZgcPcG4PJXQmF"
-        }
-      ]
-    },
-    {
-      "id": "nullable-schema-test-fixture",
-      "title": "Create nullable schemas for null testing",
-      "trigger": "Testing null handling in DataRecords",
-      "action": "Define SchemaField with nullable=True when fixture may contain None values to avoid DataRecord validation errors",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:43:46.406Z",
-      "updated_at": "2026-01-29T22:43:46.406Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:43:46.406Z",
-          "sessionID": "ses_3f423cae8ffedZgcPcG4PJXQmF"
-        }
-      ]
-    },
-    {
-      "id": "optional-dependency-type-ignore",
-      "title": "Add type: ignore[import-untyped] for optional sklearn/numpy",
-      "trigger": "Importing sklearn or numpy with try/except for optional dependency",
-      "action": "Include '# type: ignore[import-untyped]' on import statement to satisfy mypy strict mode while allowing graceful degradation",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:43:46.406Z",
-      "updated_at": "2026-01-29T22:43:46.406Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:43:46.406Z",
-          "sessionID": "ses_3f423cae8ffedZgcPcG4PJXQmF"
-        }
-      ]
-    },
-    {
-      "id": "expectation-validationresult-return",
-      "title": "Expectation functions return ValidationResult",
-      "trigger": "Creating validation expectation for @validate decorator",
-      "action": "Ensure custom validation functions return ValidationResult(is_valid=..., errors=(...)) for compatibility with ValidationConfig.checks",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:43:46.406Z",
-      "updated_at": "2026-01-29T22:43:46.406Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:43:46.406Z",
-          "sessionID": "ses_3f423cae8ffedZgcPcG4PJXQmF"
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
+          "note": "Outlier replacement type mismatch (float statistic into int dtype) called out as a common pitfall to guard for."
         }
       ]
     },
     {
       "id": "drift-baseline-storage-json",
       "title": "Store drift baselines as JSON with metadata",
-      "trigger": "implementing drift detection with historical comparison",
-      "action": "save baseline data to JSON file with metadata (timestamp, sample_size, columns, schema_name) for efficient retrieval",
+      "trigger": "Implementing drift detection with historical baseline comparison",
+      "action": "Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline methods.",
       "tags": [],
       "confidence": 0.8,
       "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
+      "created_at": "2026-01-29T23:54:28.549Z",
+      "updated_at": "2026-01-29T23:54:28.549Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:49:51.481Z",
+          "ts": "2026-01-29T23:54:28.549Z",
           "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
         }
       ]
@@ -396,16 +250,16 @@
     {
       "id": "drift-threshold-validation",
       "title": "Validate drift thresholds on configuration",
-      "trigger": "creating DriftThresholds configuration class",
-      "action": "validate that warning < critical, all thresholds in [0,1] range, and warning < psi_critical, with clear error messages",
+      "trigger": "Creating DriftThresholds configuration class",
+      "action": "Validate that warning < critical, all thresholds in [0,1] range, and warning < psi_critical, with clear error messages.",
       "tags": [],
       "confidence": 0.75,
       "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
+      "created_at": "2026-01-29T23:54:28.549Z",
+      "updated_at": "2026-01-29T23:54:28.549Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:49:51.481Z",
+          "ts": "2026-01-29T23:54:28.549Z",
           "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
         }
       ]
@@ -413,486 +267,34 @@
     {
       "id": "drift-history-timestamp-tracking",
       "title": "Track drift results with timestamps for trend analysis",
-      "trigger": "implementing DriftHistory class for drift monitoring",
-      "action": "store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis",
+      "trigger": "Implementing DriftHistory class for drift monitoring",
+      "action": "Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.",
       "tags": [],
       "confidence": 0.85,
       "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
+      "created_at": "2026-01-29T23:54:28.549Z",
+      "updated_at": "2026-01-29T23:54:28.549Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:49:51.481Z",
+          "ts": "2026-01-29T23:54:28.549Z",
           "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
         }
       ]
     },
     {
-      "id": "validation-result-wrapper-pattern",
-      "title": "Wrap drift functions to return ValidationResult for @validate",
-      "trigger": "creating check_drift_ks and check_drift_psi functions",
-      "action": "map drift detection results to ValidationResult: is_valid=(alert_level != 'critical'), errors=list for critical, warnings=list for recommendations and drifted columns",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:49:51.481Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "optional-scipy-type-checking",
-      "title": "Use TYPE_CHECKING for optional scipy.stats import",
-      "trigger": "importing scipy.stats for KS/PSI/chi-square tests",
-      "action": "import scipy inside function body with TYPE_CHECKING guard to prevent ImportError when scipy is not installed, keep import localized",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:49:51.481Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "statistical-test-min-samples",
-      "title": "Validate minimum sample size before running statistical drift tests",
-      "trigger": "calling detect_drift_ks, detect_drift_psi, or detect_drift_chi_square",
-      "action": "check that both baseline and new data have at least min_samples (default 50) before running test, return DriftResult with error message if insufficient",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:49:51.481Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "datarecord-fixture-schema",
-      "title": "Create DataRecord fixtures with proper schema",
-      "trigger": "writing pytest fixtures for drift detection tests",
-      "action": "define schema fixtures with proper SchemaFields and DataType enums, use schema parameter when creating DataRecord instances",
+      "id": "inst-20260130-001",
+      "title": "CompoundSpec v2 skill updates must be full-body",
+      "trigger": "Producing a CompoundSpec v2 with skills.update entries",
+      "action": "Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.",
       "tags": [],
       "confidence": 0.75,
       "status": "active",
-      "created_at": "2026-01-29T22:49:51.481Z",
-      "updated_at": "2026-01-29T22:49:51.481Z",
+      "created_at": "2026-01-30T00:15:12.873Z",
+      "updated_at": "2026-01-30T00:15:12.873Z",
       "evidence": [
         {
-          "ts": "2026-01-29T22:49:51.481Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "resolve-ai-managed-conflicts",
-      "title": "Resolve AI-managed file conflicts",
-      "trigger": "Merge conflicts in AI-managed files (AGENTS.md, LOOM_ROADMAP.md, LOOM_PROJECT.md, CHANGELOG.md) when syncing merge-queue with origin/main",
-      "action": "Accept incoming version with --theirs since AI-managed blocks are auto-generated by other agents. Use: git checkout --theirs AGENTS.md LOOM_ROADMAP.md",
-      "tags": [],
-      "confidence": 0.8500000000000001,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:13.873Z",
-      "updated_at": "2026-01-29T23:17:36.707Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:13.873Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
-        },
-        {
-          "ts": "2026-01-29T23:17:36.707Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t",
-          "note": "Successfully applied when merging vp-09e9 - accepted --theirs for AI-managed compound files (AGENTS.md, LOOM_ROADMAP.md). Pattern holds across multiple merge conflicts."
-        }
-      ]
-    },
-    {
-      "id": "check-worktree-before-sync",
-      "title": "Check worktree before syncing",
-      "trigger": "Attempting to merge origin/main into merge-queue branch",
-      "action": "Run git status first. If modified files exist, commit or stash them before attempting the sync. This prevents ff-only failures and merge conflicts.",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:13.873Z",
-      "updated_at": "2026-01-29T23:17:36.707Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:13.873Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
-        },
-        {
-          "ts": "2026-01-29T23:17:36.707Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t",
-          "note": "Confirmed effective - multiple merge attempts failed until observations.jsonl was committed. Always check git status before origin/main sync."
-        }
-      ]
-    },
-    {
-      "id": "multi-format-config-detection",
-      "title": "Search config files by format preference order",
-      "trigger": "Implementing multi-format configuration support",
-      "action": "When supporting multiple config formats (TOML/YAML/JSON), search for files in preference order rather than requiring explicit format parameter",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "two-pass-inheritance-parsing",
-      "title": "Use two-pass parsing for config inheritance",
-      "trigger": "Implementing environment inheritance",
-      "action": "Parse all environments first, then merge in second pass to handle forward references (child inherits from parent)",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "runtime-override-merge-method",
-      "title": "Create dedicated apply_overrides() method for CLI overrides",
-      "trigger": "Implementing runtime configuration overrides",
-      "action": "Instead of modifying config in place, create a method that returns a new merged config with CLI overrides applied",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "yaml-dev-deps-for-mypy",
-      "title": "Add both PyYAML and types-PyYAML for strict MyPy",
-      "trigger": "Adding YAML format support in strict MyPy project",
-      "action": "Install pyyaml runtime dependency and types-pyamal as dev dependency to satisfy strict type checking",
-      "tags": [],
-      "confidence": 0.95,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "catch-as-exception-check-isinstance",
-      "title": "Catch as general Exception then check isinstance",
-      "trigger": "Catching multiple parser exception types with MyPy strict mode",
-      "action": "Catch as Exception, then use isinstance() to distinguish specific parser errors vs generic IO errors",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "cloud-io-bucket-validation",
-      "title": "Validate cloud IO managers require bucket parameter",
-      "trigger": "Validating environment configuration",
-      "action": "When environment uses cloud IO manager (s3/gcs/azure), enforce that bucket parameter is provided",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "config-module-docstring-examples",
-      "title": "Document supported formats and patterns in module docstring",
-      "trigger": "Implementing configuration module",
-      "action": "Include examples of all supported formats, inheritance patterns, and runtime override usage in module-level docstring",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "cli-override-merge-logic",
-      "title": "Merge CLI overrides with environment-specific configs",
-      "trigger": "Applying runtime configuration overrides",
-      "action": "When applying CLI overrides, merge them with environment configs while preserving environment-specific values that aren't being overridden",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T22:56:19.278Z",
-      "updated_at": "2026-01-29T22:56:19.278Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:56:19.278Z",
-          "sessionID": "ses_3f42576f6ffeYQrNyi4divmRWk"
-        }
-      ]
-    },
-    {
-      "id": "inst-20250129-001",
-      "title": "Auto-store validation results in history",
-      "trigger": "validation_completed",
-      "action": "store_validation_result",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T22:58:59.657Z",
-      "updated_at": "2026-01-29T22:58:59.657Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:58:59.657Z",
-          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
-        }
-      ]
-    },
-    {
-      "id": "retry-jitter-default-full",
-      "title": "Use FULL jitter by default to prevent thundering herd",
-      "trigger": "Implemented jitter strategies (NONE, FULL, EQUAL, DECORRELATED) in retry system. Observed that FULL jitter (random 0 to delay) provides best protection against thundering herd when multiple clients retry simultaneously.",
-      "action": "Set jitter_strategy=JitterStrategy.FULL as default in RetryConfig to prevent coordinated retry storms.",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T23:00:21.249Z",
-      "updated_at": "2026-01-29T23:00:21.249Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:00:21.249Z",
-          "sessionID": "ses_3f4256721ffebJnnk55jHcFK1H"
-        }
-      ]
-    },
-    {
-      "id": "retry-metrics-mutable-not-frozen",
-      "title": "RetryMetrics should be mutable to track attempts",
-      "trigger": "During retry decorator implementation, encountered mypy error when trying to update RetryMetrics fields. RetryMetrics was frozen=True which prevented field mutations during retry loop.",
-      "action": "Change RetryMetrics from @dataclass(frozen=True) to @dataclass to allow mutable updates during retry attempts. Fields like total_attempts, dlq_sent, and circuit_breaker_opened need to be updated.",
-      "tags": [],
-      "confidence": 0.95,
-      "status": "active",
-      "created_at": "2026-01-29T23:00:21.249Z",
-      "updated_at": "2026-01-29T23:00:21.249Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:00:21.249Z",
-          "sessionID": "ses_3f4256721ffebJnnk55jHcFK1H"
-        }
-      ]
-    },
-    {
-      "id": "circuit-breaker-configurable-thresholds",
-      "title": "Circuit breaker benefits from configurable thresholds",
-      "trigger": "Implemented circuit breaker with configurable failure_threshold, success_threshold, timeout_seconds, and exception_types. This allows fine-tuning for different service characteristics and failure patterns.",
-      "action": "Use CircuitBreakerConfig with sensible defaults (failure_threshold=5, success_threshold=2, timeout_seconds=60.0) to provide automatic protection while allowing customization for specific use cases.",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T23:00:21.249Z",
-      "updated_at": "2026-01-29T23:00:21.249Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:00:21.249Z",
-          "sessionID": "ses_3f4256721ffebJnnk55jHcFK1H"
-        }
-      ]
-    },
-    {
-      "id": "fastapi-jwt-auth-pattern",
-      "title": "Use JWT with access+refresh tokens in FastAPI",
-      "trigger": "Implementing FastAPI authentication",
-      "action": "Use python-jose for JWT tokens (access expires 30min, refresh 7 days), passlib[bcrypt] for password hashing, OAuth2PasswordBearer for token scheme, store refresh tokens for rotation, return structured error responses",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T23:01:15.235Z",
-      "updated_at": "2026-01-29T23:01:15.235Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:01:15.235Z",
-          "sessionID": "ses_3f421adbfffer0WBLmfJlqSWK9"
-        }
-      ]
-    },
-    {
-      "id": "fastapi-middleware-stack",
-      "title": "Include standard middleware in FastAPI apps",
-      "trigger": "Creating new FastAPI application",
-      "action": "Add CORS middleware (allow_origins=['http://localhost:5173', 'http://localhost:3000']), GZipMiddleware(minimum_size=1000), RequestIDMiddleware (X-Request-ID header), RateLimitMiddleware (token bucket: 60/min, 1000/hr) in that order",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T23:01:15.235Z",
-      "updated_at": "2026-01-29T23:01:15.235Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:01:15.235Z",
-          "sessionID": "ses_3f421adbfffer0WBLmfJlqSWK9"
-        }
-      ]
-    },
-    {
-      "id": "react-api-service-layer",
-      "title": "Create type-safe API service for React",
-      "trigger": "Building React app that talks to API",
-      "action": "Create src/services/api.ts with fetch wrapper, API_BASE_URL from env, headers with Authorization: Bearer token from localStorage, ApiError class with error/message/status fields, typed endpoints returning Promise<T>",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T23:01:15.235Z",
-      "updated_at": "2026-01-29T23:01:15.235Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:01:15.235Z",
-          "sessionID": "ses_3f421adbfffer0WBLmfJlqSWK9"
-        }
-      ]
-    },
-    {
-      "id": "tailwind-vite-setup",
-      "title": "Configure Tailwind CSS with Vite correctly",
-      "trigger": "Setting up new React + Vite + Tailwind project",
-      "action": "Install @tailwindcss/postcss, configure postcss.config.js with '@tailwindcss/postcss' plugin, add @tailwind directives to src/index.css, configure tsconfig.json path aliases (@/* -> ./src/*), add path resolver to vite.config.ts",
-      "tags": [],
-      "confidence": 0.9,
-      "status": "active",
-      "created_at": "2026-01-29T23:01:15.235Z",
-      "updated_at": "2026-01-29T23:01:15.235Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:01:15.235Z",
-          "sessionID": "ses_3f421adbfffer0WBLmfJlqSWK9"
-        }
-      ]
-    },
-    {
-      "id": "react-auth-context-pattern",
-      "title": "Use React Context for authentication state",
-      "trigger": "Implementing auth in React app",
-      "action": "Create AuthProvider with useState for user/loading, checkAuth on mount, login/logout methods that call API, useAuth hook that exposes user/loading/login/logout/refreshUser, wrap App in AuthProvider",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T23:01:15.235Z",
-      "updated_at": "2026-01-29T23:01:15.235Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:01:15.235Z",
-          "sessionID": "ses_3f421adbfffer0WBLmfJlqSWK9"
-        }
-      ]
-    },
-    {
-      "id": "regenerate-uv-lock-corrupt",
-      "title": "Regenerate corrupted uv.lock",
-      "trigger": "uv lock fails with 'missing source field but has more than one matching package' or TOML parse error",
-      "action": "Delete uv.lock and regenerate: rm uv.lock && uv lock. This resolves dependency resolution corruption from multiple branch merges.",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T23:17:36.707Z",
-      "updated_at": "2026-01-29T23:17:36.707Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:17:36.707Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
-        }
-      ]
-    },
-    {
-      "id": "ignore-egg-info-files",
-      "title": "Ignore egg-info files during merges",
-      "trigger": "Merge conflicts in src/vibe_piper.egg-info/* files",
-      "action": "Do not add egg-info files to commits. These are auto-generated and in .gitignore. Use: git checkout --theirs or skip entirely. Regenerated automatically on install.",
-      "tags": [],
-      "confidence": 0.75,
-      "status": "active",
-      "created_at": "2026-01-29T23:17:36.707Z",
-      "updated_at": "2026-01-29T23:17:36.707Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:17:36.707Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
-        }
-      ]
-    },
-    {
-      "id": "combine-merge-conflict-sections",
-      "title": "Combine conflicting import sections",
-      "trigger": "Merge conflict in __init__.py __all__ list showing duplicate feature sets from HEAD and branch",
-      "action": "Accept both sets of imports instead of choosing one. Edit to merge all exported symbols from both HEAD and branch into single __all__ list. Combine External quality and Schema evolution exports.",
-      "tags": [],
-      "confidence": 0.7,
-      "status": "active",
-      "created_at": "2026-01-29T23:17:36.707Z",
-      "updated_at": "2026-01-29T23:17:36.707Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:17:36.707Z",
-          "sessionID": "ses_3f426f8d7ffeYCA3BTwK1ALE3t"
-||||||| merged common ancestors
-        {"ts": "2026-01-29T11:00:04.777Z", "sessionID": "ses_3f6af2e3dffeEkpZIw2vpvKPE0"}
-=======
-      "id": "compound-block-conflict-resolution",
-      "title": "Resolve compound block merge conflicts",
-      "trigger": "Merge conflict in AGENTS.md, LOOM_ROADMAP.md, or other compound-managed files",
-      "action": "Accept the incoming (theirs) version using 'git checkout --theirs <file>' since compound blocks are auto-generated. Do not manually edit conflict markers.",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T22:08:34.452Z",
-      "updated_at": "2026-01-29T22:08:34.452Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T22:08:34.452Z",
-          "sessionID": "ses_3f48cf4e3ffeIzJ4o3oh13EG0C"
->>>>>>> team/merge-queue
+          "ts": "2026-01-30T00:15:12.873Z",
+          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e"
         }
       ]
     }
