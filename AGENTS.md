@@ -144,15 +144,15 @@ This block is maintained by the compound plugin.
 <!-- END:compound:workflow-commands -->
 
 <!-- BEGIN:compound:instincts-index -->
+- **inst-20260130-003** (100%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **pandas-string-accessor-error-pattern** (98%)
   - Trigger: Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations
   - Action: When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column…
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
-- **inst-20260130-003** (92%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -222,9 +222,9 @@ Do not edit inside the BEGIN/END fences.
 <!-- BEGIN:compound:skills-index -->
 - **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
   - .opencode/skills/author-agents-md-uv-python/SKILL.md
-- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills, instincts, and AI-managed docs blocks.
+- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
   - .opencode/skills/compound-apply-spec/SKILL.md
-- **compound-workflows** (v1): Use Plan → Work → Review → Compound loop with loom ticket + loom workspace in a polyrepo workspace (ticket-named branches, worktrees per service).
+- **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
   - .opencode/skills/compound-workflows/SKILL.md
 - **data-cleaning-implementation** (v1): Update data-cleaning-implementation skill with critical pandas patterns and testing learnings from vp-e62a
   - .opencode/skills/data-cleaning-implementation/SKILL.md

@@ -9,7 +9,6 @@ metadata:
   version: "1"
   tags: "workflow,compounding"
 ---
-
 <!-- BEGIN:compound:skill-managed -->
 ## Purpose
 
@@ -60,11 +59,11 @@ The point is not vibes. The point is *reusable procedure*.
 ### `/workflows:compound <ticket-id>`
 
 - Write memory notes (loom memory) that future planning can recall.
-- Propose skill changes as a **CompoundSpec v1** JSON object.
-- Call `compound_apply(spec_json=...)` to make it real:
+- Propose skill/instinct/docs changes as a **CompoundSpec v2** JSON object.
+  - For `skills.update[]`, re-emit the **entire final managed body**.
+- Call `compound_apply()` to apply:
   - create/update skills under `.opencode/skills/`
-  - update AI-managed blocks in AGENTS/PROJECT/ROADMAP
-  - append an agent-optimized CHANGELOG entry
+  - update AI-managed blocks in `AGENTS.md`, `LOOM_PROJECT.md`, `LOOM_ROADMAP.md`, `LOOM_CHANGELOG.md`
   - sync derived indexes
 
 ## Operational defaults

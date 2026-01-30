@@ -12,6 +12,8 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T05:57:14.907Z Increase confidence in Plan Mode read-only guard after explicit reminder; no code changes.
+- 2026-01-30T05:56:16.413Z Update CompoundSpec guidance to v2 (schema_version=2) and current compound_apply() usage; reinforce plan-mode read-only instinct.
 - 2026-01-30T05:42:07.125Z Align memory with current CompoundSpec v2 JSON format and correct polyrepo workflow guidance to use ticket-named branches + loom workspace worktrees per service.
 - 2026-01-30T05:29:55.113Z Session was idle; no new stable heuristics or procedures identified.
 - 2026-01-30T05:20:32.961Z Update Compound workflow/apply-spec skills to CompoundSpec v2 and reflect compound_apply() usage; reinforce autolearn constraints (JSON-only output, repo-relative paths, plan-mode read-only).
@@ -40,6 +42,4 @@ High-level direction and priorities.
 - 2026-01-30T01:22:04.760Z Add instinct to treat src/*.egg-info diffs as generated metadata and avoid committing them unless packaging changes are intentional.
 - 2026-01-30T01:17:14.715Z No new learnings from this idle cycle; only compound state changed.
 - 2026-01-30T01:14:06.447Z No memory updates proposed; no repo activity detected in this session.
-- 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
-- 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
 <!-- END:compound:roadmap-ai-notes -->
