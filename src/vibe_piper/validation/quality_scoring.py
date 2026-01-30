@@ -574,7 +574,7 @@ def calculate_quality_score(
         col_quality = ColumnQualityResult(
             column_name=col,
             completeness=calculate_completeness(records, col) * 100,
-            accuracy=1.0,  # Would need schema to calculate properly
+            accuracy=100.0,  # Would need schema to calculate properly
             uniqueness=calculate_uniqueness(records, col) * 100,
             null_count=0,
             duplicate_count=0,
@@ -589,6 +589,11 @@ def calculate_quality_score(
         uniqueness = statistics.mean([cq.uniqueness for cq in column_quality_results.values()])
         # Consistency requires column pairs - use simple heuristic
         consistency = 100.0  # Default to good if no checks specified
+    else:
+        # If no columns, use defaults
+        accuracy = 100.0
+        uniqueness = 100.0
+        consistency = 100.0
 
     # Calculate timeliness if timestamp field provided
     if timestamp_field:
@@ -706,7 +711,7 @@ def calculate_column_quality(
     # Completeness (0-1 to 0-100)
     null_count = sum(1 for v in values if v is None)
     total_count = len(values)
-    completeness = (1.0 - (null_count / total_count) * 100) if total_count > 0 else 100.0
+    completeness = ((1.0 - (null_count / total_count)) * 100) if total_count > 0 else 100.0
 
     # Uniqueness (0-1 to 0-100)
     non_null_values = [v for v in values if v is not None]
