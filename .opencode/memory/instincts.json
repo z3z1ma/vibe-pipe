@@ -370,6 +370,23 @@
           "sessionID": "ses_3f39f6b4affegW0YueTnLRJkTJ"
         }
       ]
+    },
+    {
+      "id": "compound-state-json-noop",
+      "title": "Treat compound state.json diffs as no-op",
+      "trigger": "Git summary shows only .opencode/compound/state.json changed",
+      "action": "Treat as internal bookkeeping; propose no memory/product changes and avoid suggesting commits or follow-up work based on it.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-30T02:01:31.629Z",
+      "updated_at": "2026-01-30T02:01:31.629Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T02:01:31.629Z",
+          "sessionID": "ses_3f39fcbc8ffesoNca6Upw7Zl97"
+        }
+      ]
     }
   ]
 }

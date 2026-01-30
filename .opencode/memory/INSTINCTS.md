@@ -63,6 +63,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **egg-info-churn-is-build-noise** (70%)
   - Trigger: git diff shows only src/vibe_piper.egg-info/* changes (PKG-INFO, SOURCES.txt, requires.txt) with no src/ or tests/ edits
   - Action: Assume these are generated artifacts; avoid proposing learnings from them and avoid including them in commits unless the repo explicitly tracks egg-info as source of truth.
+- **compound-state-json-noop** (70%)
+  - Trigger: Git summary shows only .opencode/compound/state.json changed
+  - Action: Treat as internal bookkeeping; propose no memory/product changes and avoid suggesting commits or follow-up work based on it.
 - **immutable-result-dataclass-frozen** (65%)
   - Trigger: Creating result types that should never be modified after creation
   - Action: Mark result dataclasses with frozen=True to ensure immutability and enable hashability.

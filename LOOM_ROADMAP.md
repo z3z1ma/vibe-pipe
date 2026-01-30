@@ -11,6 +11,7 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T02:01:31.634Z No new learnings; only compound internal state changed.
 - 2026-01-30T01:27:06.799Z No memory updates proposed (idle session; git diffstat empty).
 - 2026-01-30T01:25:09.432Z Hardened compounding guidance: compound-workflows now specifies CompoundSpec v2 and correct compound_apply() usage; added instinct to treat src/*.egg-info diffs from uv editable installs as generated noise and route decisions through python-egg-info-hygiene.
 - 2026-01-30T01:22:04.760Z Add instinct to treat src/*.egg-info diffs as generated metadata and avoid committing them unless packaging changes are intentional.
@@ -40,5 +41,4 @@ High-level direction and priorities.
 - 2026-01-29T22:33:42.126Z Merge worker session: queue empty, waited 10m, no work.
 - ||||||| merged common ancestors
 - =======
-- 2026-01-29T22:08:34.455Z Merged 4 tickets: vp-e6da (Data Quality Dashboard) and vp-6365 (external quality: Great Expectations, Soda Cloud). Resolved compound block conflicts by accepting incoming versions. Updated loom-merge-queue-worker skill to document conflict resolution for compound-managed files.
 <!-- END:compound:roadmap-ai-notes -->
