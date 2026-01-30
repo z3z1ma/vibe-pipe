@@ -15,6 +15,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
+- **inst-20260130-002** (88%)
+  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
+  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
 - **float-to-int-type-safety-in-outlier-replacement** (88%)
   - Trigger: Replacing outliers (always float mean/median) into DataFrame columns with integer dtype
   - Action: Either convert integer column to float before replacement (df[col] = df[col].astype(float)), or explicitly cast mean/median to int (int(mean_val)) when assigning back. Pandas will raise TypeError sett…
@@ -33,12 +36,12 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-20260130-003** (85%)
   - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
   - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
-- **inst-20260130-002** (83%)
-  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
-  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
+- **egg-info-diffs-uv-editable-install** (82%)
+  - Trigger: git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps
+  - Action: Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly want…
 - **egg-info-diff-hygiene** (82%)
   - Trigger: git diff shows changes under src/*.egg-info/ (PKG-INFO, SOURCES.txt, requires.txt) after installs/runs
   - Action: Assume generated metadata; avoid committing unless intentionally updating packaging. Prefer adding src/*.egg-info/ to .gitignore and cleaning the working tree by removing the generated directories, th…
@@ -51,9 +54,6 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **drift-baseline-storage-json** (80%)
   - Trigger: Implementing drift detection with historical baseline comparison
   - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
-- **egg-info-diffs-uv-editable-install** (78%)
-  - Trigger: git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps
-  - Action: Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly want…
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
