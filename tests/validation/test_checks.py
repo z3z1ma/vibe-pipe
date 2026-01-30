@@ -31,10 +31,10 @@ from vibe_piper.validation.checks import (
     expect_column_values_to_be_decreasing,
     expect_column_values_to_be_in_set,
     expect_column_values_to_be_increasing,
-    # expect_column_values_to_not_in_set,  # Temporarily disabled due to import issue
     expect_column_values_to_be_of_type,
     expect_column_values_to_be_unique,
     expect_column_values_to_match_regex,
+    expect_column_values_to_not_be_in_set,
     expect_column_values_to_not_be_null,
     expect_column_values_to_not_match_regex,
     expect_table_row_count_to_be_between,
@@ -52,11 +52,11 @@ def sample_schema():
     return Schema(
         name="test_schema",
         fields=(
-            SchemaField(name="id", data_type=DataType.INTEGER),
-            SchemaField(name="name", data_type=DataType.STRING),
-            SchemaField(name="age", data_type=DataType.INTEGER),
-            SchemaField(name="email", data_type=DataType.STRING),
-            SchemaField(name="score", data_type=DataType.FLOAT),
+            SchemaField(name="id", data_type=DataType.INTEGER, required=False),
+            SchemaField(name="name", data_type=DataType.STRING, required=False, nullable=True),
+            SchemaField(name="age", data_type=DataType.INTEGER, required=False),
+            SchemaField(name="email", data_type=DataType.STRING, required=False),
+            SchemaField(name="score", data_type=DataType.FLOAT, required=False),
         ),
     )
 
@@ -144,17 +144,23 @@ class TestRegexPatternMatching:
 
     def test_expect_column_values_to_match_regex_pass(self, sample_records):
         """Test regex match passes for valid emails."""
-        check = expect_column_values_to_match_regex("email", r"^[\\w\\.-]+@")
+        check = expect_column_values_to_match_regex("email", r"^[\w\.-]+@")
         result = check(sample_records)
         assert result.is_valid
 
     def test_expect_column_values_to_match_regex_fail(self, sample_schema):
         """Test regex match fails for invalid pattern."""
         records = (
-            DataRecord(data={"email": "invalid"}, schema=sample_schema),
-            DataRecord(data={"email": "also-invalid"}, schema=sample_schema),
+            DataRecord(
+                data={"id": 1, "name": "Test1", "age": 30, "email": "invalid", "score": 90.0},
+                schema=sample_schema,
+            ),
+            DataRecord(
+                data={"id": 2, "name": "Test2", "age": 25, "email": "also-invalid", "score": 80.0},
+                schema=sample_schema,
+            ),
         )
-        check = expect_column_values_to_match_regex("email", r"^[\\w\\.-]+@")
+        check = expect_column_values_to_match_regex("email", r"^[\w\.-]+@")
         result = check(records)
         assert not result.is_valid
 
@@ -164,14 +170,14 @@ class TestRegexPatternMatching:
             DataRecord(data={"email": "user@example.com"}, schema=sample_schema),
             DataRecord(data={"email": "admin@example.com"}, schema=sample_schema),
         )
-        check = expect_column_values_to_not_match_regex("email", r"^\\s*$")
+        check = expect_column_values_to_not_match_regex("email", r"^\s*$")
         result = check(records)
         assert result.is_valid
 
     def test_expect_column_values_to_not_match_regex_fail(self, sample_schema):
         """Test regex not match fails."""
         records = (DataRecord(data={"email": " whitespace "}, schema=sample_schema),)
-        check = expect_column_values_to_not_match_regex("email", r"^\\s+.*\\s+$")
+        check = expect_column_values_to_not_match_regex("email", r"^\s+.*\s+$")
         result = check(records)
         assert not result.is_valid
 

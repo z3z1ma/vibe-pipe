@@ -24,10 +24,10 @@ def sample_schema():
     return Schema(
         name="test_schema",
         fields=(
-            SchemaField(name="id", data_type=DataType.INTEGER),
-            SchemaField(name="name", data_type=DataType.STRING),
-            SchemaField(name="age", data_type=DataType.INTEGER),
-            SchemaField(name="email", data_type=DataType.STRING),
+            SchemaField(name="id", data_type=DataType.INTEGER, required=False),
+            SchemaField(name="name", data_type=DataType.STRING, required=False),
+            SchemaField(name="age", data_type=DataType.INTEGER, required=False),
+            SchemaField(name="email", data_type=DataType.STRING, required=False),
         ),
     )
 
@@ -120,7 +120,7 @@ class TestValidateDecorator:
             lazy=True,
             checks=(
                 expect.column("age").to_be_between(20, 40),
-                expect.column("email").to_match_regex(r"^[\\w\\.-]+@"),
+                expect.column("email").to_match_regex(r"^[\w\.-]+@"),
             ),
         )
         def get_data():
@@ -177,7 +177,7 @@ class TestExpectFluentAPI:
 
     def test_expect_column_to_match_regex(self, sample_records):
         """Test expect.column().to_match_regex()."""
-        check = expect.column("email").to_match_regex(r"^[\\w\\.-]+@")
+        check = expect.column("email").to_match_regex(r"^[\w\.-]+@")
         result = check(sample_records)
         assert result.is_valid
 
