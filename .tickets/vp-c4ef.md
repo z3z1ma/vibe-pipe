@@ -1,6 +1,6 @@
 ---
 "id": "vp-c4ef"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-29T20:34:14Z"
