@@ -132,6 +132,10 @@ class PipelineBuilder:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
+        cache: bool = False,
+        cache_ttl: int | None = None,
+        parallel: bool = False,
+        lazy: bool = False,
     ) -> "PipelineBuilder":
         """
         Add an asset to the pipeline.
@@ -210,7 +214,26 @@ class PipelineBuilder:
         # Generate URI if not provided
         asset_uri = uri or f"memory://{name}"
 
-        # Create the asset
+        # Create operator from wrapped function
+        operator = Operator(
+            name=name,
+            operator_type=operator_type,
+            fn=wrapped_fn,
+            description=description,
+        )
+
+        # Create config with performance parameters
+        asset_config = dict(config or {})
+        if cache:
+            asset_config["cache"] = True
+            if cache_ttl is not None:
+                asset_config["cache_ttl"] = cache_ttl
+        if parallel:
+            asset_config["parallel"] = True
+        if lazy:
+            asset_config["lazy"] = True
+
+        # Create asset
         asset = Asset(
             name=name,
             asset_type=asset_type,
@@ -218,7 +241,7 @@ class PipelineBuilder:
             operator=operator,
             description=description,
             metadata=metadata or {},
-            config=config or {},
+            config=asset_config,
         )
 
         self._assets[name] = asset
@@ -348,6 +371,10 @@ class PipelineContext:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
+        cache: bool = False,
+        cache_ttl: int | None = None,
+        parallel: bool = False,
+        lazy: bool = False,
     ) -> Any:
         """
         Decorator or method to add an asset to the pipeline.
@@ -438,6 +465,19 @@ class PipelineContext:
                 description=description or func.__doc__,
             )
 
+            # Convert config to mutable dict for modifications
+            asset_config = dict(config or {})
+
+            # Add performance parameters to config
+            if cache:
+                asset_config["cache"] = True
+                if cache_ttl is not None:
+                    asset_config["cache_ttl"] = cache_ttl
+            if parallel:
+                asset_config["parallel"] = True
+            if lazy:
+                asset_config["lazy"] = True
+
             asset = Asset(
                 name=asset_name,
                 asset_type=asset_type,
@@ -445,7 +485,7 @@ class PipelineContext:
                 operator=operator,
                 description=description,
                 metadata=metadata or {},
-                config=config or {},
+                config=asset_config,
             )
 
             # Add to builder's internal state

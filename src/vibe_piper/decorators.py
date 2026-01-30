@@ -34,6 +34,10 @@ def _create_asset_from_function(
     materialization: str | MaterializationStrategy | None,
     retries: int | None = None,
     backoff: str | None = None,
+    cache: bool = False,
+    cache_ttl: int | None = None,
+    parallel: bool = False,
+    lazy: bool = False,
 ) -> Asset:
     """Helper function to create an Asset from a function."""
     # Determine asset name
@@ -70,7 +74,7 @@ def _create_asset_from_function(
     else:
         asset_materialization = materialization
 
-    # Build config with retry settings
+    # Build config with retry, cache, and parallel settings
     asset_config = config or {}
     if retries is not None:
         asset_config = dict(asset_config)  # Make a copy
@@ -78,6 +82,17 @@ def _create_asset_from_function(
     if backoff is not None:
         asset_config = dict(asset_config)  # Make a copy
         asset_config["backoff"] = backoff
+    if cache:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["cache"] = True
+        if cache_ttl is not None:
+            asset_config["cache_ttl"] = cache_ttl
+    if parallel:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["parallel"] = True
+    if lazy:
+        asset_config = dict(asset_config)  # Make a copy
+        asset_config["lazy"] = True
 
     # Create the Asset instance
     return Asset(
@@ -133,6 +148,12 @@ class AssetDecorator:
         retries = kwargs.pop("retries", None)
         backoff = kwargs.pop("backoff", None)
 
+        # Extract performance parameters
+        cache = kwargs.pop("cache", False)
+        cache_ttl = kwargs.pop("cache_ttl", None)
+        parallel = kwargs.pop("parallel", False)
+        lazy = kwargs.pop("lazy", False)
+
         # Case 1: @asset (no parentheses) - func_or_name is the function
         if callable(func_or_name):
             return _create_asset_from_function(
@@ -148,6 +169,10 @@ class AssetDecorator:
                 materialization=materialization,
                 retries=retries,
                 backoff=backoff,
+                cache=cache,
+                cache_ttl=cache_ttl,
+                parallel=parallel,
+                lazy=lazy,
             )
 
         # Case 2 & 3: @asset(...) - with or without parameters
@@ -156,9 +181,11 @@ class AssetDecorator:
         name = name_param if name_param is not None else func_or_name
 
         def decorator(func: Callable[P, T]) -> Asset:
+            asset_name = name or func_or_name
+
             return _create_asset_from_function(
                 func=func,
-                name=name,
+                name=asset_name,
                 asset_type=asset_type,
                 uri=uri,
                 schema=schema,
@@ -169,6 +196,10 @@ class AssetDecorator:
                 materialization=materialization,
                 retries=retries,
                 backoff=backoff,
+                cache=cache,
+                cache_ttl=cache_ttl,
+                parallel=parallel,
+                lazy=lazy,
             )
 
         return decorator

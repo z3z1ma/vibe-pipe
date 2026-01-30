@@ -270,6 +270,38 @@ except ImportError:
 sql_asset = _sql_asset_instance if _SQL_ASSETS_AVAILABLE else None
 
 # Monitoring & Observability
+from vibe_piper.benchmarks import (
+    BenchmarkResult,
+    BenchmarkRunner,
+    BenchmarkStats,
+    ComparisonResult,
+    benchmark,
+    compare_benchmarks,
+)
+
+# Performance Optimization
+from vibe_piper.caching import (
+    CacheBackend,
+    CacheEntry,
+    CacheKey,
+    CacheManager,
+    DiskCacheBackend,
+    MemoryCacheBackend,
+    cached,
+)
+from vibe_piper.lazy import (
+    LazyContext,
+    LazySequence,
+    LazyTransform,
+    LazyValue,
+    is_lazy,
+    lazy,
+    lazy_filter,
+    lazy_map,
+    lazy_reduce,
+    lazy_transform,
+    materialize,
+)
 from vibe_piper.monitoring import (
     ErrorAggregator,
     ErrorCategory,
@@ -287,6 +319,20 @@ from vibe_piper.monitoring import (
     get_logger,
     log_execution,
     profile_execution,
+)
+from vibe_piper.query_hints import (
+    IndexHint,
+    IndexHintType,
+    JoinHint,
+    JoinStrategy,
+    LimitHint,
+    MaterializeHint,
+    ParallelHint,
+    QueryHints,
+    QueryHintsBuilder,
+    ScanHint,
+    ScanHintType,
+    with_query_hints,
 )
 
 # External quality tools (optional, for convenience)
@@ -523,4 +569,41 @@ __all__ = [
     "schema_version",
     "get_schema_history",
     "reset_schema_history",
+    # Performance Optimization
+    "CacheBackend",
+    "CacheEntry",
+    "CacheKey",
+    "CacheManager",
+    "DiskCacheBackend",
+    "MemoryCacheBackend",
+    "cached",
+    "LazyContext",
+    "LazySequence",
+    "LazyTransform",
+    "LazyValue",
+    "is_lazy",
+    "lazy",
+    "lazy_filter",
+    "lazy_map",
+    "lazy_reduce",
+    "lazy_transform",
+    "materialize",
+    "IndexHint",
+    "IndexHintType",
+    "JoinHint",
+    "JoinStrategy",
+    "LimitHint",
+    "MaterializeHint",
+    "ParallelHint",
+    "QueryHints",
+    "QueryHintsBuilder",
+    "ScanHint",
+    "ScanHintType",
+    "with_query_hints",
+    "BenchmarkResult",
+    "BenchmarkRunner",
+    "BenchmarkStats",
+    "ComparisonResult",
+    "benchmark",
+    "compare_benchmarks",
 ]
