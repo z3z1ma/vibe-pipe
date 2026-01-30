@@ -1,6 +1,6 @@
 ---
 "id": "vp-acbc"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-30T05:03:33Z"
