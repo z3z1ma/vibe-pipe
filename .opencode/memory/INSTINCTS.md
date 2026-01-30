@@ -15,6 +15,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
+- **inst-20260130-003** (89%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20260130-002** (88%)
   - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
   - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
@@ -33,9 +36,6 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
-- **inst-20260130-003** (85%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
@@ -54,6 +54,12 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **drift-baseline-storage-json** (80%)
   - Trigger: Implementing drift detection with historical baseline comparison
   - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
+- **inst-autolearn-json-only** (80%)
+  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
+  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
+- **inst-autolearn-repo-relative-paths** (78%)
+  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
+  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
@@ -75,6 +81,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **compound-state-json-noop** (70%)
   - Trigger: Git summary shows only .opencode/compound/state.json changed
   - Action: Treat as internal bookkeeping; propose no memory/product changes and avoid suggesting commits or follow-up work based on it.
+- **inst-services-index-json-change-audit** (67%)
+  - Trigger: `services/index.json` changes (especially without `services/*.md` changes)
+  - Action: Re-run `loom workspace services refresh-index`, then verify whether any `services/*.md` should change; commit only a derived index that corresponds to intentional `services/*.md` updates (never hand-e…
 - **immutable-result-dataclass-frozen** (65%)
   - Trigger: Creating result types that should never be modified after creation
   - Action: Mark result dataclasses with frozen=True to ensure immutability and enable hashability.

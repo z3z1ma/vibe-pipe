@@ -3,12 +3,18 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (2)
+- # Tickets (5)
+- - `vp-7c26` P1 in_progress - Implement Transformation Library - Fluent API
+- - `vp-8690` P1 open - Implement Configuration-Driven Pipelines
+- - `vp-acbc` P1 open - Implement Built-in Quality & Monitoring
 - - `vp-f701` P1 in_progress - Implement Schema-First Mapping
 - - `vp-0429` P2 open - Untitled
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T05:13:39.728Z Reinforced autolearn JSON-only + read-only Plan Mode instincts; updated compound-apply-spec with a repo-relative path rule.
+- 2026-01-30T05:05:54.954Z Add an instinct to audit unexpected `services/index.json` diffs by regenerating via loom and ensuring it matches intentional `services/*.md` changes; slightly increase confidence in the existing services-md deps normalization instinct.
+- 2026-01-30T04:59:30.789Z Reinforced service dependency hygiene: normalize `services/*.md` deps and refresh `services/index.json`; added an autolearn guardrail instinct to output strict JSON-only specs.
 - 2026-01-30T04:44:58.900Z Add guidance for separating intentional uv.lock changes from generated src/*.egg-info diffs; reinforce egg-info-as-noise heuristics.
 - 2026-01-30T04:32:46.473Z No durable learnings detected; only compound state bookkeeping changed.
 - 2026-01-30T04:28:27.666Z Add an instinct for strict Plan Mode (read-only) compliance; clarify CompoundSpec output rules for autolearn prompts (single JSON, no fences/commentary).
@@ -36,7 +42,4 @@ High-level direction and priorities.
 - 2026-01-29T23:54:29.524Z Implemented drift detection features: baseline storage, history tracking, configurable thresholds, and validation check wrappers for @validate decorator integration
 - 2026-01-29T23:52:32.816Z Implemented comprehensive Data Cleaning Utilities (vp-e62a) with @clean_data() decorator, 20+ functions covering deduplication, null handling (6 strategies), outlier detection (4 methods), outlier treatment (6 actions), type normalization, standardization, and text cleaning. Created CleaningConfig and CleaningReport classes. Wrote 73 tests achieving 77% pass rate, 73% module coverage. Identified critical pandas 2.x string accessor pattern issues and test fixture nullable field requirements.
 - 2026-01-29T23:49:43.630Z Merge worker session: Merged vp-66b4 (validation history). Resolved SOURCES.txt conflict by resetting from index and not staging auto-generated egg-info files.
-- 2026-01-29T23:43:12.014Z No changes - ticket vp-d5ae implementation complete and awaiting manager review
-- 2026-01-29T23:40:15.231Z Validation history feature complete (vp-66b4) - PostgreSQL storage, trend analysis, failure detection, baseline comparison, integration utilities, tests, documentation
-- 2026-01-29T23:36:29.549Z Add validation history integration skills (auto-storage and schema initialization)
 <!-- END:compound:roadmap-ai-notes -->

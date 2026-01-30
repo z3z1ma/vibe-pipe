@@ -448,14 +448,75 @@
       "trigger": "System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.",
       "action": "Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementation until Plan Mode ends.",
       "tags": [],
-      "confidence": 0.85,
+      "confidence": 0.89,
       "status": "active",
       "created_at": "2026-01-30T04:28:26.742Z",
-      "updated_at": "2026-01-30T04:28:26.742Z",
+      "updated_at": "2026-01-30T05:13:38.737Z",
       "evidence": [
         {
           "ts": "2026-01-30T04:28:26.742Z",
           "sessionID": "ses_3f2e8c84effe1PxTy81Ie7Inm8"
+        },
+        {
+          "ts": "2026-01-30T05:13:38.737Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
+          "note": "System reminder emphasized Plan Mode read-only constraints; reinforces avoiding write-effect tool usage in that phase."
+        }
+      ]
+    },
+    {
+      "id": "inst-autolearn-json-only",
+      "title": "Autolearn Output Must Be JSON Only",
+      "trigger": "Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).",
+      "action": "Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.",
+      "tags": [],
+      "confidence": 0.8,
+      "status": "active",
+      "created_at": "2026-01-30T04:59:29.428Z",
+      "updated_at": "2026-01-30T05:13:38.737Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T04:59:29.428Z",
+          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
+        },
+        {
+          "ts": "2026-01-30T05:13:38.737Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
+          "note": "This session's autolearn prompt explicitly required JSON-only output (no fences/commentary) with a strict schema."
+        }
+      ]
+    },
+    {
+      "id": "inst-services-index-json-change-audit",
+      "title": "Audit services/index.json diffs",
+      "trigger": "`services/index.json` changes (especially without `services/*.md` changes)",
+      "action": "Re-run `loom workspace services refresh-index`, then verify whether any `services/*.md` should change; commit only a derived index that corresponds to intentional `services/*.md` updates (never hand-edit `services/index.json`).",
+      "tags": [],
+      "confidence": 0.67,
+      "status": "active",
+      "created_at": "2026-01-30T05:05:53.475Z",
+      "updated_at": "2026-01-30T05:05:53.475Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T05:05:53.475Z",
+          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
+        }
+      ]
+    },
+    {
+      "id": "inst-autolearn-repo-relative-paths",
+      "title": "Autolearn uses repo-root-relative paths",
+      "trigger": "An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references",
+      "action": "In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).",
+      "tags": [],
+      "confidence": 0.78,
+      "status": "active",
+      "created_at": "2026-01-30T05:13:38.737Z",
+      "updated_at": "2026-01-30T05:13:38.737Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T05:13:38.737Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z"
         }
       ]
     }

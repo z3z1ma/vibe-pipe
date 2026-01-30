@@ -62,6 +62,11 @@ Notes:
 - Do not wrap in code fences.
 - Do not add commentary outside JSON.
 
+## Path rule
+
+- When referencing repository files/directories in any markdown you emit (skill bodies, docs, changelog), use repo-root-relative paths.
+- Avoid absolute paths and URIs like `file://...`.
+
 ## Apply
 
 1. Produce a single valid JSON object matching the schema.

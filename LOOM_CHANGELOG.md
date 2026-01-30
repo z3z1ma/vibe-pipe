@@ -4,6 +4,9 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T05:13:39.728Z Reinforced autolearn JSON-only + read-only Plan Mode instincts; updated compound-apply-spec with a repo-relative path rule.
+- 2026-01-30T05:05:54.954Z Add an instinct to audit unexpected `services/index.json` diffs by regenerating via loom and ensuring it matches intentional `services/*.md` changes; slightly increase confidence in the existing services-md deps normalization instinct.
+- 2026-01-30T04:59:30.789Z Reinforced service dependency hygiene: normalize `services/*.md` deps and refresh `services/index.json`; added an autolearn guardrail instinct to output strict JSON-only specs.
 - 2026-01-30T04:44:58.900Z Add guidance for separating intentional uv.lock changes from generated src/*.egg-info diffs; reinforce egg-info-as-noise heuristics.
 - 2026-01-30T04:32:46.473Z No durable learnings detected; only compound state bookkeeping changed.
 - 2026-01-30T04:28:27.666Z Add an instinct for strict Plan Mode (read-only) compliance; clarify CompoundSpec output rules for autolearn prompts (single JSON, no fences/commentary).
