@@ -13,7 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from statistics import mean, median, stdev
-from typing import Any, ParamSpec
+from typing import Any, ParamSpec, TypeVar
 
 # =============================================================================
 # Logger
