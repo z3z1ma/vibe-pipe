@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T06:34:09.676Z Raised confidence in the Plan Mode read-only safety instinct after an explicit system reminder.
 - 2026-01-30T05:57:14.907Z Increase confidence in Plan Mode read-only guard after explicit reminder; no code changes.
 - 2026-01-30T05:56:16.413Z Update CompoundSpec guidance to v2 (schema_version=2) and current compound_apply() usage; reinforce plan-mode read-only instinct.
 - 2026-01-30T05:42:07.125Z Align memory with current CompoundSpec v2 JSON format and correct polyrepo workflow guidance to use ticket-named branches + loom workspace worktrees per service.

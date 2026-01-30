@@ -175,7 +175,7 @@ This block is maintained by the compound plugin.
   - Trigger: Implementing DriftHistory class for drift monitoring
   - Action: Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.
 - **loom-docs-merge-conflict-markers** (85%)
-  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
+  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
 - **inst-autolearn-repo-relative-paths** (83%)
   - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
