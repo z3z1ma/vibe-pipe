@@ -365,10 +365,10 @@
       "trigger": "Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).",
       "action": "Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit.",
       "tags": [],
-      "confidence": 0.8300000000000001,
+      "confidence": 0.8800000000000001,
       "status": "active",
       "created_at": "2026-01-30T01:25:08.462Z",
-      "updated_at": "2026-01-30T03:10:17.032Z",
+      "updated_at": "2026-01-30T04:44:58.023Z",
       "evidence": [
         {
           "ts": "2026-01-30T01:25:08.462Z",
@@ -378,6 +378,11 @@
           "ts": "2026-01-30T03:10:17.032Z",
           "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
           "note": "Repo workflow uses `uv pip install -e .`; egg-info diffs under src/*.egg-info are common generated noise and should be excluded unless doing packaging work."
+        },
+        {
+          "ts": "2026-01-30T04:44:58.023Z",
+          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
+          "note": "Session diff included multiple src/vibe_piper.egg-info files modified alongside uv.lock changes, matching the pattern that editable installs generate egg-info noise."
         }
       ]
     },
@@ -421,14 +426,19 @@
       "trigger": "git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps",
       "action": "Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly wants egg-info checked in, and include a clear commit message explaining why.",
       "tags": [],
-      "confidence": 0.78,
+      "confidence": 0.8200000000000001,
       "status": "active",
       "created_at": "2026-01-30T03:03:55.988Z",
-      "updated_at": "2026-01-30T03:03:55.988Z",
+      "updated_at": "2026-01-30T04:44:58.023Z",
       "evidence": [
         {
           "ts": "2026-01-30T03:03:55.988Z",
           "sessionID": "ses_3f333be91ffebe9bPRlChpv8wd"
+        },
+        {
+          "ts": "2026-01-30T04:44:58.023Z",
+          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
+          "note": "Observed egg-info diffs (PKG-INFO/SOURCES.txt/requires.txt) after uv activity; reinforces treating these as generated artifacts."
         }
       ]
     },
