@@ -105,6 +105,7 @@ src/vibe_piper/scheduling/schedules.py
 src/vibe_piper/transformations/__init__.py
 src/vibe_piper/transformations/aggregations.py
 src/vibe_piper/transformations/builder.py
+src/vibe_piper/transformations/cleaning.py
 src/vibe_piper/transformations/joins.py
 src/vibe_piper/transformations/pivot.py
 src/vibe_piper/transformations/windows.py
@@ -128,6 +129,7 @@ src/vibe_piper/web/middleware/error_handler.py
 src/vibe_piper/web/middleware/rate_limit.py
 src/vibe_piper/web/middleware/request_id.py
 tests/test_basic.py
+tests/test_cleaning.py
 tests/test_decorators.py
 tests/test_dependency_inference.py
 tests/test_error_handling.py
