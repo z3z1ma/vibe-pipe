@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from vibe_piper import DataRecord, DataType, Schema, SchemaField
 from vibe_piper.validation.quality_scoring import (
     QualityAlert,
     QualityDashboard,
@@ -27,7 +28,6 @@ from vibe_piper.validation.quality_scoring import (
     generate_quality_recommendations,
     track_quality_history,
 )
-from vibe_piper import DataRecord, DataType, Schema, SchemaField
 
 
 class TestQualityScoreScale:
@@ -312,7 +312,11 @@ class TestQualityThresholdAlerts:
                     data_type=DataType.INTEGER,
                     nullable=True,
                 ),
-                SchemaField(name="name", data_type=DataType.STRING),
+                SchemaField(
+                    name="name",
+                    data_type=DataType.STRING,
+                    nullable=True,
+                ),
             ),
         )
 
