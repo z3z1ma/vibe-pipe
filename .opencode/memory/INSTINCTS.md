@@ -6,15 +6,15 @@ The source of truth is `.opencode/memory/instincts.json`.
 <!-- BEGIN:compound:instincts-md -->
 ## Active instincts (top confidence)
 
+- **inst-20260130-003** (100%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **pandas-string-accessor-error-pattern** (98%)
   - Trigger: Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations
   - Action: When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column…
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
-- **inst-20260130-003** (92%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result

@@ -144,15 +144,15 @@ This block is maintained by the compound plugin.
 <!-- END:compound:workflow-commands -->
 
 <!-- BEGIN:compound:instincts-index -->
+- **inst-20260130-003** (100%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **pandas-string-accessor-error-pattern** (98%)
   - Trigger: Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations
   - Action: When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column…
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
-- **inst-20260130-003** (92%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -175,7 +175,7 @@ This block is maintained by the compound plugin.
   - Trigger: Implementing DriftHistory class for drift monitoring
   - Action: Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.
 - **loom-docs-merge-conflict-markers** (85%)
-  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
+  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
 - **inst-autolearn-repo-relative-paths** (83%)
   - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
@@ -222,9 +222,9 @@ Do not edit inside the BEGIN/END fences.
 <!-- BEGIN:compound:skills-index -->
 - **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
   - .opencode/skills/author-agents-md-uv-python/SKILL.md
-- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills, instincts, and AI-managed docs blocks.
+- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
   - .opencode/skills/compound-apply-spec/SKILL.md
-- **compound-workflows** (v1): Use Plan → Work → Review → Compound loop with loom ticket + loom workspace in a polyrepo workspace (ticket-named branches, worktrees per service).
+- **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
   - .opencode/skills/compound-workflows/SKILL.md
 - **data-cleaning-implementation** (v1): Update data-cleaning-implementation skill with critical pandas patterns and testing learnings from vp-e62a
   - .opencode/skills/data-cleaning-implementation/SKILL.md
@@ -299,7 +299,7 @@ Do not edit inside the BEGIN/END fences.
   - Trigger: Implementing DriftHistory class for drift monitoring
   - Action: Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.
 - **loom-docs-merge-conflict-markers** (85%)
-  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
+  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
 - **inst-20260130-003** (85%)
   - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
@@ -325,74 +325,6 @@ Do not edit inside the BEGIN/END fences.
 - **egg-info-diffs-uv-editable-install** (78%)
   - Trigger: git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps
   - Action: Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly want…
-- **baseline-json-storage-pattern** (75%)
-  - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
-  - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
-- **drift-threshold-validation** (75%)
-  - Trigger: Creating DriftThresholds configuration class
-  - Action: Validate that warning < critical, all thresholds in [0,1] range, and warning < psi_critical, with clear error messages.
-- **jsonl-append-only-time-series** (72%)
-  - Trigger: Storing time-series drift history that only grows
-  - Action: Write each entry as a line to JSONL file (json.dumps(entry) + newline). Efficient append-only, easy to read latest N entries with tail.
-- **validation-result-wrapper-mapping** (70%)
-  - Trigger: Creating wrapper functions that convert domain types to validation framework ValidationResult
-  - Action: Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). …
-<!-- END:compound:instincts-index -->
-
-<!-- BEGIN:compound:rules-index -->
-- _(none)_
-<!-- END:compound:rules-index -->
-=======
-
-<!-- BEGIN:compound:instincts-index -->
-- **pandas-string-accessor-error-pattern** (98%)
-  - Trigger: Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations
-  - Action: When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column…
-- **nullable-schema-fields-for-data-with-nones** (92%)
-  - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
-  - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
-- **inst-20250129-003** (90%)
-  - Trigger: validation_suite_completed
-  - Action: store_validation_result
-- **inst-20260130-002** (88%)
-  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
-  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
-- **float-to-int-type-safety-in-outlier-replacement** (88%)
-  - Trigger: Replacing outliers (always float mean/median) into DataFrame columns with integer dtype
-  - Action: Either convert integer column to float before replacement (df[col] = df[col].astype(float)), or explicitly cast mean/median to int (int(mean_val)) when assigning back. Pandas will raise TypeError sett…
-- **inst-20260130-001** (85%)
-  - Trigger: Producing a CompoundSpec v2 with skills.update entries
-  - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
-- **inst-20250129-001** (85%)
-  - Trigger: validation_suite_completed
-  - Action: store_validation_result
-- **drift-history-timestamp-tracking** (85%)
-  - Trigger: Implementing DriftHistory class for drift monitoring
-  - Action: Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.
-- **loom-docs-merge-conflict-markers** (85%)
-  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
-  - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
-- **inst-20260130-003** (85%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
-- **optional-type-checking-guard** (82%)
-  - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
-  - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
-- **egg-info-diffs-uv-editable-install** (82%)
-  - Trigger: git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps
-  - Action: Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly want…
-- **egg-info-diff-hygiene** (82%)
-  - Trigger: git diff shows changes under src/*.egg-info/ (PKG-INFO, SOURCES.txt, requires.txt) after installs/runs
-  - Action: Assume generated metadata; avoid committing unless intentionally updating packaging. Prefer adding src/*.egg-info/ to .gitignore and cleaning the working tree by removing the generated directories, th…
-- **inst-20250129-002** (80%)
-  - Trigger: new_history_store_created
-  - Action: initialize_schema
-- **inst-20250129-004** (80%)
-  - Trigger: new_history_store_created
-  - Action: initialize_schema
-- **drift-baseline-storage-json** (80%)
-  - Trigger: Implementing drift detection with historical baseline comparison
-  - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.

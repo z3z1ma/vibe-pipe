@@ -1,6 +1,6 @@
 ---
 name: compound-apply-spec
-description: Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills, instincts, and AI-managed docs blocks.
+description: Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
 license: MIT
 compatibility: opencode,claude
 metadata:
@@ -20,23 +20,19 @@ So we separate:
 
 ## CompoundSpec v2
 
-Return **one JSON object** (no code fences, no extra text) with:
+Top-level keys:
 
 - `schema_version`: must be `2`
 - `auto`: `{ reason, sessionID }`
-- `instincts`: `{ create?: [], update?: [] }`
-- `skills`: `{ create?: [], update?: [] }`
-- `docs`: `{ sync?: boolean, blocks?: { upsert?: [] } }`
+- `instincts`: `{ create: [], update: [] }`
+- `skills`: `{ create: [], update: [] }`
+- `docs`: `{ sync: boolean, blocks?: { upsert?: [] } }`
 - `changelog`: `{ note }`
 
 ### `instincts`
 
 - `create[]`: `{ id, title, trigger, action, confidence }`
 - `update[]`: `{ id, confidence_delta, evidence_note }`
-
-Notes:
-- Keep triggers concrete and action checklists.
-- Keep confidence realistic; update confidence with new evidence.
 
 ### `skills`
 
@@ -46,27 +42,18 @@ Notes:
 Notes:
 - `name` should match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
 - `body` is markdown without frontmatter.
-- For `skills.update[]`, `body` must be the **entire final managed body** (not a diff).
+- For `skills.update[]`, `body` must be the **entire final managed body** (no snippets/diffs).
 
 ### `docs`
 
-Use this to keep AI-managed blocks consistent:
-
-- `sync: true` to refresh derived indexes/blocks.
-- `blocks.upsert[]`: `{ file, id, content }`
-  - Use short, stable bullets.
-  - Do not edit human-owned text.
-
-### `changelog`
-
-- `note`: a short AI-first memory delta (what changed and why).
+- `sync: true` refreshes derived indexes (skills index, instincts index).
+- `blocks.upsert[]`: `{ file, id, content }` updates AI-managed blocks only.
+  - Use repo-root-relative paths, e.g. `AGENTS.md`, `LOOM_ROADMAP.md`.
 
 ## Apply
 
-Workflow:
-
-1. Produce the CompoundSpec v2 JSON as the assistant output.
-2. Run `compound_apply()` to apply it.
+1. Produce a single valid JSON object (the CompoundSpec v2).
+2. Run `compound_apply()`.
 <!-- END:compound:skill-managed -->
 
 ## Manual notes

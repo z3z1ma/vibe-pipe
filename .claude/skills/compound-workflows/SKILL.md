@@ -1,6 +1,6 @@
 ---
 name: compound-workflows
-description: Use Plan → Work → Review → Compound loop with loom ticket + loom workspace in a polyrepo workspace (ticket-named branches, worktrees per service).
+description: Use Plan → Work → Review → Compound to compound skills and maintain project context.
 license: MIT
 compatibility: opencode,claude
 metadata:
@@ -15,7 +15,7 @@ metadata:
 This repository uses a loop:
 
 1. **Plan**: turn an idea into a ticketed plan (loom ticket), informed by recalled notes (loom memory).
-2. **Work**: execute in isolated git worktrees (loom workspace), updating ticket status.
+2. **Work**: execute in an isolated git worktree (loom workspace), updating ticket status.
 3. **Review**: run a multi-angle review before merging.
 4. **Compound**: extract reusable patterns into skills (procedural memory) + store memos for future planning.
 
@@ -33,43 +33,44 @@ The point is not vibes. The point is *reusable procedure*.
   - `compound_ticket(argv=["dep-add", "<id>", "<dep-id>"])` (optional)
 - Output a plan with:
   - ticket IDs
-  - affected repos/services
+  - sequencing / dependencies
   - acceptance criteria and tests
   - risk list
 
 ### `/workflows:work <ticket-id>`
 
 - Fetch ticket, set status to `in_progress`.
-- Identify affected services via `services/*.md` and `loom workspace deps ...` commands; do not guess.
-- Create coordinated branches named **exactly** the ticket ID in each affected repo:
-  - `loom workspace branch <TICKET-ID> --repos <service-a> <service-b>`
-- Create worktrees (one per service per ticket):
-  - `loom workspace worktree add <TICKET-ID> --repos <service-a> <service-b>`
-- Implement inside `worktrees/<TICKET-ID>/<service>`.
-- Commit in each service repo normally.
+- Create/ensure a worktree:
+  - Branch convention: `ticket-<id>-<slug>`
+  - `compound_workspace(argv=["repo", "worktree", "add", "<branch>"])`
+- Do the work in that worktree.
+- Update ticket as you go (`add-note`, `update --status`).
 
 ### `/workflows:review <ticket-id>`
 
-- Run fast checks (lint/tests/build) appropriate for each service.
-- Review with multiple lenses:
+- Run fast checks (lint/tests if applicable).
+- Do a review pass with multiple lenses:
   - correctness & maintainability
   - security & foot-guns
   - performance/regressions
   - docs & ergonomics
-- Update the ticket with follow-ups.
+- Update the ticket with required follow-ups.
 
 ### `/workflows:compound <ticket-id>`
 
-- Write memory notes that future planning can recall.
-- Propose skill/instinct/doc updates as a **CompoundSpec v2** JSON object.
-- Apply with `compound_apply()`.
+- Write memory notes (loom memory) that future planning can recall.
+- Propose skill/instinct/docs changes as a **CompoundSpec v2** JSON object.
+  - For `skills.update[]`, re-emit the **entire final managed body**.
+- Call `compound_apply()` to apply:
+  - create/update skills under `.opencode/skills/`
+  - update AI-managed blocks in `AGENTS.md`, `LOOM_PROJECT.md`, `LOOM_ROADMAP.md`, `LOOM_CHANGELOG.md`
+  - sync derived indexes
 
 ## Operational defaults
 
 - Keep skills small, scoped, and action-oriented.
 - Prefer updating an existing skill over creating a near-duplicate.
-- If dependencies/interfaces change, update `services/<name>.md` and then run:
-  - `loom workspace services refresh-index`
+- A skill should be applicable in at least 2 future contexts.
 <!-- END:compound:skill-managed -->
 
 ## Manual notes
