@@ -414,14 +414,13 @@ class TransformationBuilder:
 
                 result = builder.execute()
         """
-        # If pipe() was used, return the current state directly
-        # Otherwise, apply all transformations from scratch
-        if hasattr(self, "_current_data") and len(self.transformations) > 0:
-            return self._current_data
-
+        # Apply all transformations from original data
         result = self.data
         for transform_fn in self.transformations:
             result = transform_fn(result)
+
+        # Update _current_data so subsequent execute() calls don't re-apply
+        self._current_data = result
         return result
 
     def to_operator(self) -> Any:  # Operator

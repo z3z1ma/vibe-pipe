@@ -40,7 +40,20 @@ def sample_schema() -> Schema:
 
 
 @pytest.fixture
-def nested_data(sample_schema: Schema) -> list[DataRecord]:
+def nested_schema() -> Schema:
+    """Create schema with nested fields."""
+    return Schema(
+        name="nested",
+        fields=(
+            SchemaField(name="id", data_type=DataType.INTEGER),
+            SchemaField(name="user", data_type=DataType.OBJECT),
+            SchemaField(name="address", data_type=DataType.OBJECT),
+        ),
+    )
+
+
+@pytest.fixture
+def nested_data(nested_schema: Schema) -> list[DataRecord]:
     """Create nested test data."""
     return [
         DataRecord(
@@ -49,7 +62,7 @@ def nested_data(sample_schema: Schema) -> list[DataRecord]:
                 "user": {"name": "Alice", "email": "alice@example.com"},
                 "address": {"city": "SF", "state": "CA"},
             },
-            schema=sample_schema,
+            schema=nested_schema,
         ),
         DataRecord(
             data={
@@ -57,7 +70,7 @@ def nested_data(sample_schema: Schema) -> list[DataRecord]:
                 "user": {"name": "Bob", "email": "bob@example.com"},
                 "address": {"city": "NYC", "state": "NY"},
             },
-            schema=sample_schema,
+            schema=nested_schema,
         ),
     ]
 
@@ -94,7 +107,7 @@ def sample_data(sample_schema: Schema) -> list[DataRecord]:
 class TestExtractNestedValue:
     """Test extract_nested_value helper function."""
 
-    def test_extract_single_level(self) -> None:
+    def test_extract_single_level(self, nested_schema: Schema) -> None:
         """Test extracting from single level."""
         data = {"name": "Alice"}
         result = extract_nested_value(data, "name")
