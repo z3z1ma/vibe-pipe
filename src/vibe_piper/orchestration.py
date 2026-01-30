@@ -2,7 +2,7 @@
 Orchestration engine for Vibe Piper.
 
 This module provides advanced orchestration features including parallel execution,
-state tracking, checkpointing, and incremental run optimization.
+state tracking, checkpointing, incremental run optimization, and caching.
 """
 
 import json
@@ -16,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from vibe_piper.caching import CacheManager
 from vibe_piper.execution import DefaultExecutor
 from vibe_piper.types import (
     Asset,
@@ -259,6 +260,8 @@ class OrchestrationConfig:
         checkpoint_dir: Directory for checkpoints
         state_dir: Directory for state files
         error_strategy: How to handle execution errors
+        enable_cache: Whether to enable result caching
+        cache_ttl: Default TTL for cache entries (seconds)
     """
 
     max_workers: int = 4
@@ -268,6 +271,8 @@ class OrchestrationConfig:
     state_dir: Path = Path(".state")
     skip_on_cached: bool = True
     error_strategy: ErrorStrategy = ErrorStrategy.FAIL_FAST
+    enable_cache: bool = False
+    cache_ttl: int | None = None
 
 
 @dataclass
@@ -280,22 +285,31 @@ class OrchestrationEngine:
     - Persistent state tracking
     - Checkpoint-based recovery
     - Incremental run optimization
+    - Result caching with TTL
 
     Attributes:
         config: Orchestration configuration
         state_manager: Manages execution state persistence
         executor: The executor to use for running assets
         error_strategy: How to handle execution errors
+        cache_manager: Cache manager for result caching
     """
 
     config: OrchestrationConfig = field(default_factory=OrchestrationConfig)
     state_manager: StateManager = field(init=False)
     executor: Executor = field(default_factory=lambda: DefaultExecutor())
     error_strategy: ErrorStrategy = ErrorStrategy.FAIL_FAST
+    cache_manager: CacheManager | None = None
 
     def __post_init__(self) -> None:
-        """Initialize state manager."""
+        """Initialize state manager and cache manager."""
         self.state_manager = StateManager(state_dir=self.config.state_dir)
+
+        if self.config.enable_cache:
+            self.cache_manager = CacheManager(enabled=True)
+            logger.info("Caching enabled with TTL support")
+        else:
+            self.cache_manager = CacheManager(enabled=False)
 
     def execute(
         self,
@@ -336,6 +350,9 @@ class OrchestrationEngine:
         # Determine incremental mode
         use_incremental = incremental if incremental is not None else self.config.enable_incremental
 
+        # Determine cache mode
+        use_cache = self.config.enable_cache
+
         # Load or create execution state
         if use_incremental:
             state = self.state_manager.load_state(graph.name)
@@ -350,6 +367,11 @@ class OrchestrationEngine:
                 )
         else:
             state = ExecutionState(pipeline_id=graph.name, run_id=context.run_id)
+
+        # Initialize cache manager if enabled
+        if use_cache and self.cache_manager is None:
+            self.cache_manager = CacheManager(enabled=True)
+            logger.info("Cache manager initialized")
 
         # Determine assets to execute (skip if incremental and completed)
         assets_to_execute = self._filter_assets_for_incremental(
@@ -628,7 +650,7 @@ class OrchestrationEngine:
         state: ExecutionState,
     ) -> AssetResult:
         """
-        Execute an asset with state tracking.
+        Execute an asset with state tracking and caching.
 
         Args:
             asset: The asset to execute
@@ -642,7 +664,55 @@ class OrchestrationEngine:
         start_time = time.time()
         logger.debug(f"Executing asset: {asset.name}")
 
+        # Check if caching is enabled
+        cache_enabled = asset.config.get("cache", False)
+        cache_ttl = asset.config.get("cache_ttl")
+
+        # Try to get from cache first
+        if cache_enabled and self.cache_manager:
+            # Get upstream data for cache key
+            inputs_for_cache = None
+            if upstream_results:
+                # Convert upstream results to cacheable data
+                inputs_for_cache = {
+                    name: result.data if result.success else None
+                    for name, result in upstream_results.items()
+                }
+
+            cached_result = self.cache_manager.get(
+                asset.name, inputs_for_cache, asset.operator.fn if asset.operator else None
+            )
+
+            if cached_result is not None:
+                logger.info(f"Cache HIT for {asset.name}")
+                return AssetResult(
+                    asset_name=asset.name,
+                    success=True,
+                    data=cached_result,
+                    duration_ms=(time.time() - start_time) * 1000,
+                    timestamp=datetime.utcnow(),
+                    lineage=tuple(upstream_results.keys()),
+                    created_at=asset.created_at or datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                    checksum=None,
+                )
+
+        # Execute asset
         result = self.executor.execute(asset, context, upstream_results)
+
+        # Cache result if enabled
+        if cache_enabled and self.cache_manager and result.success:
+            self.cache_manager.set(
+                asset.name,
+                {
+                    name: result.data if result.success else None
+                    for name, result in upstream_results.items()
+                },
+                result.data,
+                asset.operator.fn if asset.operator else None,
+                ttl=cache_ttl,
+            )
+            logger.debug(f"Cached result for {asset.name}")
 
         duration_ms = (time.time() - start_time) * 1000
         logger.debug(
@@ -709,6 +779,11 @@ class OrchestrationEngine:
             ):
                 total_rows += len(result.data)
 
+        # Get cache statistics if available
+        cache_stats = {}
+        if self.cache_manager:
+            cache_stats = self.cache_manager.get_stats()
+
         metrics = {
             "total_assets": len(asset_results),
             "total_duration_ms": total_duration,
@@ -716,7 +791,20 @@ class OrchestrationEngine:
             "total_rows": total_rows,
             "parallel": self.config.max_workers > 1,
             "max_workers": self.config.max_workers,
+            "incremental": self.config.enable_incremental,
+            "cache_enabled": self.config.enable_cache,
         }
+
+        # Add cache stats
+        if cache_stats:
+            metrics.update(
+                {
+                    "cache_hits": cache_stats.get("hits", 0),
+                    "cache_misses": cache_stats.get("misses", 0),
+                    "cache_hit_rate": cache_stats.get("hit_rate", 0),
+                    "cache_entries": cache_stats.get("entries", 0),
+                }
+            )
 
         return metrics
 
