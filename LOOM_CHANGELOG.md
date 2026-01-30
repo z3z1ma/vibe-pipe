@@ -4,6 +4,8 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T02:25:31.464Z Add instinct + skill for resolving merge conflict markers in compound-managed LOOM_CHANGELOG.md / LOOM_ROADMAP.md while preserving BEGIN/END fences; request docs sync after conflict resolution.
+- 2026-01-30T02:22:56.207Z No memory updates proposed; only .opencode/compound/state.json changed.
 - 2026-01-30T02:01:31.634Z No new learnings; only compound internal state changed.
 - 2026-01-30T01:27:06.799Z No memory updates proposed (idle session; git diffstat empty).
 - 2026-01-30T01:25:09.432Z Hardened compounding guidance: compound-workflows now specifies CompoundSpec v2 and correct compound_apply() usage; added instinct to treat src/*.egg-info diffs from uv editable installs as generated noise and route decisions through python-egg-info-hygiene.

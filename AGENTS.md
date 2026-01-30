@@ -160,6 +160,8 @@ This block is maintained by the compound plugin.
   - .opencode/skills/fastapi-web-framework/SKILL.md
 - **implement-schema-evolution** (v1): Implement schema evolution features including semantic versioning, migration planning, breaking change detection, and schema history tracking
   - .opencode/skills/implement-schema-evolution/SKILL.md
+- **loom-docs-merge-conflicts** (v1): Resolve git merge conflicts in compound-managed LOOM docs (LOOM_CHANGELOG.md, LOOM_ROADMAP.md) without breaking BEGIN/END fences.
+  - .opencode/skills/loom-docs-merge-conflicts/SKILL.md
 - **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
   - .opencode/skills/loom-manager-workflow/SKILL.md
 - **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, handle no-op merges, and resolve compound block conflicts correctly.
@@ -215,6 +217,9 @@ This block is maintained by the compound plugin.
 - **drift-history-timestamp-tracking** (85%)
   - Trigger: Implementing DriftHistory class for drift monitoring
   - Action: Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.
+- **loom-docs-merge-conflict-markers** (85%)
+  - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
+  - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
@@ -254,9 +259,6 @@ This block is maintained by the compound plugin.
 - **egg-info-churn-is-build-noise** (70%)
   - Trigger: git diff shows only src/vibe_piper.egg-info/* changes (PKG-INFO, SOURCES.txt, requires.txt) with no src/ or tests/ edits
   - Action: Assume these are generated artifacts; avoid proposing learnings from them and avoid including them in commits unless the repo explicitly tracks egg-info as source of truth.
-- **compound-state-json-noop** (70%)
-  - Trigger: Git summary shows only .opencode/compound/state.json changed
-  - Action: Treat as internal bookkeeping; propose no memory/product changes and avoid suggesting commits or follow-up work based on it.
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->
