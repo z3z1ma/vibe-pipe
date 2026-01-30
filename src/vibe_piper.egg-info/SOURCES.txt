@@ -112,6 +112,12 @@ src/vibe_piper/sources/api.py
 src/vibe_piper/sources/base.py
 src/vibe_piper/sources/database.py
 src/vibe_piper/sources/file.py
+src/vibe_piper/sinks/__init__.py
+src/vibe_piper/sinks/base.py
+src/vibe_piper/sinks/database.py
+src/vibe_piper/sinks/ddl_generator.py
+src/vibe_piper/sinks/file.py
+src/vibe_piper/sinks/s3.py
 src/vibe_piper/transformations/__init__.py
 src/vibe_piper/transformations/aggregations.py
 src/vibe_piper/transformations/builder.py
