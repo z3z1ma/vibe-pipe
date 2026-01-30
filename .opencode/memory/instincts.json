@@ -336,6 +336,40 @@
           "sessionID": "ses_3f39fd14fffe3C00AJzxtXyAqh"
         }
       ]
+    },
+    {
+      "id": "egg-info-diff-hygiene",
+      "title": "Treat src/*.egg-info diffs as generated noise",
+      "trigger": "git diff shows changes under src/*.egg-info/ (PKG-INFO, SOURCES.txt, requires.txt) after installs/runs",
+      "action": "Assume generated metadata; avoid committing unless intentionally updating packaging. Prefer adding src/*.egg-info/ to .gitignore and cleaning the working tree by removing the generated directories, then re-running only the needed uv commands.",
+      "tags": [],
+      "confidence": 0.82,
+      "status": "active",
+      "created_at": "2026-01-30T01:22:03.863Z",
+      "updated_at": "2026-01-30T01:22:03.863Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T01:22:03.863Z",
+          "sessionID": "ses_3f39f6b4affegW0YueTnLRJkTJ"
+        }
+      ]
+    },
+    {
+      "id": "inst-20260130-002",
+      "title": "Editable install egg-info noise",
+      "trigger": "Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).",
+      "action": "Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit.",
+      "tags": [],
+      "confidence": 0.78,
+      "status": "active",
+      "created_at": "2026-01-30T01:25:08.462Z",
+      "updated_at": "2026-01-30T01:25:08.462Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T01:25:08.462Z",
+          "sessionID": "ses_3f39f6b4affegW0YueTnLRJkTJ"
+        }
+      ]
     }
   ]
 }

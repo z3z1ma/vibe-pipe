@@ -11,6 +11,9 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T01:27:06.799Z No memory updates proposed (idle session; git diffstat empty).
+- 2026-01-30T01:25:09.432Z Hardened compounding guidance: compound-workflows now specifies CompoundSpec v2 and correct compound_apply() usage; added instinct to treat src/*.egg-info diffs from uv editable installs as generated noise and route decisions through python-egg-info-hygiene.
+- 2026-01-30T01:22:04.760Z Add instinct to treat src/*.egg-info diffs as generated metadata and avoid committing them unless packaging changes are intentional.
 - 2026-01-30T01:17:14.715Z No new learnings from this idle cycle; only compound state changed.
 - 2026-01-30T01:14:06.447Z No memory updates proposed; no repo activity detected in this session.
 - 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
@@ -38,7 +41,4 @@ High-level direction and priorities.
 - ||||||| merged common ancestors
 - =======
 - 2026-01-29T22:08:34.455Z Merged 4 tickets: vp-e6da (Data Quality Dashboard) and vp-6365 (external quality: Great Expectations, Soda Cloud). Resolved compound block conflicts by accepting incoming versions. Updated loom-merge-queue-worker skill to document conflict resolution for compound-managed files.
-- >>>>>>> team/merge-queue
-- 2026-01-29T12:18:16.021Z Phase 3 P1 tickets completed: Pipeline Orchestration Engine (parallel execution, state tracking, incremental runs, checkpoint/recovery), Pipeline Scheduling System (cron/interval/event triggers, backfill support, timezone handling), CLI for Pipeline Operations (7 commands: status, history, backfill, asset list/show). All merged and shipped to main.
-- 2026-01-29T13:58:59.557Z Plan Mode deadlock continues - 12 autolearn prompts with same reason. Merge queue blocked (2 items: vp-cf95, vp-f17e). Previous merge worker session learning already captured. Cannot propose memory updates in Plan Mode.
 <!-- END:compound:roadmap-ai-notes -->

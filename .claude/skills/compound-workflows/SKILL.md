@@ -46,11 +46,10 @@ Document the Plan → Work → Review → Compound workflow pattern used for tes
 ## 4. Compound
 - Extract reusable patterns into skills (procedural memory)
 - Store memos for future planning
-- Propose skill changes as CompoundSpec v1 JSON object
-- Call compound_apply to create/update skills
-- Create/update AI-managed blocks in ROADMAP
-- Append agent-optimized CHANGELOG entry
-- Sync derived indexes
+- Propose skill changes as a CompoundSpec v2 JSON object
+- Call `compound_apply()` to apply the spec
+- Sync derived indexes (docs sync)
+- Append an agent-optimized CHANGELOG entry
 
 # Example: Testing Infrastructure
 - Plan: Created ticket vp-0429 for testing infrastructure
@@ -82,8 +81,8 @@ Document the Plan → Work → Review → Compound workflow pattern used for tes
 
 ### /workflows:compound <ticket-id>
 - Write memory notes (loom memory) that future planning can recall
-- Propose skill changes as CompoundSpec v1 JSON object
-- Call `compound_apply(spec_json=...)` to make it real
+- Produce a single CompoundSpec v2 JSON object (skills/instincts/docs/changelog)
+- Run `compound_apply()` to apply it
 
 # Operational Defaults
 - Keep skills small, scoped, and action-oriented

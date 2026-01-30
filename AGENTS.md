@@ -218,6 +218,9 @@ This block is maintained by the compound plugin.
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
+- **egg-info-diff-hygiene** (82%)
+  - Trigger: git diff shows changes under src/*.egg-info/ (PKG-INFO, SOURCES.txt, requires.txt) after installs/runs
+  - Action: Assume generated metadata; avoid committing unless intentionally updating packaging. Prefer adding src/*.egg-info/ to .gitignore and cleaning the working tree by removing the generated directories, th…
 - **inst-20250129-002** (80%)
   - Trigger: new_history_store_created
   - Action: initialize_schema
@@ -230,6 +233,9 @@ This block is maintained by the compound plugin.
 - **inst-20260130-001** (80%)
   - Trigger: Producing a CompoundSpec v2 with skills.update entries
   - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
+- **inst-20260130-002** (78%)
+  - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
+  - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
