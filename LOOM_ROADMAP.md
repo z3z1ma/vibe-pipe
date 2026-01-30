@@ -3,14 +3,15 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (4)
+- # Tickets (3)
 - - `vp-09e9` P1 in_progress - Untitled
 - - `vp-0429` P2 in_progress - Untitled
-- - `vp-141f` P2 in_progress - Advanced Validation Patterns
 - - `vp-db50` P2 in_progress - Performance Optimizations
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T02:50:09.689Z No new procedural learnings extracted; synced docs/indexes after adding ticket vp-db50 and updating LOOM roadmap/changelog.
+- 2026-01-30T02:36:38.057Z No durable learnings extracted from this session; only internal compound state changed.
 - 2026-01-30T02:25:31.464Z Add instinct + skill for resolving merge conflict markers in compound-managed LOOM_CHANGELOG.md / LOOM_ROADMAP.md while preserving BEGIN/END fences; request docs sync after conflict resolution.
 - 2026-01-30T02:22:56.207Z No memory updates proposed; only .opencode/compound/state.json changed.
 - 2026-01-30T02:01:31.634Z No new learnings; only compound internal state changed.
@@ -39,6 +40,4 @@ High-level direction and priorities.
 - 2026-01-29T22:56:13.877Z Merge worker: Successfully merged vp-2386 (anomaly detection validation). Handled local changes and AI-managed file conflicts during origin/main sync.
 - 2026-01-29T22:49:52.552Z Implemented drift detection with baseline storage, history tracking, thresholds, and validation check wrappers
 - 2026-01-29T22:43:49.719Z Implement anomaly detection with statistical (Z-score, IQR) and ML methods (Isolation Forest, One-Class SVM), plus ranking and historical baseline comparison. 35 tests, 88% coverage.
-- 2026-01-29T22:42:10.210Z Implemented comprehensive Data Cleaning Utilities module (vp-e62a) with @clean_data() decorator, 20+ functions for deduplication, null handling, outlier detection/treatment, type normalization, standardization, and text cleaning. Created CleaningConfig and CleaningReport classes. Wrote 73 tests achieving 77% pass rate, 73% module coverage. Identified pandas 2.x deprecations in string accessor API that need updating.
-- 2026-01-29T22:33:42.126Z Merge worker session: queue empty, waited 10m, no work.
 <!-- END:compound:roadmap-ai-notes -->
