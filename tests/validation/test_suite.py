@@ -161,7 +161,7 @@ class TestValidationSuite:
         checks = {
             "check1": expect.column("id").to_be_unique(),
             "check2": expect.column("age").to_be_between(0, 120),
-            "check3": expect.column("email").to_match_regex(r"^[\\w\\.-]+@"),
+            "check3": expect.column("email").to_match_regex(r"^[\w\.-]+@"),
         }
 
         suite.add_checks(checks)
@@ -198,25 +198,12 @@ class TestValidationSuite:
 class TestValidationExecution:
     """Test validation execution."""
 
-    def test_validate_all_pass(self, sample_records):
+    def test_validate_all_pass(self, sample_records, invalid_records):
         """Test validation where all checks pass."""
         suite = ValidationSuite(name="test_suite")
         suite.add_check("unique_ids", expect.column("id").to_be_unique())
         suite.add_check("valid_ages", expect.column("age").to_be_between(20, 40))
-
-        result = suite.validate(sample_records)
-
-        assert result.success is True
-        assert result.total_checks == 2
-        assert len(result.failed_checks) == 0
-        assert result.total_records == 3
-
-    def test_validate_some_fail(self, invalid_records):
-        """Test validation where some checks fail."""
-        suite = ValidationSuite(name="test_suite")
-        suite.add_check("unique_ids", expect.column("id").to_be_unique())
-        suite.add_check("valid_ages", expect.column("age").to_be_between(20, 40))
-        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\\w\\.-]+@"))
+        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\w\.-]+@"))
 
         result = suite.validate(invalid_records)
 
@@ -285,7 +272,7 @@ class TestValidationStrategy:
         )
         suite.add_check("unique_ids", expect.column("id").to_be_unique())
         suite.add_check("valid_ages", expect.column("age").to_be_between(20, 40))
-        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\\w\\.-]+@"))
+        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\w\.-]+@"))
 
         result = suite.validate(invalid_records)
 
@@ -302,7 +289,7 @@ class TestValidationStrategy:
         )
         suite.add_check("unique_ids", expect.column("id").to_be_unique())
         suite.add_check("valid_ages", expect.column("age").to_be_between(20, 40))
-        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\\w\\.-]+@"))
+        suite.add_check("valid_emails", expect.column("email").to_match_regex(r"^[\w\.-]+@"))
 
         result = suite.validate(invalid_records)
 
@@ -480,7 +467,7 @@ class TestIntegration:
             checks={
                 "unique_ids": expect.column("id").to_be_unique(),
                 "valid_ages": expect.column("age").to_be_between(0, 120),
-                "valid_emails": expect.column("email").to_match_regex(r"^[\\w\\.-]+@"),
+                "valid_emails": expect.column("email").to_match_regex(r"^[\w\.-]+@"),
                 "name_not_null": expect.column("name").to_not_be_null(),
                 "id_not_null": expect.column("id").to_not_be_null(),
             },

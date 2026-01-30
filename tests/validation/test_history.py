@@ -4,9 +4,10 @@ Tests for validation history storage and analysis.
 
 from __future__ import annotations
 
-import pytest
-from datetime import datetime, timedelta
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+import pytest
 
 from vibe_piper.types import QualityMetricType, ValidationResult
 from vibe_piper.validation.history import (

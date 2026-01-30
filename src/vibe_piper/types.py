@@ -314,7 +314,7 @@ class Operator:
 @dataclass(frozen=True)
 class Asset:
     """
-    Represents a data source or sink in the system.
+    Represents a data source or sink in system.
 
     An Asset represents a tangible data entity - a table, file, API endpoint,
     or any other data source/destination that can be used in pipelines.
@@ -353,6 +353,10 @@ class Asset:
     created_at: datetime | None = None
     updated_at: datetime | None = None
     checksum: str | None = None
+    cache: bool = False
+    cache_ttl: int | None = None
+    parallel: bool = False
+    lazy: bool = False
 
     def __post_init__(self) -> None:
         """Validate the asset configuration."""
