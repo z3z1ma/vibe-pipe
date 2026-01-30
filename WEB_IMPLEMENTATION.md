@@ -52,8 +52,8 @@ src/vibe_piper/web/
 # Development with auto-reload
 uv run vibepiper-server --reload
 
-# Production
-uv run vibepiper-server --host 0.0.0.0 --port 8000 --workers 4
+# Production with custom JWT secret
+JWT_SECRET_KEY="your-production-secret-key" uv run vibepiper-server --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ## Frontend (React + Vite + TypeScript)
@@ -81,6 +81,8 @@ frontend/
 
 ### Features Implemented
 - ✅ React with TypeScript and Vite
+- ✅ React Router for proper navigation
+- ✅ ProtectedRoute and PublicRoute components for auth guards
 - ✅ Tailwind CSS for styling
 - ✅ Type-safe API service layer
 - ✅ Authentication context (AuthProvider, useAuth hook)
@@ -89,6 +91,7 @@ frontend/
 - ✅ Dashboard page with pipelines and assets tables
 - ✅ Error handling throughout
 - ✅ Responsive UI design
+- ✅ Auto-redirect based on authentication status
 
 ### Running the Frontend
 ```bash
@@ -125,16 +128,16 @@ All errors return structured JSON:
 ```
 
 ## TODO (Future Work)
-- [ ] Add React Router for proper navigation
+- [x] Add React Router for proper navigation ✅ Implemented
 - [ ] Integrate shadcn/ui components
-- [ ] Implement OAuth2/OIDC (Google, GitHub)
-- [ ] Add database integration (PostgreSQL)
+- [ ] Implement OAuth2/OIDC (Google, GitHub) - endpoints stubbed
+- [ ] Add database integration (PostgreSQL) - currently uses mock data
 - [ ] Write unit tests (backend + frontend)
 - [ ] Write integration tests
 - [ ] Add user profile management
 - [ ] Add pipeline run monitoring UI
 - [ ] Add Docker configuration
-- [ ] Write comprehensive documentation
+- [ ] Expand comprehensive documentation
 
 ## Testing
 
@@ -173,5 +176,5 @@ open http://127.0.0.1:8000/docs
 ## Notes
 - Backend uses mock data for demonstration (TODO: Replace with database)
 - OAuth2 endpoints are stubbed (TODO: Implement full OAuth2 flow)
-- Secret key should be moved to environment variables in production
-- Frontend shows both login and dashboard pages for demo purposes
+- JWT secret key is configurable via JWT_SECRET_KEY environment variable (production should set this)
+- React Router properly handles navigation and authentication-based redirects
