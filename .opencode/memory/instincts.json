@@ -448,10 +448,10 @@
       "trigger": "System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.",
       "action": "Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementation until Plan Mode ends.",
       "tags": [],
-      "confidence": 0.89,
+      "confidence": 0.92,
       "status": "active",
       "created_at": "2026-01-30T04:28:26.742Z",
-      "updated_at": "2026-01-30T05:13:38.737Z",
+      "updated_at": "2026-01-30T05:20:31.972Z",
       "evidence": [
         {
           "ts": "2026-01-30T04:28:26.742Z",
@@ -461,6 +461,11 @@
           "ts": "2026-01-30T05:13:38.737Z",
           "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
           "note": "System reminder emphasized Plan Mode read-only constraints; reinforces avoiding write-effect tool usage in that phase."
+        },
+        {
+          "ts": "2026-01-30T05:20:31.972Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
+          "note": "System reminder shows Plan Mode (read-only) constraints are enforced and must override normal edit/command behavior."
         }
       ]
     },
@@ -470,10 +475,10 @@
       "trigger": "Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).",
       "action": "Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.",
       "tags": [],
-      "confidence": 0.8,
+      "confidence": 0.8500000000000001,
       "status": "active",
       "created_at": "2026-01-30T04:59:29.428Z",
-      "updated_at": "2026-01-30T05:13:38.737Z",
+      "updated_at": "2026-01-30T05:20:31.972Z",
       "evidence": [
         {
           "ts": "2026-01-30T04:59:29.428Z",
@@ -483,6 +488,11 @@
           "ts": "2026-01-30T05:13:38.737Z",
           "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
           "note": "This session's autolearn prompt explicitly required JSON-only output (no fences/commentary) with a strict schema."
+        },
+        {
+          "ts": "2026-01-30T05:20:31.972Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
+          "note": "Autolearn prompt explicitly requires JSON-only output with a strict schema; reinforces the need to emit exactly one JSON object with no extra text."
         }
       ]
     },
@@ -509,14 +519,36 @@
       "trigger": "An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references",
       "action": "In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).",
       "tags": [],
-      "confidence": 0.78,
+      "confidence": 0.8300000000000001,
       "status": "active",
       "created_at": "2026-01-30T05:13:38.737Z",
-      "updated_at": "2026-01-30T05:13:38.737Z",
+      "updated_at": "2026-01-30T05:20:31.972Z",
       "evidence": [
         {
           "ts": "2026-01-30T05:13:38.737Z",
           "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z"
+        },
+        {
+          "ts": "2026-01-30T05:20:31.972Z",
+          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
+          "note": "Autolearn prompt reiterates the repo-root-relative path constraint for any file references in markdown content."
+        }
+      ]
+    },
+    {
+      "id": "inst-workspace-add-remove-only-via-loom",
+      "title": "Manage workspace.json via loom workspace",
+      "trigger": "About to add/remove a service repo, or you notice workspace.json needs changes (new repo, remote, default branch).",
+      "action": "Use `loom workspace add/remove` (not manual edits). Then run `loom workspace sync --clone` and `loom workspace services refresh-index` so clones and services/index.json stay consistent and derived.",
+      "tags": [],
+      "confidence": 0.72,
+      "status": "active",
+      "created_at": "2026-01-30T05:20:08.706Z",
+      "updated_at": "2026-01-30T05:20:08.706Z",
+      "evidence": [
+        {
+          "ts": "2026-01-30T05:20:08.706Z",
+          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
         }
       ]
     }

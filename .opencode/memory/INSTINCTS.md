@@ -12,12 +12,12 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
+- **inst-20260130-003** (92%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
-- **inst-20260130-003** (89%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20260130-002** (88%)
   - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
   - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
@@ -27,6 +27,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-20260130-001** (85%)
   - Trigger: Producing a CompoundSpec v2 with skills.update entries
   - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
+- **inst-autolearn-json-only** (85%)
+  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
+  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
 - **inst-20250129-001** (85%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -36,6 +39,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
+- **inst-autolearn-repo-relative-paths** (83%)
+  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
+  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
@@ -54,12 +60,6 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **drift-baseline-storage-json** (80%)
   - Trigger: Implementing drift detection with historical baseline comparison
   - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
-- **inst-autolearn-json-only** (80%)
-  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
-  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
-- **inst-autolearn-repo-relative-paths** (78%)
-  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
-  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
@@ -69,6 +69,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **jsonl-append-only-time-series** (72%)
   - Trigger: Storing time-series drift history that only grows
   - Action: Write each entry as a line to JSONL file (json.dumps(entry) + newline). Efficient append-only, easy to read latest N entries with tail.
+- **inst-workspace-add-remove-only-via-loom** (72%)
+  - Trigger: About to add/remove a service repo, or you notice workspace.json needs changes (new repo, remote, default branch).
+  - Action: Use `loom workspace add/remove` (not manual edits). Then run `loom workspace sync --clone` and `loom workspace services refresh-index` so clones and services/index.json stay consistent and derived.
 - **validation-result-wrapper-mapping** (70%)
   - Trigger: Creating wrapper functions that convert domain types to validation framework ValidationResult
   - Action: Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). …

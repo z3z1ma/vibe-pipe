@@ -20,13 +20,13 @@ So we separate:
 
 ## CompoundSpec v2
 
-Top-level keys:
+Output **one JSON object** matching this schema:
 
 - `schema_version`: must be `2`
 - `auto`: `{ reason, sessionID }`
 - `instincts`: `{ create[], update[] }`
 - `skills`: `{ create[], update[] }`
-- `docs`: `{ sync: true|false }`
+- `docs`: `{ sync, blocks: { upsert[] } }`
 - `changelog`: `{ note }`
 
 ### `instincts`
@@ -34,43 +34,35 @@ Top-level keys:
 - `create[]`: `{ id, title, trigger, action, confidence }`
 - `update[]`: `{ id, confidence_delta, evidence_note }`
 
-Notes:
-- Keep instincts small: one clear trigger, one concrete action.
-- Prefer updates over creating near-duplicates.
+Keep instincts small: *trigger -> action*.
 
 ### `skills`
 
 - `create[]`: `{ name, description, body }`
 - `update[]`: `{ name, description?, body }`
 
-Notes:
+Rules:
 - `name` must match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
-- `body` is markdown without frontmatter.
-- For `skills.update[]`, `body` MUST be the entire final managed body (no snippets/diffs).
+- `body` is markdown **without** frontmatter.
+- For `skills.update[]`, `body` must be the **entire final** managed body (no snippets/diffs).
 
 ### `docs`
 
-- `sync: true` refreshes AI-managed blocks and derived indexes (for example `.opencode/memory/INSTINCTS.md`).
+Use this only to update AI-managed blocks:
 
-### `changelog`
+- `sync`: set `true` to refresh derived indexes.
+- `blocks.upsert[]`: `{ file, id, content }`
 
-- `note` is a short, AI-first summary of what changed in memory.
-
-## Output rules (especially for autolearn prompts)
-
-- Output exactly one valid JSON object.
-- Do not wrap in code fences.
-- Do not add commentary outside JSON.
-
-## Path rule
-
-- When referencing repository files/directories in any markdown you emit (skill bodies, docs, changelog), use repo-root-relative paths.
-- Avoid absolute paths and URIs like `file://...`.
+Path rule:
+- When referencing files/dirs in markdown, use **repo-root-relative** paths.
 
 ## Apply
 
-1. Produce a single valid JSON object matching the schema.
-2. Run `compound_apply()`.
+After drafting the JSON spec, run:
+
+- `compound_apply()`
+
+It applies skill/doc/memory updates to the repo's memory files.
 <!-- END:compound:skill-managed -->
 
 ## Manual notes

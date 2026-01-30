@@ -4,6 +4,9 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T05:29:55.113Z Session was idle; no new stable heuristics or procedures identified.
+- 2026-01-30T05:20:32.961Z Update Compound workflow/apply-spec skills to CompoundSpec v2 and reflect compound_apply() usage; reinforce autolearn constraints (JSON-only output, repo-relative paths, plan-mode read-only).
+- 2026-01-30T05:20:09.981Z Add instinct: treat workspace.json and services/index.json as loom-managed boundaries (add/remove via loom; regenerate index), plus small confidence bump on services.md deps normalization.
 - 2026-01-30T05:13:39.728Z Reinforced autolearn JSON-only + read-only Plan Mode instincts; updated compound-apply-spec with a repo-relative path rule.
 - 2026-01-30T05:05:54.954Z Add an instinct to audit unexpected `services/index.json` diffs by regenerating via loom and ensuring it matches intentional `services/*.md` changes; slightly increase confidence in the existing services-md deps normalization instinct.
 - 2026-01-30T04:59:30.789Z Reinforced service dependency hygiene: normalize `services/*.md` deps and refresh `services/index.json`; added an autolearn guardrail instinct to output strict JSON-only specs.

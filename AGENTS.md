@@ -150,12 +150,12 @@ This block is maintained by the compound plugin.
 - **nullable-schema-fields-for-data-with-nones** (92%)
   - Trigger: Creating test fixtures with DataRecord objects that will have None/null values in specific fields
   - Action: When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.
+- **inst-20260130-003** (92%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20250129-003** (90%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
-- **inst-20260130-003** (89%)
-  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
-  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20260130-002** (88%)
   - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
   - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
@@ -165,6 +165,9 @@ This block is maintained by the compound plugin.
 - **inst-20260130-001** (85%)
   - Trigger: Producing a CompoundSpec v2 with skills.update entries
   - Action: Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.
+- **inst-autolearn-json-only** (85%)
+  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
+  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
 - **inst-20250129-001** (85%)
   - Trigger: validation_suite_completed
   - Action: store_validation_result
@@ -174,6 +177,9 @@ This block is maintained by the compound plugin.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
+- **inst-autolearn-repo-relative-paths** (83%)
+  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
+  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **optional-type-checking-guard** (82%)
   - Trigger: Importing types only for type checking (Schema, DataType) used only in annotations
   - Action: Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.
@@ -192,12 +198,6 @@ This block is maintained by the compound plugin.
 - **drift-baseline-storage-json** (80%)
   - Trigger: Implementing drift detection with historical baseline comparison
   - Action: Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline…
-- **inst-autolearn-json-only** (80%)
-  - Trigger: Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).
-  - Action: Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.
-- **inst-autolearn-repo-relative-paths** (78%)
-  - Trigger: An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references
-  - Action: In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).
 - **baseline-json-storage-pattern** (75%)
   - Trigger: Implementing historical data storage with timestamp, sample_size, columns for later retrieval
   - Action: Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.
@@ -218,3 +218,60 @@ Do not edit inside the BEGIN/END fences.
 <!-- BEGIN:compound:loom-core-context -->
 (autogenerated)
 <!-- END:compound:loom-core-context -->
+
+<!-- BEGIN:compound:skills-index -->
+- **author-agents-md-uv-python** (v1): Create/update AGENTS.md for a Python repo driven by uv (ruff/mypy/pytest), including single-test commands and editor rule discovery.
+  - .opencode/skills/author-agents-md-uv-python/SKILL.md
+- **compound-apply-spec** (v1): Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
+  - .opencode/skills/compound-apply-spec/SKILL.md
+- **compound-workflows** (v1): Use Plan → Work → Review → Compound to compound skills and maintain project context.
+  - .opencode/skills/compound-workflows/SKILL.md
+- **data-cleaning-implementation** (v1): Update data-cleaning-implementation skill with critical pandas patterns and testing learnings from vp-e62a
+  - .opencode/skills/data-cleaning-implementation/SKILL.md
+- **drift-detection-implementation** (v1): Implement drift detection features for data quality monitoring including baseline storage, history tracking, thresholds, and validation wrappers
+  - .opencode/skills/drift-detection-implementation/SKILL.md
+- **egg-info-hygiene** (v1): Handle `src/*.egg-info` diffs in Python repos (uv-driven) to avoid committing generated metadata unintentionally.
+  - .opencode/skills/egg-info-hygiene/SKILL.md
+- **fastapi-web-framework** (v1): Create FastAPI web server with standard middleware, JWT authentication, and REST API endpoints
+  - .opencode/skills/fastapi-web-framework/SKILL.md
+- **implement-schema-evolution** (v1): Implement schema evolution features including semantic versioning, migration planning, breaking change detection, and schema history tracking
+  - .opencode/skills/implement-schema-evolution/SKILL.md
+- **loom-docs-merge-conflicts** (v1): Resolve git merge conflicts in compound-managed LOOM docs (LOOM_CHANGELOG.md, LOOM_ROADMAP.md) without breaking BEGIN/END fences.
+  - .opencode/skills/loom-docs-merge-conflicts/SKILL.md
+- **loom-manager-workflow** (v1): Manage Loom team tickets as a team manager with limited permissions (no git merge/push, no loom team commands). Handle ticket lifecycle: create, update, add notes, track dependencies, identify blockages.
+  - .opencode/skills/loom-manager-workflow/SKILL.md
+- **loom-merge-queue-worker** (v1): Process merge queue items as a Loom merge worker - claim, merge, mark done, handle no-op merges, and resolve compound block conflicts correctly.
+  - .opencode/skills/loom-merge-queue-worker/SKILL.md
+- **loom-team-lifecycle-management** (v1): Manage Loom team worker lifecycle from spawn to retire, including ticket assignment, progress tracking, merge operations, and workspace cleanup.
+  - .opencode/skills/loom-team-lifecycle-management/SKILL.md
+- **loom-team-manager** (v1): Act as Team Manager for Loom team, handling ticket workflow when team commands may be unavailable
+  - .opencode/skills/loom-team-manager/SKILL.md
+- **loom-team-manager-pane-dead-on-spawn** (v1): Diagnose and fix Loom team manager pane dying immediately (tmux pane status 1).
+  - .opencode/skills/loom-team-manager-pane-dead-on-spawn/SKILL.md
+- **loom-ticketing** (v1): Use loom ticket for ticket creation, status updates, deps, and notes.
+  - .opencode/skills/loom-ticketing/SKILL.md
+- **loom-workspace** (v1): Use loom workspace to create/manage worktrees for isolated execution of tickets.
+  - .opencode/skills/loom-workspace/SKILL.md
+- **merge-queue-conflict-resolution** (v1): Resolve common merge conflicts in merge-queue worktree including observations.jsonl, uv.lock, pyproject.toml, and egg-info files
+  - .opencode/skills/merge-queue-conflict-resolution/SKILL.md
+- **monitoring-implementation** (v1): Implement comprehensive monitoring and observability features for Vibe Piper pipelines
+  - .opencode/skills/monitoring-implementation/SKILL.md
+- **multi-format-config-management** (v1): Implement configuration management supporting TOML/YAML/JSON formats with inheritance and runtime overrides
+  - .opencode/skills/multi-format-config-management/SKILL.md
+- **python-egg-info-hygiene** (v1): Handle noisy git diffs from src/*.egg-info generated by editable installs (uv) and decide whether to commit or ignore.
+  - .opencode/skills/python-egg-info-hygiene/SKILL.md
+- **quality-scoring-implementation** (v1): Update quality-scoring-implementation skill with validation notes from completed implementation of ticket vp-d5ae
+  - .opencode/skills/quality-scoring-implementation/SKILL.md
+- **skill-authoring** (v1): Create high-quality skills: scoped, procedural, and durable. Prefer updates over duplicates.
+  - .opencode/skills/skill-authoring/SKILL.md
+- **snapshot-testing** (v1): Snapshot testing framework for asserting data structures don't change unexpectedly. Supports JSON serialization, automatic snapshot creation on first run, diff visualization on mismatches, max depth protection, and --update-snapshots flag.
+  - .opencode/skills/snapshot-testing/SKILL.md
+- **uv-lockfile-hygiene** (v1): Triage unexpected uv.lock changes and generated src/*.egg-info diffs in uv-driven Python repos.
+  - .opencode/skills/uv-lockfile-hygiene/SKILL.md
+- **uv-ruff-only-tooling-migration** (v1): Migrate a Python repo from Poetry/Black to UV + Ruff-only (CI, pre-commit, pyproject, docs).
+  - .opencode/skills/uv-ruff-only-tooling-migration/SKILL.md
+- **validation-history-integration** (v1): Auto-store validation results using store_validation_result() integration utility
+  - .opencode/skills/validation-history-integration/SKILL.md
+- **validation-history-schema-initialization** (v1): Initialize PostgreSQL schema for validation history tables
+  - .opencode/skills/validation-history-schema-initialization/SKILL.md
+<!-- END:compound:skills-index -->
