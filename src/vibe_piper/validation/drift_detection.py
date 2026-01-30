@@ -6,20 +6,71 @@ historical baseline data and new data:
 - KS Test: Kolmogorov-Smirnov test for continuous distributions
 - Chi-Square Test: For categorical distribution differences
 - PSI: Population Stability Index for monitoring feature drift
+- Baseline storage and retrieval for historical comparisons
+- Threshold-based alerting for drift monitoring
+- Drift history tracking over time
 
 All methods provide statistical significance and actionable recommendations.
 """
 
 from __future__ import annotations
 
+import json
 import statistics
 from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-from vibe_piper.types import DataRecord
+from vibe_piper.types import DataRecord, DataType, ValidationResult
+
+if TYPE_CHECKING:
+    from vibe_piper.types import Schema
+else:
+    # Import Schema at runtime for use in non-type-checked code
+    from vibe_piper.types import Schema
+
+# =============================================================================
+# Configuration Types
+# =============================================================================
+
+
+@dataclass(frozen=True)
+class DriftThresholds:
+    """
+    Configuration for drift detection thresholds.
+
+    Attributes:
+        warning: Threshold for warning level alerts (0-1)
+        critical: Threshold for critical level alerts (0-1)
+        psi_warning: PSI threshold for warnings (default 0.1)
+        psi_critical: PSI threshold for critical alerts (default 0.2)
+        ks_significance: Significance level for KS test (default 0.05)
+    """
+
+    warning: float = 0.1
+    critical: float = 0.25
+    psi_warning: float = 0.1
+    psi_critical: float = 0.2
+    ks_significance: float = 0.05
+
+    def __post_init__(self) -> None:
+        """Validate threshold values."""
+        if not 0 <= self.warning <= 1:
+            msg = f"warning threshold must be between 0 and 1, got {self.warning}"
+            raise ValueError(msg)
+        if not 0 <= self.critical <= 1:
+            msg = f"critical threshold must be between 0 and 1, got {self.critical}"
+            raise ValueError(msg)
+        if self.warning >= self.critical:
+            msg = f"warning threshold ({self.warning}) must be less than critical ({self.critical})"
+            raise ValueError(msg)
+        if self.psi_warning >= self.psi_critical:
+            msg = f"psi_warning ({self.psi_warning}) must be less than psi_critical ({self.psi_critical})"
+            raise ValueError(msg)
+
 
 # =============================================================================
 # Drift Detection Result Types
@@ -72,6 +123,640 @@ class ColumnDriftResult:
     baseline_distribution: dict[str, Any]
     new_distribution: dict[str, Any]
     recommendation: str | None = None
+
+
+@dataclass
+class BaselineMetadata:
+    """
+    Metadata for a stored baseline.
+
+    Attributes:
+        baseline_id: Unique identifier for the baseline
+        created_at: When the baseline was created
+        sample_size: Number of records in the baseline
+        columns: List of columns in the baseline
+        description: Optional description of the baseline
+    """
+
+    baseline_id: str
+    created_at: datetime
+    sample_size: int
+    columns: tuple[str, ...]
+    description: str | None = None
+
+
+@dataclass
+class DriftHistoryEntry:
+    """
+    Single entry in drift history.
+
+    Attributes:
+        timestamp: When the drift check was performed
+        baseline_id: ID of the baseline used for comparison
+        method: Drift detection method used
+        drift_score: Overall drift score
+        max_drift_score: Maximum drift score across all columns
+        drifted_columns: Columns with significant drift
+        alert_level: Alert level (none, warning, critical)
+    """
+
+    timestamp: datetime
+    baseline_id: str
+    method: str
+    drift_score: float
+    max_drift_score: float
+    drifted_columns: tuple[str, ...]
+    alert_level: str  # "none", "warning", "critical"
+
+
+# =============================================================================
+# Baseline Storage
+# =============================================================================
+
+
+class BaselineStore:
+    """
+    Store and retrieve historical baselines for drift detection.
+
+    Baselines are stored in JSON format in a configured directory.
+    Supports adding, retrieving, listing, and deleting baselines.
+
+    Example:
+        >>> store = BaselineStore(storage_dir="./baselines")
+        >>> baseline_id = store.add_baseline("production_baseline", historical_data, description="Production data from 2024-01-01")
+        >>> baseline = store.get_baseline("production_baseline")
+    """
+
+    def __init__(self, storage_dir: str | Path = ".baselines") -> None:
+        """
+        Initialize baseline store.
+
+        Args:
+            storage_dir: Directory to store baseline files (default: .baselines)
+        """
+        self.storage_dir = Path(storage_dir)
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+    def _baseline_path(self, baseline_id: str) -> Path:
+        """Get filesystem path for a baseline."""
+        return self.storage_dir / f"{baseline_id}.json"
+
+    def add_baseline(
+        self,
+        baseline_id: str,
+        data: Sequence[DataRecord],
+        description: str | None = None,
+    ) -> BaselineMetadata:
+        """
+        Add a new baseline to the store.
+
+        Args:
+            baseline_id: Unique identifier for the baseline
+            data: Historical data to use as baseline
+            description: Optional description of the baseline
+
+        Returns:
+            BaselineMetadata with baseline information
+
+        Raises:
+            ValueError: If baseline_id already exists
+        """
+        baseline_path = self._baseline_path(baseline_id)
+
+        if baseline_path.exists():
+            msg = f"Baseline '{baseline_id}' already exists"
+            raise ValueError(msg)
+
+        if not data:
+            msg = "Cannot create baseline from empty data"
+            raise ValueError(msg)
+
+        # Extract columns from data
+        columns = tuple(sorted(data[0].data.keys()))
+
+        # Store data as list of dicts (store both data and schema info)
+        data_list = [{"data": dict(record.data)} for record in data]
+
+        # Get schema name for reference
+        schema_name = data[0].schema.name
+
+        # Create metadata
+        metadata = BaselineMetadata(
+            baseline_id=baseline_id,
+            created_at=datetime.utcnow(),
+            sample_size=len(data),
+            columns=columns,
+            description=description,
+        )
+
+        # Prepare storage format
+        storage = {
+            "metadata": {
+                "baseline_id": metadata.baseline_id,
+                "created_at": metadata.created_at.isoformat(),
+                "sample_size": metadata.sample_size,
+                "columns": list(metadata.columns),
+                "description": metadata.description,
+                "schema_name": schema_name,
+            },
+            "data": data_list,
+        }
+
+        # Write to file
+        with baseline_path.open("w") as f:
+            json.dump(storage, f, indent=2)
+
+        return metadata
+
+    def get_baseline(
+        self,
+        baseline_id: str,
+        schema: Schema | None = None,
+    ) -> Sequence[DataRecord]:
+        """
+        Retrieve a baseline from storage.
+
+        Args:
+            baseline_id: ID of the baseline to retrieve
+            schema: Optional schema to use when reconstructing DataRecords.
+                     If None, creates a minimal schema.
+
+        Returns:
+            Sequence of DataRecords from the baseline
+
+        Raises:
+            FileNotFoundError: If baseline doesn't exist
+        """
+        baseline_path = self._baseline_path(baseline_id)
+
+        if not baseline_path.exists():
+            msg = f"Baseline '{baseline_id}' not found"
+            raise FileNotFoundError(msg)
+
+        with baseline_path.open("r") as f:
+            storage = json.load(f)
+
+        # Get schema name from metadata
+        metadata = storage["metadata"]
+        schema_name = metadata.get("schema_name", "baseline_schema")
+
+        # Create minimal schema if not provided
+        if schema is None:
+            from vibe_piper.types import SchemaField
+
+            fields = [
+                SchemaField(name=col, data_type=DataType.ANY, required=False, nullable=True)
+                for col in metadata["columns"]
+            ]
+            schema = Schema(name=schema_name, fields=tuple(fields))
+
+        # Convert back to DataRecords
+        return tuple(DataRecord(data=record["data"], schema=schema) for record in storage["data"])
+
+    def get_metadata(self, baseline_id: str) -> BaselineMetadata:
+        """
+        Get metadata for a baseline without loading all data.
+
+        Args:
+            baseline_id: ID of the baseline
+
+        Returns:
+            BaselineMetadata for the baseline
+
+        Raises:
+            FileNotFoundError: If baseline doesn't exist
+        """
+        baseline_path = self._baseline_path(baseline_id)
+
+        if not baseline_path.exists():
+            msg = f"Baseline '{baseline_id}' not found"
+            raise FileNotFoundError(msg)
+
+        with baseline_path.open("r") as f:
+            storage = json.load(f)
+
+        meta_dict = storage["metadata"]
+        return BaselineMetadata(
+            baseline_id=meta_dict["baseline_id"],
+            created_at=datetime.fromisoformat(meta_dict["created_at"]),
+            sample_size=meta_dict["sample_size"],
+            columns=tuple(meta_dict["columns"]),
+            description=meta_dict.get("description"),
+        )
+
+    def list_baselines(self) -> list[BaselineMetadata]:
+        """
+        List all baselines in storage.
+
+        Returns:
+            List of BaselineMetadata for all baselines
+        """
+        baselines = []
+
+        for path in self.storage_dir.glob("*.json"):
+            try:
+                metadata = self.get_metadata(path.stem)
+                baselines.append(metadata)
+            except Exception:
+                # Skip invalid files
+                continue
+
+        return baselines
+
+    def delete_baseline(self, baseline_id: str) -> None:
+        """
+        Delete a baseline from storage.
+
+        Args:
+            baseline_id: ID of the baseline to delete
+
+        Raises:
+            FileNotFoundError: If baseline doesn't exist
+        """
+        baseline_path = self._baseline_path(baseline_id)
+
+        if not baseline_path.exists():
+            msg = f"Baseline '{baseline_id}' not found"
+            raise FileNotFoundError(msg)
+
+        baseline_path.unlink()
+
+
+# =============================================================================
+# Drift History Tracking
+# =============================================================================
+
+
+class DriftHistory:
+    """
+    Track drift detection results over time.
+
+    Stores history of drift checks for trend analysis and alerting.
+
+    Example:
+        >>> history = DriftHistory(storage_dir="./drift_history")
+        >>> history.add_entry(result, "production_baseline", thresholds)
+        >>> recent = history.get_recent_entries("production_baseline", n=10)
+    """
+
+    def __init__(self, storage_dir: str | Path = ".drift_history") -> None:
+        """
+        Initialize drift history tracker.
+
+        Args:
+            storage_dir: Directory to store history files (default: .drift_history)
+        """
+        self.storage_dir = Path(storage_dir)
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+    def _history_path(self, baseline_id: str) -> Path:
+        """Get filesystem path for a baseline's history."""
+        return self.storage_dir / f"{baseline_id}_history.jsonl"
+
+    def add_entry(
+        self,
+        result: DriftResult,
+        baseline_id: str,
+        thresholds: DriftThresholds,
+    ) -> DriftHistoryEntry:
+        """
+        Add a drift result to history.
+
+        Args:
+            result: DriftResult from drift detection
+            baseline_id: ID of the baseline used for comparison
+            thresholds: DriftThresholds used for alerting
+
+        Returns:
+            DriftHistoryEntry that was added
+        """
+        # Determine alert level
+        if result.drift_score >= thresholds.critical:
+            alert_level = "critical"
+        elif result.drift_score >= thresholds.warning:
+            alert_level = "warning"
+        else:
+            alert_level = "none"
+
+        # Calculate max drift score from drifted columns
+        max_drift_score = result.drift_score
+        if result.drifted_columns and result.statistics:
+            # Try to get max from statistics if available
+            for col in result.drifted_columns:
+                if col in result.p_values:
+                    # Use drift score as proxy
+                    pass
+
+        entry = DriftHistoryEntry(
+            timestamp=datetime.utcnow(),
+            baseline_id=baseline_id,
+            method=result.method,
+            drift_score=result.drift_score,
+            max_drift_score=max_drift_score,
+            drifted_columns=result.drifted_columns,
+            alert_level=alert_level,
+        )
+
+        # Append to history file
+        history_path = self._history_path(baseline_id)
+        with history_path.open("a") as f:
+            line = json.dumps(
+                {
+                    "timestamp": entry.timestamp.isoformat(),
+                    "baseline_id": entry.baseline_id,
+                    "method": entry.method,
+                    "drift_score": entry.drift_score,
+                    "max_drift_score": entry.max_drift_score,
+                    "drifted_columns": list(entry.drifted_columns),
+                    "alert_level": entry.alert_level,
+                }
+            )
+            f.write(line + "\n")
+
+        return entry
+
+    def get_entries(self, baseline_id: str, limit: int | None = None) -> list[DriftHistoryEntry]:
+        """
+        Get drift history for a baseline.
+
+        Args:
+            baseline_id: ID of the baseline
+            limit: Maximum number of entries to return (most recent first)
+
+        Returns:
+            List of DriftHistoryEntry
+        """
+        history_path = self._history_path(baseline_id)
+
+        if not history_path.exists():
+            return []
+
+        entries = []
+        with history_path.open("r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                entry_dict = json.loads(line)
+                entry = DriftHistoryEntry(
+                    timestamp=datetime.fromisoformat(entry_dict["timestamp"]),
+                    baseline_id=entry_dict["baseline_id"],
+                    method=entry_dict["method"],
+                    drift_score=entry_dict["drift_score"],
+                    max_drift_score=entry_dict["max_drift_score"],
+                    drifted_columns=tuple(entry_dict["drifted_columns"]),
+                    alert_level=entry_dict["alert_level"],
+                )
+                entries.append(entry)
+
+        # Sort by timestamp descending and apply limit
+        entries.sort(key=lambda e: e.timestamp, reverse=True)
+        if limit:
+            entries = entries[:limit]
+
+        return entries
+
+    def get_trend(self, baseline_id: str, window: int = 10) -> dict[str, Any]:
+        """
+        Get drift trend statistics for a baseline.
+
+        Args:
+            baseline_id: ID of the baseline
+            window: Number of recent entries to analyze
+
+        Returns:
+            Dictionary with trend statistics
+        """
+        entries = self.get_entries(baseline_id, limit=window)
+
+        if not entries:
+            return {
+                "baseline_id": baseline_id,
+                "window": window,
+                "count": 0,
+                "avg_drift_score": 0.0,
+                "max_drift_score": 0.0,
+                "min_drift_score": 0.0,
+                "critical_count": 0,
+                "warning_count": 0,
+                "none_count": 0,
+                "trend": "stable",
+            }
+
+        drift_scores = [e.drift_score for e in entries]
+        critical_count = sum(1 for e in entries if e.alert_level == "critical")
+        warning_count = sum(1 for e in entries if e.alert_level == "warning")
+        none_count = sum(1 for e in entries if e.alert_level == "none")
+
+        # Determine trend
+        if len(drift_scores) >= 3:
+            recent_avg = sum(drift_scores[:3]) / 3
+            older_avg = sum(drift_scores[3:]) / len(drift_scores[3:])
+            if recent_avg > older_avg * 1.2:
+                trend = "increasing"
+            elif recent_avg < older_avg * 0.8:
+                trend = "decreasing"
+            else:
+                trend = "stable"
+        else:
+            trend = "insufficient_data"
+
+        return {
+            "baseline_id": baseline_id,
+            "window": window,
+            "count": len(entries),
+            "avg_drift_score": sum(drift_scores) / len(drift_scores),
+            "max_drift_score": max(drift_scores),
+            "min_drift_score": min(drift_scores),
+            "critical_count": critical_count,
+            "warning_count": warning_count,
+            "none_count": none_count,
+            "trend": trend,
+        }
+
+    def clear_history(self, baseline_id: str) -> None:
+        """
+        Clear drift history for a baseline.
+
+        Args:
+            baseline_id: ID of the baseline
+        """
+        history_path = self._history_path(baseline_id)
+        if history_path.exists():
+            history_path.unlink()
+
+
+# =============================================================================
+# Alerting Logic
+# =============================================================================
+
+
+def check_drift_alert(result: DriftResult, thresholds: DriftThresholds) -> tuple[bool, str]:
+    """
+    Check if drift exceeds alerting thresholds.
+
+    Args:
+        result: DriftResult from drift detection
+        thresholds: DriftThresholds configuration
+
+    Returns:
+        Tuple of (should_alert, alert_level) where alert_level is 'none', 'warning', or 'critical'
+    """
+    if result.drift_score >= thresholds.critical:
+        return True, "critical"
+    elif result.drift_score >= thresholds.warning:
+        return True, "warning"
+    return False, "none"
+
+
+# =============================================================================
+# Validation Check Wrappers
+# =============================================================================
+
+
+def check_drift_ks(
+    column: str,
+    baseline: Sequence[DataRecord],
+    thresholds: DriftThresholds | None = None,
+) -> Callable[[Sequence[DataRecord]], ValidationResult]:
+    """
+    Create a drift check function compatible with @validate decorator using KS test.
+
+    This wrapper allows drift detection to be used seamlessly with the @validate decorator.
+
+    Args:
+        column: Column name to check for drift
+        baseline: Historical baseline data to compare against
+        thresholds: Optional drift thresholds for alerting
+
+    Returns:
+        Validation check function that takes new data and returns ValidationResult
+
+    Example:
+        >>> baseline_data = [...]  # Your historical data
+        >>> check = check_drift_ks("price", baseline_data)
+        >>> @validate(checks=[check])
+        >>> @asset
+        >>> def new_price_data():
+        ...     return new_records
+    """
+
+    if thresholds is None:
+        thresholds = DriftThresholds()
+
+    def validate_new_data(new_data: Sequence[DataRecord]) -> ValidationResult:
+        detector = detect_drift_ks(column, significance_level=thresholds.ks_significance)
+        result = detector((baseline, new_data))
+
+        # Check for alerts
+        should_alert, alert_level = check_drift_alert(result, thresholds)
+
+        # Build validation result
+        errors: list[str] = []
+        warnings: list[str] = []
+
+        if alert_level == "critical":
+            errors.append(
+                f"CRITICAL DRIFT DETECTED in column '{column}': "
+                f"drift_score={result.drift_score:.3f} (threshold={thresholds.critical})"
+            )
+            errors.extend(result.recommendations)
+        elif alert_level == "warning":
+            warnings.append(
+                f"WARNING: Drift detected in column '{column}': "
+                f"drift_score={result.drift_score:.3f} (threshold={thresholds.warning})"
+            )
+            warnings.extend(result.recommendations)
+        else:
+            # No alert, add as info
+            if result.recommendations:
+                msg = f"Drift check passed for column '{column}': {result.recommendations[0]}"
+                # We don't have an "info" level, so use warnings
+                warnings.append(msg)
+
+        # Include drifted columns in warnings for visibility
+        if result.drifted_columns:
+            warnings.append(f"Drifted columns: {', '.join(result.drifted_columns)}")
+
+        return ValidationResult(
+            is_valid=(alert_level != "critical"),
+            errors=tuple(errors),
+            warnings=tuple(warnings),
+        )
+
+    return validate_new_data
+
+
+def check_drift_psi(
+    column: str,
+    baseline: Sequence[DataRecord],
+    thresholds: DriftThresholds | None = None,
+) -> Callable[[Sequence[DataRecord]], ValidationResult]:
+    """
+    Create a drift check function compatible with @validate decorator using PSI.
+
+    This wrapper allows drift detection to be used seamlessly with the @validate decorator.
+
+    Args:
+        column: Column name to check for drift
+        baseline: Historical baseline data to compare against
+        thresholds: Optional drift thresholds for alerting
+
+    Returns:
+        Validation check function that takes new data and returns ValidationResult
+
+    Example:
+        >>> baseline_data = [...]  # Your historical data
+        >>> check = check_drift_psi("income", baseline_data)
+        >>> @validate(checks=[check])
+        >>> @asset
+        >>> def new_income_data():
+        ...     return new_records
+    """
+
+    if thresholds is None:
+        thresholds = DriftThresholds()
+
+    def validate_new_data(new_data: Sequence[DataRecord]) -> ValidationResult:
+        detector = detect_drift_psi(column, num_bins=10, psi_threshold=thresholds.psi_critical)
+        result = detector((baseline, new_data))
+
+        # Check for alerts
+        should_alert, alert_level = check_drift_alert(result, thresholds)
+
+        # Build validation result
+        errors: list[str] = []
+        warnings: list[str] = []
+
+        if alert_level == "critical":
+            errors.append(
+                f"CRITICAL DRIFT DETECTED in column '{column}': "
+                f"drift_score={result.drift_score:.3f} (threshold={thresholds.critical})"
+            )
+            errors.extend(result.recommendations)
+        elif alert_level == "warning":
+            warnings.append(
+                f"WARNING: Drift detected in column '{column}': "
+                f"drift_score={result.drift_score:.3f} (threshold={thresholds.warning})"
+            )
+            warnings.extend(result.recommendations)
+        else:
+            # No alert, add as info
+            if result.recommendations:
+                msg = f"Drift check passed for column '{column}': {result.recommendations[0]}"
+                warnings.append(msg)
+
+        # Include drifted columns in warnings for visibility
+        if result.drifted_columns:
+            warnings.append(f"Drifted columns: {', '.join(result.drifted_columns)}")
+
+        return ValidationResult(
+            is_valid=(alert_level != "critical"),
+            errors=tuple(errors),
+            warnings=tuple(warnings),
+        )
+
+    return validate_new_data
 
 
 # =============================================================================
@@ -551,10 +1236,24 @@ def detect_drift_multi_method(
 
 
 __all__ = [
+    # Result types
     "DriftResult",
     "ColumnDriftResult",
+    "BaselineMetadata",
+    "DriftHistoryEntry",
+    # Configuration
+    "DriftThresholds",
+    # Storage and history
+    "BaselineStore",
+    "DriftHistory",
+    # Drift detection methods
     "detect_drift_ks",
     "detect_drift_chi_square",
     "detect_drift_psi",
     "detect_drift_multi_method",
+    # Alerting
+    "check_drift_alert",
+    # Validation check wrappers (for @validate decorator)
+    "check_drift_ks",
+    "check_drift_psi",
 ]
