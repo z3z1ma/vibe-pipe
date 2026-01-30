@@ -49,6 +49,49 @@ class TransformationBuilder:
         self.data = data
         self.context = context or PipelineContext(pipeline_id="transform_builder", run_id="run")
         self.transformations: list[Callable[[list[DataRecord]], list[DataRecord]]] = []
+        self._current_data = data  # Track current data for pipe() operations
+
+    def pipe(
+        self,
+        transform_fn: Callable[[list[DataRecord]], list[DataRecord]],
+    ) -> "TransformationBuilder":
+        """
+        Apply a transformation function using pipe syntax.
+
+        This method provides an alternative fluent API pattern that allows
+        chaining transformations using .pipe() instead of calling methods directly.
+
+        Args:
+            transform_fn: Function that takes a list of DataRecord and returns a transformed list
+
+        Returns:
+            self for method chaining
+
+        Example:
+            Using pipe pattern::
+
+                from vibe_piper.transformations import extract_fields, filter_rows
+
+                result = (transform(data)
+                    .pipe(extract_fields({"company_name": "company.name"}))
+                    .pipe(filter_rows(lambda r: r.get("status") == "active"))
+                    .pipe(compute_field("category", lambda r: "premium" if r.get("age") > 30 else "standard"))
+                    .execute())
+
+            Using method chaining (also supported)::
+
+                result = (transform(data)
+                    .filter(lambda r: r.get("active"))
+                    .map(lambda r: DataRecord(...))
+                    .execute())
+        """
+        # Apply the transformation to current data
+        self._current_data = transform_fn(self._current_data)
+
+        # Add transformation to the list for execute() to use
+        self.transformations.append(transform_fn)
+
+        return self
 
     def filter(
         self,
@@ -371,9 +414,13 @@ class TransformationBuilder:
 
                 result = builder.execute()
         """
+        # Apply all transformations from original data
         result = self.data
         for transform_fn in self.transformations:
             result = transform_fn(result)
+
+        # Update _current_data so subsequent execute() calls don't re-apply
+        self._current_data = result
         return result
 
     def to_operator(self) -> Any:  # Operator
