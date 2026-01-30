@@ -153,6 +153,14 @@ from vibe_piper.schema_definitions import (
     String,
     define_schema,
 )
+from vibe_piper.sql_assets import (
+    SQLOperator,
+    SQLValidationResult,
+    execute_sql_query,
+    extract_asset_dependencies,
+    render_sql_template,
+    validate_sql,
+)
 
 # Schema evolution
 try:
@@ -234,6 +242,15 @@ from vibe_piper.types import (
     ValidationResult,
 )
 
+# SQL assets (imported but not exported in __all__ for optional feature)
+try:
+    from vibe_piper.sql_assets import sql_asset as _sql_asset_instance
+
+    _SQL_ASSETS_AVAILABLE = True
+except ImportError:
+    _SQL_ASSETS_AVAILABLE = False
+    _sql_asset_instance = None  # type: ignore
+
 # Database connectors (imported but not exported in __all__ for optional feature)
 try:
     from vibe_piper.connectors import (
@@ -248,6 +265,9 @@ try:
     _CONNECTORS_AVAILABLE = True
 except ImportError:
     _CONNECTORS_AVAILABLE = False
+
+# Set sql_asset from imported instance
+sql_asset = _sql_asset_instance if _SQL_ASSETS_AVAILABLE else None
 
 # Monitoring & Observability
 from vibe_piper.monitoring import (
@@ -339,6 +359,7 @@ __all__ = [
     # Decorators
     "asset",
     "expect",
+    "sql_asset",
     # Error Handling & Recovery
     "BackoffStrategy",
     "Checkpoint",

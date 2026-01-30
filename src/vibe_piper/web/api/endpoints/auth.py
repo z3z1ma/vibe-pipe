@@ -1,5 +1,6 @@
 """Authentication endpoints."""
 
+import os
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -15,7 +16,7 @@ from vibe_piper.web.middleware.error_handler import HTTPExceptionWithDetail
 router = APIRouter()
 
 # Configuration
-SECRET_KEY = "your-secret-key-change-in-production"  # TODO: Load from env
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
