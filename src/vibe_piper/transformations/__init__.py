@@ -8,6 +8,8 @@ This module provides comprehensive data transformation capabilities including:
 - Pivot/unpivot operations
 - Data cleaning utilities (deduplication, null handling, outliers, text cleaning)
 - Fluent builder API for complex transformations
+- Built-in transformations (extract_fields, map_field, compute_field, enrich_from_lookup)
+- Validation helpers (validate_record, validate_batch, field validators)
 """
 
 from vibe_piper.transformations.aggregations import (
@@ -52,6 +54,33 @@ from vibe_piper.transformations.cleaning import (
 )
 from vibe_piper.transformations.joins import Join, JoinType, join
 from vibe_piper.transformations.pivot import Pivot, Unpivot
+from vibe_piper.transformations.transforms import (
+    cast_field,
+    compute_field,
+    compute_field_from_expression,
+    drop_fields,
+    enrich_from_lookup,
+    extract_fields,
+    extract_nested_value,
+    filter_by_field,
+    filter_rows,
+    map_field,
+    rename_fields,
+    select_fields,
+)
+from vibe_piper.transformations.validators import (
+    create_filter_validator,
+    create_validator_from_schema,
+    validate_batch,
+    validate_email_format,
+    validate_enum,
+    validate_field_length,
+    validate_field_required,
+    validate_field_type,
+    validate_range,
+    validate_record,
+    validate_regex_pattern,
+)
 from vibe_piper.transformations.windows import Window, window_function
 
 __all__ = [
@@ -77,6 +106,31 @@ __all__ = [
     # Builder
     "TransformationBuilder",
     "transform",
+    # Built-in Transforms
+    "extract_fields",
+    "extract_nested_value",
+    "map_field",
+    "compute_field",
+    "compute_field_from_expression",
+    "filter_rows",
+    "filter_by_field",
+    "enrich_from_lookup",
+    "rename_fields",
+    "drop_fields",
+    "select_fields",
+    "cast_field",
+    # Validators
+    "validate_field_type",
+    "validate_field_required",
+    "validate_email_format",
+    "validate_regex_pattern",
+    "validate_range",
+    "validate_field_length",
+    "validate_enum",
+    "validate_record",
+    "validate_batch",
+    "create_validator_from_schema",
+    "create_filter_validator",
     # Cleaning - Decorator and Main Functions
     "clean_data",
     "clean_dataset",
