@@ -5,9 +5,10 @@ Provides declarative database source with:
 - Incremental loading with watermark tracking
 - Auto-schema inference from result sets
 - Query builder integration
-- Support for PostgreSQL, MySQL, Snowflake, BigQuery
+- Support for PostgreSQL, MySQL
 """
 
+import json
 import logging
 from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
@@ -17,10 +18,8 @@ from typing import Any, Literal
 import pandas as pd
 
 from vibe_piper.connectors.base import DatabaseConnector, QueryBuilder
-from vibe_piper.connectors.bigquery import BigQueryConfig, BigQueryConnector
 from vibe_piper.connectors.mysql import MySQLConfig, MySQLConnector
 from vibe_piper.connectors.postgres import PostgreSQLConfig, PostgreSQLConnector
-from vibe_piper.connectors.snowflake import SnowflakeConfig, SnowflakeConnector
 from vibe_piper.connectors.utils.inference import infer_schema_from_pandas
 from vibe_piper.sources.base import Source
 from vibe_piper.types import DataRecord, PipelineContext, Schema
@@ -34,38 +33,23 @@ from vibe_piper.types import DataRecord, PipelineContext, Schema
 class DatabaseConnectionConfig:
     """Database connection configuration."""
 
-    type: Literal["postgres", "mysql", "snowflake", "bigquery"]
+    type: Literal["postgres", "mysql"]
     """Database type"""
 
     host: str | None = None
-    """Database host (not for BigQuery)"""
+    """Database host"""
 
     port: int | None = None
-    """Database port (not for BigQuery)"""
+    """Database port"""
 
     database: str | None = None
-    """Database name (dataset for BigQuery)"""
+    """Database name"""
 
     user: str | None = None
     """Database user"""
 
     password: str | None = None
     """Database password"""
-
-    project_id: str | None = None
-    """BigQuery project ID"""
-
-    dataset: str | None = None
-    """BigQuery dataset"""
-
-    credentials_path: str | None = None
-    """Path to service account credentials (BigQuery, Snowflake)"""
-
-    account: str | None = None
-    """Snowflake account"""
-
-    warehouse: str | None = None
-    """Snowflake warehouse"""
 
     pool_size: int = 10
     """Connection pool size"""
@@ -203,31 +187,6 @@ class DatabaseSource(Source[DataRecord]):
             )
             return MySQLConnector(config)
 
-        elif conn_cfg.type == "snowflake":
-            if not conn_cfg.account or not conn_cfg.database:
-                msg = "Snowflake requires account and database"
-                raise ValueError(msg)
-            config = SnowflakeConfig(
-                account=conn_cfg.account,
-                database=conn_cfg.database,
-                user=conn_cfg.user or "",
-                password=conn_cfg.password or "",
-                warehouse=conn_cfg.warehouse,
-                private_key_path=conn_cfg.credentials_path,
-            )
-            return SnowflakeConnector(config)
-
-        elif conn_cfg.type == "bigquery":
-            if not conn_cfg.project_id or not conn_cfg.dataset:
-                msg = "BigQuery requires project_id and dataset"
-                raise ValueError(msg)
-            config = BigQueryConfig(
-                project_id=conn_cfg.project_id,
-                dataset=conn_cfg.dataset,
-                credentials_path=conn_cfg.credentials_path,
-            )
-            return BigQueryConnector(config)
-
         msg = f"Unsupported database type: {conn_cfg.type}"
         raise ValueError(msg)
 
@@ -241,8 +200,6 @@ class DatabaseSource(Source[DataRecord]):
             return None
 
         try:
-            import json
-
             with open(path) as f:
                 data = json.load(f)
                 return data.get("value")
@@ -259,8 +216,6 @@ class DatabaseSource(Source[DataRecord]):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            import json
-
             with open(path, "w") as f:
                 json.dump({"value": value}, f)
         except Exception as e:
