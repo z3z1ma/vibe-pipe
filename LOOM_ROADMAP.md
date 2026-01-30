@@ -3,12 +3,18 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (2)
-- - `vp-5299` P1 in_progress - Untitled
+- # Tickets (4)
+- - `vp-2541` P1 in_progress - Untitled
+- - `vp-97b4` P1 in_progress - Implement Source Abstractions
+- - `vp-f701` P1 in_progress - Implement Schema-First Mapping
 - - `vp-0429` P2 open - Untitled
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-30T04:28:27.666Z Add an instinct for strict Plan Mode (read-only) compliance; clarify CompoundSpec output rules for autolearn prompts (single JSON, no fences/commentary).
+- 2026-01-30T04:27:46.142Z No new learnings: no git changes or new recurring patterns detected in this session.
+- 2026-01-30T04:26:13.382Z No memory updates proposed (idle session; git diffstat empty).
+- 2026-01-30T04:19:03.945Z No learnings proposed: no code/tool activity detected in this session; ran docs sync only.
 - 2026-01-30T04:04:24.690Z No memory updates proposed (no new signals in this session).
 - 2026-01-30T03:43:45.661Z No memory updates proposed (no recent activity captured).
 - 2026-01-30T03:21:22.411Z No memory updates proposed; only .opencode/compound/state.json changed.
@@ -35,8 +41,4 @@ High-level direction and priorities.
 - 2026-01-29T23:36:29.549Z Add validation history integration skills (auto-storage and schema initialization)
 - 2026-01-29T23:33:08.743Z Drift detection implementation patterns captured as instincts
 - <<<<<<< HEAD
-- 2026-01-29T23:17:36.711Z Merge worker session: Merged vp-2830 (multi-format config), vp-7869 (schema evolution), vp-09e9 (FastAPI web server). Resolved conflicts in observations.jsonl, uv.lock, pyproject.toml, __init__.py.
-- 2026-01-29T23:15:16.739Z Implemented testing infrastructure with snapshot testing, performance benchmarking, and data quality validation frameworks using Plan → Work → Review → Compound workflow.
-- 2026-01-29T23:01:16.247Z feat: Add web framework foundation with FastAPI backend and React frontend. FastAPI server with JWT auth, rate limiting, and 12 API endpoints. React app with Tailwind CSS, type-safe API service, and authentication context. Both tested and approved for merge.
-- 2026-01-29T23:00:21.255Z Implemented automatic retry with backoff, jitter strategies, dead letter queue, circuit breaker, and retry metrics tracking. Added comprehensive tests.
 <!-- END:compound:roadmap-ai-notes -->

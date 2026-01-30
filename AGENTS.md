@@ -223,6 +223,9 @@ This block is maintained by the compound plugin.
 - **loom-docs-merge-conflict-markers** (85%)
   - Trigger: Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).
   - Action: Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. …
+- **inst-20260130-003** (85%)
+  - Trigger: System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.
+  - Action: Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementatio…
 - **inst-20260130-002** (83%)
   - Trigger: Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).
   - Action: Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit…
@@ -256,9 +259,6 @@ This block is maintained by the compound plugin.
 - **validation-result-wrapper-mapping** (70%)
   - Trigger: Creating wrapper functions that convert domain types to validation framework ValidationResult
   - Action: Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). …
-- **avoid-committing-egg-info** (70%)
-  - Trigger: Git diff shows changes under `src/*.egg-info/` (e.g., `PKG-INFO`, `requires.txt`) without intentional packaging/version work
-  - Action: Assume the changes are generated; do not include them in commits/PRs and instead regenerate/clean the working tree via the repo's normal install workflow before re-checking diffs
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->

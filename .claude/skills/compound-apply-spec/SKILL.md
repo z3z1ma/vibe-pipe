@@ -56,6 +56,12 @@ Notes:
 
 - `note` is a short, AI-first summary of what changed in memory.
 
+## Output rules (especially for autolearn prompts)
+
+- Output exactly one valid JSON object.
+- Do not wrap in code fences.
+- Do not add commentary outside JSON.
+
 ## Apply
 
 1. Produce a single valid JSON object matching the schema.

@@ -4,6 +4,10 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-30T04:28:27.666Z Add an instinct for strict Plan Mode (read-only) compliance; clarify CompoundSpec output rules for autolearn prompts (single JSON, no fences/commentary).
+- 2026-01-30T04:27:46.142Z No new learnings: no git changes or new recurring patterns detected in this session.
+- 2026-01-30T04:26:13.382Z No memory updates proposed (idle session; git diffstat empty).
+- 2026-01-30T04:19:03.945Z No learnings proposed: no code/tool activity detected in this session; ran docs sync only.
 - 2026-01-30T04:04:24.690Z No memory updates proposed (no new signals in this session).
 - 2026-01-30T03:43:45.661Z No memory updates proposed (no recent activity captured).
 - 2026-01-30T03:21:22.411Z No memory updates proposed; only .opencode/compound/state.json changed.
