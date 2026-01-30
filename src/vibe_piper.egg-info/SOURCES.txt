@@ -101,6 +101,11 @@ src/vibe_piper/monitoring/health.py
 src/vibe_piper/monitoring/logging.py
 src/vibe_piper/monitoring/metrics.py
 src/vibe_piper/monitoring/profiling.py
+src/vibe_piper/pipeline_config/__init__.py
+src/vibe_piper/pipeline_config/generator.py
+src/vibe_piper/pipeline_config/loader.py
+src/vibe_piper/pipeline_config/parser.py
+src/vibe_piper/pipeline_config/schema.py
 src/vibe_piper/scheduling/__init__.py
 src/vibe_piper/scheduling/backfill.py
 src/vibe_piper/scheduling/base.py

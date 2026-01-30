@@ -1,0 +1,68 @@
+# Demo Pipeline Configuration
+
+[pipeline]
+name = "user_ingestion"
+version = "1.0.0"
+description = "Ingest user data from API to database"
+
+[[sources]]
+name = "users_api"
+type = "api"
+base_url = "https://api.example.com/v1"
+endpoint = "/users"
+description = "Fetch users from REST API"
+
+[sources.users_api.auth]
+type = "bearer"
+from_env = "API_KEY"
+
+[sources.users_api.pagination]
+type = "offset"
+items_path = "data"
+limit_param = "per_page"
+offset_param = "page"
+
+[sources.users_api.rate_limit]
+requests = 10
+window_seconds = 1
+
+[[transforms]]
+name = "clean_users"
+source = "users_api"
+description = "Clean and validate user data"
+steps = [
+    { type = "extract_fields", mappings = { "company_name" = "company.name", "city" = "address.city" } },
+    { type = "filter", condition = "email is not null" },
+    { type = "compute_field", field = "ingested_at", value = "now()" },
+]
+
+[[expectations]]
+name = "data_quality"
+asset = "clean_users"
+description = "Validate user data quality"
+checks = [
+    { type = "not_null", column = "email", severity = "error" },
+    { type = "regex", column = "email", pattern = "^[^@]+@[^@]+$", severity = "error" },
+    { type = "not_null", column = "name", severity = "error" },
+    { type = "row_count", min_rows = 10, max_rows = 10000, severity = "warning" },
+]
+
+[[sinks]]
+name = "users_db"
+type = "database"
+connection = "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+table = "users"
+materialization = "table"
+upsert_key = "email"
+batch_size = 1000
+description = "Store users in PostgreSQL"
+
+[[jobs]]
+name = "daily_user_sync"
+schedule = "0 2 * * *"
+sources = ["users_api"]
+transforms = ["clean_users"]
+sinks = ["users_db"]
+expectations = ["data_quality"]
+environment = "prod"
+description = "Run daily user synchronization"

@@ -407,6 +407,3 @@ Do not edit inside the BEGIN/END fences.
   - Action: Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). …
 <!-- END:compound:instincts-index -->
 
-<!-- BEGIN:compound:rules-index -->
-- _(none)_
-<!-- END:compound:rules-index -->

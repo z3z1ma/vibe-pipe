@@ -1,6 +1,7 @@
 """CLI commands for VibePiper."""
 
 from vibe_piper.cli.commands import (
+    config_cmd,
     docs,
     init,
     run,
@@ -10,6 +11,7 @@ from vibe_piper.cli.commands import (
 )
 
 __all__ = [
+    "config_cmd",
     "docs",
     "init",
     "run",

@@ -6,6 +6,7 @@ import typer
 from rich.console import Console
 
 from vibe_piper.cli.commands import (
+    config_cmd,
     dashboard,
     docs,
     init,
@@ -132,7 +133,7 @@ def asset_list_cmd(
 
 
 def asset_show_cmd(
-    asset_name: str = typer.Argument(..., help="Name of the asset to show"),
+    asset_name: str = typer.Argument(..., help="Name of asset to show"),
     project_path: Path = typer.Argument(Path("."), help="Path to VibePiper project", exists=True),
     format_output: str = typer.Option(
         "table", "--format", "-f", help="Output format (table, json)"
@@ -148,12 +149,99 @@ def asset_show_cmd(
     )
 
 
+def config_run_cmd(
+    config_path: Path = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to pipeline configuration file (TOML/YAML/JSON)",
+        exists=True,
+    ),
+    asset: str | None = typer.Option(
+        None,
+        "--asset",
+        "-a",
+        help="Specific asset to run (runs all if not specified)",
+    ),
+    env_overrides: list[str] | None = typer.Option(
+        None,
+        "--env",
+        "-e",
+        help="Environment variable overrides (KEY=VALUE)",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        "-d",
+        help="Show what would be run without executing",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed execution output",
+    ),
+) -> None:
+    """Run a Vibe Piper pipeline from configuration file."""
+    return config_cmd.run(config_path, asset, env_overrides, dry_run, verbose)
+
+
+def config_validate_cmd(
+    config_path: Path = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to pipeline configuration file (TOML/YAML/JSON)",
+        exists=True,
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed validation output",
+    ),
+) -> None:
+    """Validate a Vibe Piper pipeline configuration file."""
+    return config_cmd.validate(config_path, verbose)
+
+
+def config_describe_cmd(
+    config_path: Path = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to pipeline configuration file (TOML/YAML/JSON)",
+        exists=True,
+    ),
+    asset: str | None = typer.Option(
+        None,
+        "--asset",
+        "-a",
+        help="Show details for specific asset only",
+    ),
+    format_output: str = typer.Option(
+        "text",
+        "--format",
+        "-f",
+        help="Output format (text, json, dot)",
+    ),
+) -> None:
+    """Describe a Vibe Piper pipeline configuration."""
+    return config_cmd.describe(config_path, asset, format_output)
+
+
 # Register all wrapper commands
 app.command()(pipeline_status_cmd)
 app.command()(pipeline_history_cmd)
 app.command()(pipeline_backfill_cmd)
 app.command()(asset_list_cmd)
 app.command()(asset_show_cmd)
+
+
+# Register config-based pipeline commands
+app.command()(config_cmd.run)
+app.command()(config_cmd.validate)
+app.command()(config_cmd.describe)
 
 
 def cli() -> None:
