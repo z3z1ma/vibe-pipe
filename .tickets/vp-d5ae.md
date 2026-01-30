@@ -1,6 +1,6 @@
 ---
 "id": "vp-d5ae"
-"status": "open"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-29T22:26:11Z"
