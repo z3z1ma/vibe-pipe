@@ -5,9 +5,9 @@ High-level direction and priorities.
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (10)
 - - `vp-45d3` P1 open - Finalize operator data contract (UpstreamData + context)
-- - `vp-64cd` P1 open - Consolidate ExecutionEngine + OrchestrationEngine
+- - `vp-64cd` P1 in_progress - Consolidate ExecutionEngine + OrchestrationEngine
 - - `vp-8783` P1 in_progress - ADR: canonical pipeline abstractions + contract update
-- - `vp-debe` P1 open - Unify pipeline definition APIs (builder/context/@asset)
+- - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-28e9` P2 open - Curate public API surface + exports
 - - `vp-ada1` P2 open - Align docs/examples + CLI naming with canonical API
 - - `vp-e990` P2 open - Update README with canonical pipeline model guidance
