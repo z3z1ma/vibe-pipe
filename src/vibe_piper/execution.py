@@ -15,6 +15,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from vibe_piper._execution_core import (
+    build_execution_result,
+    get_execution_order_for_targets,
+)
 from vibe_piper.io_managers import get_io_manager
 from vibe_piper.materialization import (
     FileStrategy,
@@ -412,7 +416,7 @@ class ExecutionEngine:
 
         # Determine execution order
         if target_assets:
-            execution_order = self._get_execution_order_for_targets(graph, target_assets)
+            execution_order = get_execution_order_for_targets(graph, target_assets)
         else:
             execution_order = graph.topological_order()
 
@@ -461,57 +465,24 @@ class ExecutionEngine:
                     # If we're here, retry failed - stop execution
                     break
 
-        # Calculate overall success
-        overall_success = failed == 0
-
-        # Calculate duration
-        duration_ms = (time.time() - start_time) * 1000
-
-        # Aggregate metrics
-        metrics = self._aggregate_metrics(asset_results)
+        # Calculate overall success, metrics, and errors
+        overall_success, succeeded, failed, metrics, errors = build_execution_result(
+            asset_results=asset_results,
+            start_time=start_time,
+            timestamp=timestamp,
+        )
 
         return ExecutionResult(
             success=overall_success,
             asset_results=asset_results,
             errors=tuple(errors),
             metrics=metrics,
-            duration_ms=duration_ms,
+            duration_ms=metrics.get("duration_ms", 0),
             timestamp=timestamp,
             assets_executed=len(asset_results),
             assets_succeeded=succeeded,
             assets_failed=failed,
         )
-
-    def _get_execution_order_for_targets(
-        self, graph: AssetGraph, targets: tuple[str, ...]
-    ) -> tuple[str, ...]:
-        """
-        Get the execution order for specific target assets and their dependencies.
-
-        Args:
-            graph: The asset graph
-            targets: Target asset names
-
-        Returns:
-            Tuple of asset names in execution order
-        """
-        # Get all dependencies for the target assets (recursively)
-        to_execute = set()
-        for target in targets:
-            to_execute.add(target)
-            # Add all upstream dependencies
-            deps = graph.get_dependencies(target)
-            for dep in deps:
-                to_execute.add(dep.name)
-                # Recursively add dependencies of dependencies
-                upstream = self._get_execution_order_for_targets(graph, (dep.name,))
-                to_execute.update(upstream)
-
-        # Get full topological order
-        full_order = graph.topological_order()
-
-        # Filter to only include assets we need to execute
-        return tuple(asset for asset in full_order if asset in to_execute)
 
     def _execute_asset_with_retry(
         self,
@@ -546,37 +517,3 @@ class ExecutionEngine:
                 )
 
         return result
-
-    def _aggregate_metrics(
-        self, asset_results: Mapping[str, AssetResult]
-    ) -> Mapping[str, int | float]:
-        """
-        Aggregate metrics from all asset results.
-
-        Args:
-            asset_results: Mapping of asset name to result
-
-        Returns:
-            Aggregated metrics
-        """
-        total_duration = sum(r.duration_ms for r in asset_results.values())
-
-        # Count rows across all assets
-        total_rows = 0
-        for result in asset_results.values():
-            if (
-                result.data
-                and isinstance(result.data, Sequence)
-                and len(result.data) > 0
-                and isinstance(result.data[0], DataRecord)
-            ):
-                total_rows += len(result.data)
-
-        metrics = {
-            "total_assets": len(asset_results),
-            "total_duration_ms": total_duration,
-            "avg_duration_ms": (total_duration / len(asset_results) if asset_results else 0),
-            "total_rows": total_rows,
-        }
-
-        return metrics
