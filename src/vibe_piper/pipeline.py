@@ -9,7 +9,14 @@ import inspect
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
-from vibe_piper.types import Asset, AssetGraph, AssetType, Operator, OperatorType
+from vibe_piper.asset_factory import create_asset
+from vibe_piper.types import (
+    Asset,
+    AssetGraph,
+    AssetType,
+    MaterializationStrategy,
+    OperatorType,
+)
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -132,6 +139,10 @@ class PipelineBuilder:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
+        io_manager: str | None = None,
+        materialization: str | MaterializationStrategy | None = None,
+        retries: int | None = None,
+        backoff: str | None = None,
         cache: bool = False,
         cache_ttl: int | None = None,
         parallel: bool = False,
@@ -156,6 +167,14 @@ class PipelineBuilder:
             description: Optional description of the asset
             metadata: Optional metadata for the asset
             config: Optional configuration for the asset
+            io_manager: IO manager name (defaults to "memory")
+            materialization: Materialization strategy (defaults to TABLE)
+            retries: Number of retry attempts
+            backoff: Backoff strategy (e.g., "exponential", "linear")
+            cache: Whether to enable caching
+            cache_ttl: Cache time-to-live in seconds
+            parallel: Whether to enable parallel execution
+            lazy: Whether to enable lazy evaluation
 
         Returns:
             Self for method chaining
@@ -186,62 +205,29 @@ class PipelineBuilder:
         else:
             resolved_dependencies = list(depends_on)
 
-        # Wrap the function to handle data and context parameters
-        def wrapped_fn(data: Any, context: Any) -> Any:
-            # If this is a source (no dependencies), call with just context
-            if not resolved_dependencies:
-                # Source functions should be fn(context) -> T
-                try:
-                    return fn(context)  # type: ignore
-                except TypeError:
-                    # If function expects 2 args, call with both
-                    return fn(data, context)  # type: ignore
-            else:
-                # Transform functions receive upstream data
-                return fn(data, context)  # type: ignore
-
         # Determine operator type based on dependencies
         operator_type = OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
 
-        # Create operator from the wrapped function
-        operator = Operator(
+        # Create asset using the shared factory
+        asset = create_asset(
             name=name,
-            operator_type=operator_type,
-            fn=wrapped_fn,
-            description=description,
-        )
-
-        # Generate URI if not provided
-        asset_uri = uri or f"memory://{name}"
-
-        # Create operator from wrapped function
-        operator = Operator(
-            name=name,
-            operator_type=operator_type,
-            fn=wrapped_fn,
-            description=description,
-        )
-
-        # Create config with performance parameters
-        asset_config = dict(config or {})
-        if cache:
-            asset_config["cache"] = True
-            if cache_ttl is not None:
-                asset_config["cache_ttl"] = cache_ttl
-        if parallel:
-            asset_config["parallel"] = True
-        if lazy:
-            asset_config["lazy"] = True
-
-        # Create asset
-        asset = Asset(
-            name=name,
+            fn=fn,
             asset_type=asset_type,
-            uri=asset_uri,
-            operator=operator,
+            uri=uri,
+            schema=None,
             description=description,
-            metadata=metadata or {},
-            config=asset_config,
+            metadata=metadata,
+            config=config,
+            io_manager=io_manager,
+            materialization=materialization,
+            retries=retries,
+            backoff=backoff,
+            cache=cache,
+            cache_ttl=cache_ttl,
+            parallel=parallel,
+            lazy=lazy,
+            create_operator=True,
+            operator_type=operator_type,
         )
 
         self._assets[name] = asset
@@ -371,6 +357,10 @@ class PipelineDefinitionContext:
         description: str | None = None,
         metadata: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
+        io_manager: str | None = None,
+        materialization: str | MaterializationStrategy | None = None,
+        retries: int | None = None,
+        backoff: str | None = None,
         cache: bool = False,
         cache_ttl: int | None = None,
         parallel: bool = False,
@@ -401,6 +391,14 @@ class PipelineDefinitionContext:
             description: Optional description of the asset
             metadata: Optional metadata for the asset
             config: Optional configuration for the asset
+            io_manager: IO manager name (defaults to "memory")
+            materialization: Materialization strategy (defaults to TABLE)
+            retries: Number of retry attempts
+            backoff: Backoff strategy (e.g., "exponential", "linear")
+            cache: Whether to enable caching
+            cache_ttl: Cache time-to-live in seconds
+            parallel: Whether to enable parallel execution
+            lazy: Whether to enable lazy evaluation
 
         Returns:
             Either a decorator function or the decorated function
@@ -435,57 +433,31 @@ class PipelineDefinitionContext:
                 )
                 resolved_dependencies = inferred if inferred else None
 
-            # Wrap the function to handle data and context parameters
-            def wrapped_fn(data: Any, context: Any) -> Any:
-                # If this is a source (no dependencies), call with just context
-                if not resolved_dependencies:
-                    # Source functions should be fn(context) -> T
-                    try:
-                        return func(context)  # type: ignore
-                    except TypeError:
-                        # If function expects 2 args, call with both
-                        return func(data, context)  # type: ignore
-                else:
-                    # Transform functions receive upstream data
-                    return func(data, context)  # type: ignore
-
             # Determine operator type based on dependencies
             operator_type = (
                 OperatorType.SOURCE if not resolved_dependencies else OperatorType.TRANSFORM
             )
 
-            # Generate URI if not provided
-            asset_uri = uri or f"memory://{asset_name}"
-
-            # Create the asset directly (don't use builder.asset() to avoid double-wrapping)
-            operator = Operator(
+            # Create asset using the shared factory
+            asset = create_asset(
                 name=asset_name,
-                operator_type=operator_type,
-                fn=wrapped_fn,
-                description=description or func.__doc__,
-            )
-
-            # Convert config to mutable dict for modifications
-            asset_config = dict(config or {})
-
-            # Add performance parameters to config
-            if cache:
-                asset_config["cache"] = True
-                if cache_ttl is not None:
-                    asset_config["cache_ttl"] = cache_ttl
-            if parallel:
-                asset_config["parallel"] = True
-            if lazy:
-                asset_config["lazy"] = True
-
-            asset = Asset(
-                name=asset_name,
+                fn=func,
                 asset_type=asset_type,
-                uri=asset_uri,
-                operator=operator,
+                uri=uri,
+                schema=None,
                 description=description,
-                metadata=metadata or {},
-                config=asset_config,
+                metadata=metadata,
+                config=config,
+                io_manager=io_manager,
+                materialization=materialization,
+                retries=retries,
+                backoff=backoff,
+                cache=cache,
+                cache_ttl=cache_ttl,
+                parallel=parallel,
+                lazy=lazy,
+                create_operator=True,
+                operator_type=operator_type,
             )
 
             # Add to builder's internal state

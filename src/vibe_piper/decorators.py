@@ -8,104 +8,16 @@ Vibe Piper objects in a declarative way.
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
+from vibe_piper.asset_factory import create_asset
 from vibe_piper.types import (
     Asset,
     AssetType,
     Expectation,
-    MaterializationStrategy,
-    Schema,
     ValidationResult,
 )
 
 P = ParamSpec("P")
 T = TypeVar("T")
-
-
-def _create_asset_from_function(
-    func: Callable[P, T],
-    name: str | None,
-    asset_type: AssetType,
-    uri: str | None,
-    schema: Schema | None,
-    description: str | None,
-    metadata: dict[str, Any] | None,
-    config: dict[str, Any] | None,
-    io_manager: str | None,
-    materialization: str | MaterializationStrategy | None,
-    retries: int | None = None,
-    backoff: str | None = None,
-    cache: bool = False,
-    cache_ttl: int | None = None,
-    parallel: bool = False,
-    lazy: bool = False,
-) -> Asset:
-    """Helper function to create an Asset from a function."""
-    # Determine asset name
-    asset_name = name or func.__name__
-
-    # Generate URI if not provided
-    asset_uri = uri
-    if asset_uri is None:
-        # Generate URI based on asset type
-        type_prefix = asset_type.name.lower()
-        asset_uri = f"{type_prefix}://{asset_name}"
-
-    # Use docstring as description if not provided
-    asset_description = description
-    if asset_description is None and func.__doc__:
-        asset_description = func.__doc__.strip()
-
-    # Normalize materialization parameter
-    asset_materialization: MaterializationStrategy | str
-    if materialization is None:
-        asset_materialization = MaterializationStrategy.TABLE
-    elif isinstance(materialization, str):
-        # Convert string to MaterializationStrategy enum
-        try:
-            # Case-insensitive lookup
-            asset_materialization = MaterializationStrategy[materialization.upper()]
-        except KeyError:
-            valid_options = [s.name.lower() for s in MaterializationStrategy]
-            msg = (
-                f"Invalid materialization strategy "
-                f"'{materialization}'. Must be one of: {valid_options}"
-            )
-            raise ValueError(msg) from None
-    else:
-        asset_materialization = materialization
-
-    # Build config with retry, cache, and parallel settings
-    asset_config = config or {}
-    if retries is not None:
-        asset_config = dict(asset_config)  # Make a copy
-        asset_config["retries"] = retries
-    if backoff is not None:
-        asset_config = dict(asset_config)  # Make a copy
-        asset_config["backoff"] = backoff
-    if cache:
-        asset_config = dict(asset_config)  # Make a copy
-        asset_config["cache"] = True
-        if cache_ttl is not None:
-            asset_config["cache_ttl"] = cache_ttl
-    if parallel:
-        asset_config = dict(asset_config)  # Make a copy
-        asset_config["parallel"] = True
-    if lazy:
-        asset_config = dict(asset_config)  # Make a copy
-        asset_config["lazy"] = True
-
-    # Create the Asset instance
-    return Asset(
-        name=asset_name,
-        asset_type=asset_type,
-        uri=asset_uri,
-        schema=schema,
-        description=asset_description,
-        metadata=metadata or {},
-        config=asset_config,
-        io_manager=io_manager or "memory",
-        materialization=asset_materialization,
-    )
 
 
 class AssetDecorator:
@@ -156,9 +68,9 @@ class AssetDecorator:
 
         # Case 1: @asset (no parentheses) - func_or_name is the function
         if callable(func_or_name):
-            return _create_asset_from_function(
-                func=func_or_name,
-                name=name_param,
+            return create_asset(
+                name=name_param or func_or_name.__name__,
+                fn=func_or_name,
                 asset_type=asset_type,
                 uri=uri,
                 schema=schema,
@@ -181,11 +93,11 @@ class AssetDecorator:
         name = name_param if name_param is not None else func_or_name
 
         def decorator(func: Callable[P, T]) -> Asset:
-            asset_name = name or func_or_name
+            asset_name = name or func_or_name or func.__name__
 
-            return _create_asset_from_function(
-                func=func,
+            return create_asset(
                 name=asset_name,
+                fn=func,
                 asset_type=asset_type,
                 uri=uri,
                 schema=schema,
