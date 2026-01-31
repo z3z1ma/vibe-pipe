@@ -49,3 +49,32 @@ Need to fix transformation functions to update schemas when modifying field stru
 2. Relaxed validation: Skip schema validation during transformations, or make it optional
 
 Recommend investigating approach 1 first as it maintains data integrity.
+
+**2026-01-31T21:54:56Z**
+
+Updated Investigation:
+
+## Key Findings
+
+1. UpstreamData handling (commit 7677859) is on team/vp-debe branch, NOT on team/vp-1cba
+2. Current code in asset_factory.py does NOT have UpstreamData extraction logic
+3. Transformation functions have TWO main issues:
+
+### Issue 1: Function Signature Mismatch
+Transformation functions in transforms.py return callables with signature:
+  - transform(data: list[DataRecord]) -> list[DataRecord]  [ONE parameter]
+
+But OperatorFn signature is:
+  - OperatorFn: Callable[[data, context], result]  [TWO parameters]
+
+When wrapper calls fn(data, context) with 2 params, it breaks.
+
+### Issue 2: Schema Mismatch
+Transformations like rename_fields, drop_fields, select_fields modify the data structure but keep the old schema when creating new DataRecord. This causes ValueError because required fields from the schema are missing from the data.
+
+## Fix Plan
+1. Update transformation functions to accept (data, context) signature
+2. Auto-update schema when modifying data structure (field rename/drop/select)
+3. Fix wrapper in asset_factory.py to handle 1-param vs 2-param functions correctly
+
+Starting implementation now.
