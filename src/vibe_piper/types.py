@@ -1166,21 +1166,25 @@ class Executor(Protocol):
 
     This protocol defines the interface for objects that can execute
     assets within the context of an asset graph.
+
+    Asset operators always receive UpstreamData (structured upstream results),
+    not raw data. This ensures consistent access patterns across single
+    and multi-upstream scenarios.
     """
 
     def execute(
         self,
         asset: "Asset",
         context: "PipelineContext",
-        upstream_results: Mapping[str, Any] | UpstreamData,
+        upstream_data: UpstreamData,
     ) -> "AssetResult":
         """
-        Execute an asset and return the result.
+        Execute an asset and return result.
 
         Args:
             asset: The asset to execute
             context: The pipeline execution context
-            upstream_results: Results from upstream assets
+            upstream_data: UpstreamData containing results from upstream assets
 
         Returns:
             AssetResult containing execution outcome
