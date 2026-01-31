@@ -33,6 +33,7 @@ from vibe_piper.types import (
     Executor,
     MaterializationStrategy,
     PipelineContext,
+    UpstreamData,
 )
 
 # =============================================================================
@@ -155,7 +156,7 @@ class DefaultExecutor:
         self,
         asset: Asset,
         context: PipelineContext,
-        upstream_results: Mapping[str, Any],
+        upstream_results: Mapping[str, Any] | UpstreamData,
     ) -> AssetResult:
         """
         Execute an asset and return the result.
@@ -177,18 +178,34 @@ class DefaultExecutor:
 
             # Check if asset has an operator to execute
             if asset.operator:
-                # Get upstream data from dependencies
-                # If there are upstream dependencies, pass the first one's data
-                # This is a simplification - real implementation might merge data
-                upstream_data = None
-                if upstream_results:
-                    # Get the first upstream result's data
-                    first_upstream = list(upstream_results.values())[0]
-                    if hasattr(first_upstream, "data"):
-                        upstream_data = first_upstream.data
+                # Pass all upstream results, not just the first one
+                # Normalize to UpstreamData for multi-upstream support
+                if isinstance(upstream_results, UpstreamData):
+                    upstream_data_wrapper = upstream_results
+                elif upstream_results:
+                    # Convert Mapping to UpstreamData for new contract
+                    upstream_data_wrapper = UpstreamData(raw=upstream_results)
+                else:
+                    # No upstream dependencies - pass empty UpstreamData
+                    upstream_data_wrapper = UpstreamData(raw={})
 
                 # Execute the operator's function with upstream data and context
-                result_data = asset.operator.fn(upstream_data, context)
+                # Handle backward compatibility: try new contract (UpstreamData), fallback to old (raw data)
+                try:
+                    # Try new contract: operator expects UpstreamData
+                    result_data = asset.operator.fn(upstream_data_wrapper, context)
+                except (TypeError, KeyError):
+                    # Fallback to old contract: operator expects raw data
+                    # Unwrap first upstream result for backward compatibility
+                    upstream_keys = upstream_data_wrapper.keys
+                    if len(upstream_keys) == 1:
+                        # Single upstream dependency - unwrap its data
+                        first_key = upstream_keys[0]
+                        raw_data = upstream_data_wrapper[first_key]
+                        result_data = asset.operator.fn(raw_data, context)
+                    else:
+                        # Multiple upstream - operator must use new contract
+                        raise
 
                 # Check if we should materialize data
                 if strategy.should_materialize(context):
@@ -246,6 +263,12 @@ class DefaultExecutor:
                 # Calculate checksum for data integrity
                 checksum = calculate_checksum(result_data)
 
+                # Extract lineage keys from upstream results (compatible with both types)
+                if isinstance(upstream_results, UpstreamData):
+                    lineage_keys = upstream_results.keys
+                else:
+                    lineage_keys = tuple(upstream_results.keys())
+
                 return AssetResult(
                     asset_name=asset.name,
                     success=True,
@@ -253,33 +276,45 @@ class DefaultExecutor:
                     metrics=metrics,
                     duration_ms=(time.time() - start_time) * 1000,
                     timestamp=now,
-                    lineage=tuple(upstream_results.keys()),
+                    lineage=lineage_keys,
                     created_at=asset.created_at or now,
                     updated_at=now,
                     checksum=checksum,
                 )
             else:
                 # No operator, just return success with no data
+                # Extract lineage keys from upstream results (compatible with both types)
+                if isinstance(upstream_results, UpstreamData):
+                    lineage_keys = upstream_results.keys
+                else:
+                    lineage_keys = tuple(upstream_results.keys())
+
                 return AssetResult(
                     asset_name=asset.name,
                     success=True,
                     data=None,
                     duration_ms=(time.time() - start_time) * 1000,
                     timestamp=now,
-                    lineage=tuple(upstream_results.keys()),
+                    lineage=lineage_keys,
                     created_at=asset.created_at or now,
                     updated_at=now,
                     checksum=None,
                 )
 
         except Exception as e:
+            # Extract lineage keys from upstream results (compatible with both types)
+            if isinstance(upstream_results, UpstreamData):
+                lineage_keys = upstream_results.keys
+            else:
+                lineage_keys = tuple(upstream_results.keys())
+
             return AssetResult(
                 asset_name=asset.name,
                 success=False,
                 error=str(e),
                 duration_ms=(time.time() - start_time) * 1000,
                 timestamp=now,
-                lineage=tuple(upstream_results.keys()),
+                lineage=lineage_keys,
                 created_at=asset.created_at or now,
                 updated_at=now,
                 checksum=None,
