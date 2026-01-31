@@ -5,13 +5,13 @@ High-level direction and priorities.
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (8)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
-- - `vp-8690` P1 in_progress - Config-driven pipelines: verify + fix (umbrella) (deps:vp-8d93,vp-973a,vp-a340)
-- - `vp-8d93` P1 in_progress - Config pipeline parser: fix jobs parsing
-- - `vp-973a` P1 open - Docs: align config-driven pipelines CLI commands
-- - `vp-f423` P1 in_progress - Sprint prep: Config pipelines verification
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
-- - `vp-0429` P2 in_progress - Phase 3 Testing: Implement Snapshot Testing Framework
-- - `vp-a340` P2 in_progress - Config pipeline generator: fix extract_fields mapping + nested path support
+- - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
+- - `vp-786e` P2 open - Align asset creation paths (decorators vs builder)
+- - `vp-98cc` P2 open - Public API + docs alignment for core abstractions
+- - `vp-a1f7` P2 open - Consolidate PipelineContext + remove duplicate Pipeline/Stage types
+- - `vp-b2ef` P2 open - Asset execution data contract for multi-upstream dependencies
+- - `vp-ba4d` P2 in_progress - Core abstraction contract (pipeline/asset/operator/context)
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
