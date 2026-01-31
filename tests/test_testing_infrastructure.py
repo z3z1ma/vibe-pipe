@@ -21,8 +21,12 @@ from tests.helpers import (
     assert_topological_order,
     make_asset,
     make_data_record,
+    make_diamond_asset_graph,
+    make_linear_asset_graph,
     make_pipeline,
+    make_product_schema,
     make_schema,
+    make_user_schema,
 )
 from vibe_piper.types import (
     Asset,
@@ -645,3 +649,40 @@ def test_snapshot_api_response() -> None:
 
     # Verify API response structure
     assert_matches_snapshot(api_response, "tests/snapshots/api_response.json")
+
+
+# =============================================================================
+# Example 12: Specialized Factory Helpers
+# =============================================================================
+
+
+def test_specialized_factory_helpers_importable() -> None:
+    """Test that specialized factory helpers are available from tests.helpers."""
+    # Test make_user_schema
+    user_schema = make_user_schema()
+    assert user_schema.name == "user_schema"
+    assert len(user_schema.fields) == 5
+    field_names = {f.name for f in user_schema.fields}
+    assert field_names == {"user_id", "username", "email", "created_at", "is_active"}
+
+    # Test make_product_schema
+    product_schema = make_product_schema()
+    assert product_schema.name == "product_schema"
+    assert len(product_schema.fields) == 5
+    field_names = {f.name for f in product_schema.fields}
+    assert field_names == {"product_id", "name", "price", "quantity", "in_stock"}
+
+    # Test make_linear_asset_graph
+    linear_graph = make_linear_asset_graph()
+    assert linear_graph.name == "linear_graph"
+    assert len(linear_graph.assets) == 3
+    assert assert_no_circular_dependencies(linear_graph) is None
+    order = linear_graph.topological_order()
+    assert order == ("source_asset", "intermediate_asset", "final_asset")
+
+    # Test make_diamond_asset_graph
+    diamond_graph = make_diamond_asset_graph()
+    assert diamond_graph.name == "diamond_graph"
+    assert len(diamond_graph.assets) == 4
+    assert assert_no_circular_dependencies(diamond_graph) is None
+    assert len(diamond_graph.dependencies["merge"]) == 2
