@@ -264,8 +264,8 @@ def _get_nested_value(data: dict[str, Any], path: str) -> Any:
     """Get a value from nested dictionary using dot notation.
 
     Supports dot notation for nested field access (e.g., "company.name").
-    Note: Only dot notation is supported. For array indexing or bracket syntax,
-    use the schema-first mapping system.
+    If schema-first mapping utilities are available, this also supports bracket
+    indexing (e.g., "items[0].name").
 
     Args:
         data: Nested dictionary
@@ -274,6 +274,19 @@ def _get_nested_value(data: dict[str, Any], path: str) -> Any:
     Returns:
         Value at path, or None if not found
     """
+    try:
+        from vibe_piper.schema.mapping import SourcePathSyntaxError, extract_value
+    except ImportError:
+        SourcePathSyntaxError = None  # type: ignore[assignment]
+        extract_value = None  # type: ignore[assignment]
+
+    if extract_value is not None:
+        try:
+            value, _found = extract_value(data, path, warn_on_missing=False)
+        except SourcePathSyntaxError:  # type: ignore[misc]
+            return None
+        return value
+
     keys = path.split(".")
     value = data
 

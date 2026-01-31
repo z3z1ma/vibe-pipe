@@ -15,6 +15,9 @@ def extract_nested_value(data: RecordData, path: str) -> Any:
     """
     Extract a value from a nested dictionary using dot notation.
 
+    If schema-first mapping utilities are available, this also supports bracket
+    indexing (e.g., "items[0].name").
+
     Args:
         data: Dictionary to extract from
         path: Dot-separated path (e.g., "company.name")
@@ -28,6 +31,19 @@ def extract_nested_value(data: RecordData, path: str) -> Any:
             extract_nested_value({"company": {"name": "Acme"}}, "company.name")
             # Returns: "Acme"
     """
+    try:
+        from vibe_piper.schema.mapping import SourcePathSyntaxError, extract_value
+    except ImportError:
+        SourcePathSyntaxError = None  # type: ignore[assignment]
+        extract_value = None  # type: ignore[assignment]
+
+    if extract_value is not None:
+        try:
+            value, _found = extract_value(data, path, warn_on_missing=False)
+        except SourcePathSyntaxError:  # type: ignore[misc]
+            return None
+        return value
+
     keys = path.split(".")
     value = data
 

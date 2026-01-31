@@ -323,6 +323,13 @@ class TestHelperFunctions:
         # Note: For bracket syntax, use schema-first mapping system
         assert _get_nested_value(data, "company[name]") is None
 
+    def test_get_nested_value_bracket_syntax_when_available(self) -> None:
+        """Test bracket syntax via schema-first mapping utilities when present."""
+        pytest.importorskip("vibe_piper.schema.mapping")
+
+        data = {"tags": ["a", "b"]}
+        assert _get_nested_value(data, "tags[0]") == "a"
+
     def test_evaluate_condition_is_not_null(self) -> None:
         """Test evaluating 'is not null' condition."""
         record1 = {"email": "test@example.com"}
