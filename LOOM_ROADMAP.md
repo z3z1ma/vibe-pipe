@@ -10,7 +10,7 @@ High-level direction and priorities.
 - - `vp-8866` P1 in_progress - Normalize integration test tagging for *_integration files
 - - `vp-0429` P2 in_progress - Phase 3 Testing: Implement Snapshot Testing Framework
 - - `vp-8210` P2 in_progress - Expose specialized factory helpers via tests.helpers
-- - `vp-830c` P2 open - Update testing docs to align with uv + integration markers (deps:vp-8866)
+- - `vp-830c` P2 in_progress - Update testing docs to align with uv + integration markers (deps:vp-8866)
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
