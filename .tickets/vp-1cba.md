@@ -1,0 +1,51 @@
+---
+"id": "vp-1cba"
+"status": "in_progress"
+"deps": []
+"links": []
+"created": "2026-01-31T21:47:46Z"
+"type": "task"
+"priority": 1
+"assignee": "z3z1ma"
+"tags":
+- "sprint:vibe-piper-architectural-reboot"
+"external": {}
+---
+# Debug TRANSFORM asset execution failure
+
+## Notes
+
+**2026-01-31T21:51:13Z**
+
+Investigation Summary:
+
+## Problem Identified
+TRANSFORM asset execution failures are caused by schema validation errors when transformation functions modify field structure of DataRecord objects without updating the corresponding schema.
+
+## Root Cause
+In src/vibe_piper/types.py line 218, DataRecord.__post_init__ method validates that all required fields defined in schema are present in the record data dictionary.
+
+When transformations like rename_fields, drop_fields, or select_fields modify record data, they create new DataRecord objects but keep the ORIGINAL schema. This causes validation to fail because:
+
+1. rename_fields({"name": "full_name"}) creates data with full_name but schema still expects name
+2. drop_fields(["email"]) removes email from data but schema still requires it
+3. Similar issues with other field-modifying transformations
+
+## Test Failures Found
+- test_filter_less_than - assertion failure (2 records instead of 3)
+- test_filter_is_null - ValueError: Required field email missing from record
+- test_rename_single_field - ValueError: Required field name missing from record
+- test_rename_multiple_fields - ValueError: Required field name missing from record
+- test_drop_single_field - ValueError: Required field email missing from record
+- test_drop_multiple_fields - ValueError: Required field email missing from record
+- test_select_single_field - ValueError: Required field email missing from record
+- test_select_multiple_fields - ValueError: Required field email missing from record
+- And many other related failures in validator and aggregation tests
+
+## Next Steps
+Need to fix transformation functions to update schemas when modifying field structure. Two approaches:
+
+1. Auto-update schema: Have transformations rebuild schema to match new data structure
+2. Relaxed validation: Skip schema validation during transformations, or make it optional
+
+Recommend investigating approach 1 first as it maintains data integrity.
