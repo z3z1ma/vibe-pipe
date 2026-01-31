@@ -3,12 +3,14 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (5)
+- # Tickets (7)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
+- - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
+- - `vp-98cc` P1 in_progress - Public API + docs alignment for core abstractions (deps:vp-786e,vp-a1f7,vp-b2ef)
+- - `vp-a511` P1 in_progress - Fix LOOM_ROADMAP merge artifact + refresh backlog
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
+- - `vp-36be` P1 open - Adopt schema-first source_path parsing in config + transforms (deps:vp-f701)
 - - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
-- - `vp-98cc` P2 open - Public API + docs alignment for core abstractions
-- - `vp-b2ef` P2 open - Asset execution data contract for multi-upstream dependencies
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
@@ -42,10 +44,6 @@ High-level direction and priorities.
 - 2026-01-30T16:17:05.527Z Idle session; no new tool activity or concrete learnings to encode.
 - 2026-01-30T16:09:04.331Z Add instinct to strictly obey Plan mode read-only constraint when system reminder is present.
 - 2026-01-30T15:57:25.912Z Add instinct to strictly enforce read-only behavior when Plan Mode system reminder is present.
-<!-- END:compound:roadmap-ai-notes -->
-||||||| 7a7535a
 - 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
 - 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
 <!-- END:compound:roadmap-ai-notes -->
-- 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
-- 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
