@@ -33,6 +33,12 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **inst-egg-info-deletions-are-cleanup** (76%)
   - Trigger: git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)
   - Action: Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather…
+- **large-module-deletion-safety-sweep** (74%)
+  - Trigger: Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.
+  - Action: Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.
+- **pipeline-execution-parity-as-contract** (70%)
+  - Trigger: Changes touch pipeline execution and a parity-focused test file (e.g., tests/*parity*.py).
+  - Action: Treat parity tests as the contract: keep them explicit about user-facing vs agent-facing execution paths, and prefer simplifying the contract rather than expanding mocking complexity when refactoring …
 
 ## Notes
 

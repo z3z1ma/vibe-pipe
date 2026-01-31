@@ -328,6 +328,40 @@
           "note": "Recent diff was limited to src/vibe_piper.egg-info metadata; supports treating egg-info diffs as low-signal packaging artifacts unless explicitly intentional."
         }
       ]
+    },
+    {
+      "id": "large-module-deletion-safety-sweep",
+      "title": "Large module deletion safety sweep",
+      "trigger": "Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.",
+      "action": "Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.",
+      "tags": [],
+      "confidence": 0.74,
+      "status": "active",
+      "created_at": "2026-01-31T20:34:54.216Z",
+      "updated_at": "2026-01-31T20:34:54.216Z",
+      "evidence": [
+        {
+          "ts": "2026-01-31T20:34:54.216Z",
+          "sessionID": "ses_3ea5780f7ffeL17r0v0S9Yer5y"
+        }
+      ]
+    },
+    {
+      "id": "pipeline-execution-parity-as-contract",
+      "title": "Pipeline execution parity as contract",
+      "trigger": "Changes touch pipeline execution and a parity-focused test file (e.g., tests/*parity*.py).",
+      "action": "Treat parity tests as the contract: keep them explicit about user-facing vs agent-facing execution paths, and prefer simplifying the contract rather than expanding mocking complexity when refactoring internals.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-31T20:34:54.216Z",
+      "updated_at": "2026-01-31T20:34:54.216Z",
+      "evidence": [
+        {
+          "ts": "2026-01-31T20:34:54.216Z",
+          "sessionID": "ses_3ea5780f7ffeL17r0v0S9Yer5y"
+        }
+      ]
     }
   ]
 }
