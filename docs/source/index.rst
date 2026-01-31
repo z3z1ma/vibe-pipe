@@ -39,8 +39,7 @@ Quick Example
 
 .. code-block:: python
 
-   from vibe_piper import asset, PipelineBuilder, CSVReader, CSVWriter
-   from pathlib import Path
+   from vibe_piper import build_pipeline
 
    # Build pipeline using explicit builder pattern
    pipeline = build_pipeline("user_pipeline")

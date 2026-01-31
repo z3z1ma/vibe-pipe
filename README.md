@@ -794,18 +794,18 @@ result = pipeline.run(data)
 
 **New API (current):**
 ```python
-from vibe_piper import asset, build_pipeline
+from vibe_piper import PipelineBuilder, asset
 
-@asset
-def source_data():
-    return ["  hello  "]
+# Using PipelineBuilder (explicit builder pattern)
+pipeline = PipelineBuilder("my_pipeline")
+
+pipeline.asset(name="source_data", fn=lambda: ["  hello  "])
 
 @asset
 def clean_data(source_data):
     return [x.strip() for x in source_data]
 
-pipeline = build_pipeline("my_pipeline")
-# Assets are automatically added via @asset decorator
+pipeline.asset(name="clean_data", fn=clean_data, depends_on=["source_data"])
 graph = pipeline.build()
 
 # Execute with ExecutionEngine
@@ -828,6 +828,8 @@ result = engine.execute(graph, context)
 
 1. Replace `Pipeline` with `build_pipeline()` or `PipelineDefinitionContext`
 2. Replace `Stage` with `@asset` decorator
+   - **Important**: `@asset` decorator alone creates an Asset object
+   - Use `PipelineBuilder.asset()` or `@pipeline.asset()` within a context to register assets
 3. Dependencies are now inferred from parameter names (e.g., `def process(source_data:` depends on `source_data` asset)
 4. Use `ExecutionEngine.execute()` to run pipelines instead of `pipeline.run()`
 
