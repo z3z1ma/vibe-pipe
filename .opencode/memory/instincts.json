@@ -101,10 +101,10 @@
       "trigger": "Git diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits with no corresponding product code changes.",
       "action": "Avoid inventing new product behaviors; limit proposals to workflow hygiene (skills/instinct wording tweaks, docs.sync) and keep docs block edits minimal unless a stable always-on principle changed.",
       "tags": [],
-      "confidence": 0.9300000000000002,
+      "confidence": 0.9500000000000002,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-01-31T06:29:29.007Z",
+      "updated_at": "2026-01-31T16:25:44.786Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -139,6 +139,11 @@
           "ts": "2026-01-31T06:29:29.007Z",
           "sessionID": "ses_3ed443c3bffebpv9pEDdT7r5pf",
           "note": "Recent changes heavily involve .tickets/*.md (+72 combined) and AGENTS.md/LOOM_ROADMAP.md/LOOM_CHANGELOG.md (+40) without product code; reinforces avoiding inferred behavior changes from process/doc churn."
+        },
+        {
+          "ts": "2026-01-31T16:25:44.786Z",
+          "sessionID": "ses_3eb663eefffeeJD0KTx1MC94hv",
+          "note": "Recent diff is entirely process artifacts (.tickets/*.md and LOOM_ROADMAP.md) with no product code; reinforces treating ticket/docs churn as low-signal for behavior changes."
         }
       ]
     },
@@ -229,10 +234,10 @@
       "trigger": "Completing ticket investigation/scoping work",
       "action": "1. Document findings in ticket notes with clear status. 2. Create investigation notes file (INVESTIGATION_NOTES.md or similar). 3. Commit investigation documentation with clear message. 4. Notify manager via loom team send with summary and recommendation. 5. Add ticket note documenting manager communication. 6. Wait for manager scheduling decision (loom team wait). 7. Check inbox for manager response on interval.",
       "tags": [],
-      "confidence": 0.85,
+      "confidence": 0.87,
       "status": "active",
       "created_at": "2026-01-31T04:47:31.569Z",
-      "updated_at": "2026-01-31T05:41:34.211Z",
+      "updated_at": "2026-01-31T16:25:44.786Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:47:31.569Z",
@@ -242,6 +247,11 @@
           "ts": "2026-01-31T05:41:34.211Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
           "note": "Successfully followed workflow in vp-0429: investigated, documented findings in ticket notes, created INVESTIGATION_NOTES.md, committed documentation (86a54e0), notified manager via loom team send, added progress notes, acknowledged manager communication, used loom team wait to await scheduling decision."
+        },
+        {
+          "ts": "2026-01-31T16:25:44.786Z",
+          "sessionID": "ses_3eb663eefffeeJD0KTx1MC94hv",
+          "note": "Multiple ticket edits in one session suggests ongoing investigation/scoping updates; reinforces capturing findings in ticket notes and keeping process changes explicit."
         }
       ]
     },

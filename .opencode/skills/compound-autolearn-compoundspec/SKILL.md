@@ -22,6 +22,11 @@ Turn an autolearn prompt (recent activity + constraints) into a valid CompoundSp
   - Do not propose product code changes.
   - Keep proposals strictly within skills/instincts/docs/changelog.
 - Use the git summary (changed_files + diffstat) as evidence for what to learn.
+- If the diffstat is empty (or there are no meaningful file changes):
+  - Do not invent learnings.
+  - Emit empty `instincts.create/update` and `skills.create/update`.
+  - Set `docs.sync: false`.
+  - Use a changelog note that explains the skip (e.g., "Autolearn ran with no diff evidence; skipped memory updates.")
 - Treat generated/derived artifacts as low-signal evidence:
   - If `services/index.json` changes without corresponding `services/*.md` edits, assume it was refreshed and do not infer new dependency learnings.
   - If `.opencode/memory/instincts.json` / `.opencode/memory/INSTINCTS.md` show large rewrites or deletions, assume cleanup and avoid inventing new heuristics from it.
