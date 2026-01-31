@@ -499,34 +499,64 @@ class TestPipelineExecution:
 
 ## Running Tests
 
+This repo uses `uv` for dependency management and running tests. All pytest commands should be prefixed with `uv run`.
+
 ### Run All Tests
 ```bash
-pytest
+uv run pytest
 ```
 
 ### Run Specific Test File
 ```bash
-pytest tests/test_pipeline.py
+uv run pytest tests/test_pipeline.py
 ```
 
 ### Run Specific Test
 ```bash
-pytest tests/test_pipeline.py::test_pipeline_execution
+uv run pytest tests/test_pipeline.py::test_pipeline_execution
 ```
 
-### Run with Coverage
+### Run by Keyword
 ```bash
-pytest --cov=vibe_piper --cov-report=html
+uv run pytest -k "pipeline_execution"
 ```
 
-### Run Integration Tests Only
+### Run with Coverage (Local)
 ```bash
-pytest -m integration
+uv run pytest --cov=src --cov-report=term-missing
 ```
+
+### Run Integration Tests
+
+Integration tests use pytest markers. Files named `*_integration.py` are automatically marked as integration tests.
+
+Run only integration tests:
+```bash
+uv run pytest -m integration
+```
+
+Run only unit tests (skip integration):
+```bash
+uv run pytest -m "not integration"
+```
+
+Run integration tests using the convenience script:
+```bash
+./scripts/run_integration_tests.sh
+```
+
+Note: Integration tests require test infrastructure (e.g., databases) to be running. Use the provided script or docker-compose to spin up test dependencies.
 
 ### Run with Verbose Output
 ```bash
-pytest -v
+uv run pytest -v
+```
+
+### Update Snapshots
+
+When updating snapshot tests (see [Snapshot Testing](#snapshot-testing) in AGENTS.md):
+```bash
+uv run pytest --update-snapshots
 ```
 
 ## Resources
