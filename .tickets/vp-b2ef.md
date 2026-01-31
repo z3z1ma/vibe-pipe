@@ -1,6 +1,6 @@
 ---
 "id": "vp-b2ef"
-"status": "open"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T15:12:01Z"
