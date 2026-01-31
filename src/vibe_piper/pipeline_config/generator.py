@@ -263,6 +263,10 @@ def _extract_fields(step: TransformStep, data: Any) -> Any:
 def _get_nested_value(data: dict[str, Any], path: str) -> Any:
     """Get a value from nested dictionary using dot notation.
 
+    Supports dot notation for nested field access (e.g., "company.name").
+    Note: Only dot notation is supported. For array indexing or bracket syntax,
+    use the schema-first mapping system.
+
     Args:
         data: Nested dictionary
         path: Dot-notation path (e.g., "company.name")

@@ -310,6 +310,18 @@ class TestHelperFunctions:
 
         assert result is None
 
+    def test_get_nested_value_dot_only_syntax(self) -> None:
+        """Test that dot notation works (bracket syntax not supported)."""
+        data = {"company": {"name": "Acme", "type": "Tech"}}
+
+        # Dot notation: works
+        assert _get_nested_value(data, "company.name") == "Acme"
+        assert _get_nested_value(data, "company.type") == "Tech"
+
+        # Bracket notation: returns None (not supported in config generator)
+        # Note: For bracket syntax, use schema-first mapping system
+        assert _get_nested_value(data, "company[name]") is None
+
     def test_evaluate_condition_is_not_null(self) -> None:
         """Test evaluating 'is not null' condition."""
         record1 = {"email": "test@example.com"}
