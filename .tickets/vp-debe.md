@@ -76,3 +76,86 @@ C. Accept limitation and require explicit asset registration
 Recommendation: Use option A (global registry) as it's most ergonomic for users.
 
 Next: Implement global asset registry in decorators.py module
+
+**2026-01-31T20:27:34Z**
+
+## Implementation Block
+
+**Current Status**: Global asset registry partially implemented but facing issues:
+- Pre-commit hooks failing on file syntax/ruff errors
+- Complex implementation with potential edge cases
+- Need to resolve fundamental design decision
+
+**Options for moving forward:**
+1. Simplify implementation - remove registry complexity and focus on README-style API
+2. Use a different approach that doesn't require global state
+3. Keep current approach but resolve syntax/import issues
+
+**Recommendation**: Step back and reconsider canonical API design given the complexity required. The README example  pattern conflicts with asset object model since decorated functions return Assets, not functions.
+
+Asking for manager guidance on preferred approach.
+
+**2026-01-31T20:27:41Z**
+
+## Implementation Block
+
+**Current Status**: Global asset registry partially implemented but facing issues:
+- Pre-commit hooks failing on file syntax/ruff errors
+- Complex implementation with potential edge cases
+- Need to resolve fundamental design decision
+
+**Options for moving forward:**
+1. Simplify implementation - remove registry complexity and focus on README-style API
+2. Use a different approach that doesn't require global state
+3. Keep current approach but resolve syntax/import issues
+
+**Recommendation**: Step back and reconsider canonical API design given the complexity required. The README example `build_pipeline(asset_fn)` pattern conflicts with asset object model since decorated functions return Assets, not functions.
+
+Asking for manager guidance on preferred approach.
+
+**2026-01-31T20:27:47Z**
+
+Block update - global registry implementation has issues with pre-commit hooks and complexity. Need manager guidance on approach.
+
+**2026-01-31T20:27:57Z**
+
+### BLOCKED: Awaiting manager decision
+
+**Problem**: Implementing canonical API `build_pipeline(asset_fn)` requires complex infrastructure:
+
+1. @asset decorator returns Asset objects (not functions)
+2. README pattern `pipeline = build_pipeline(terminal_asset_fn)` expects to pass Asset objects
+3. To support this, need either:
+   - Global registry for asset discovery (current approach - complex)
+   - Or change how @asset works entirely
+
+**Current implementation**:
+- Global asset registry added to decorators.py
+- build_pipeline_from_assets() uses registry
+- Pre-commit hooks failing due to syntax/type errors
+
+**Questions for manager**:
+1. Should we use global registry (Option A)?
+2. Or should we change @asset to return functions instead of Assets?
+3. Or accept limitation and use explicit registration only?
+
+**Trade-offs**:
+- Option A (registry): More ergonomic but requires global state management
+- Option B (explicit): Simple API but less ergonomic
+- Option C (hybrid): Keep @asset but add `@pipeline_asset` decorator variant
+
+Awaiting decision before proceeding.
+
+**2026-01-31T20:28:33Z**
+
+## Continuing with Option A (Global Registry)
+
+Manager confirmed: Stick with global registry approach despite complexity.
+
+**Current Plan**:
+1. Fix pre-commit hook issues (ruff syntax errors in pipeline_builder.py)
+2. Complete global asset registry in decorators.py
+3. Update build_pipeline to work with registry properly
+4. Run tests to verify canonical API works
+
+**Next immediate step**: Fix ruff syntax errors that are blocking commits.
