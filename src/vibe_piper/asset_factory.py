@@ -6,6 +6,7 @@ ensuring consistent behavior across decorators, builders, and other asset
 creation paths.
 """
 
+import inspect
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
@@ -158,6 +159,9 @@ def create_asset(
         op_type = operator_type or OperatorType.SOURCE
 
         # Wrap function to handle data and context parameters
+        # Store original function parameters for signature handling
+        original_params = tuple(inspect.signature(fn).parameters.keys())
+
         def wrapped_fn(data: Any, context: Any) -> Any:
             # If this is a source (operator_type == SOURCE), call with just context
             if op_type == OperatorType.SOURCE:
@@ -167,8 +171,12 @@ def create_asset(
                     # If function expects 2 args, call with both
                     return fn(data, context)  # type: ignore
             else:
-                # Transform functions receive upstream data
-                return fn(data, context)  # type: ignore
+                # Transform functions: call based on signature
+                # If 1 param: pass only data; if 2+ params: pass data and context
+                if len(original_params) == 1:
+                    return fn(data)  # type: ignore
+                else:
+                    return fn(data, context)  # type: ignore
 
         asset_operator = Operator(
             name=name,

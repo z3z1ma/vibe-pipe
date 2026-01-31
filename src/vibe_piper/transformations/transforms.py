@@ -8,7 +8,7 @@ computing derived fields, filtering, and enriching data from lookups.
 from collections.abc import Callable
 from typing import Any
 
-from vibe_piper.types import DataRecord, RecordData
+from vibe_piper.types import DataRecord, RecordData, Schema, SchemaField
 
 
 def extract_nested_value(data: RecordData, path: str) -> Any:
@@ -441,9 +441,31 @@ def rename_fields(field_mapping: dict[str, str]) -> Callable[[list[DataRecord]],
                 new_field_name = field_mapping.get(field_name, field_name)
                 new_data[new_field_name] = value
 
+            # Update schema to match renamed fields
+            new_schema_fields = []
+            for field in record.schema.fields:
+                new_name = field_mapping.get(field.name, field.name)
+                new_schema_fields.append(
+                    SchemaField(
+                        name=new_name,
+                        data_type=field.data_type,
+                        required=field.required,
+                        nullable=field.nullable,
+                        description=field.description,
+                        source_path=field.source_path,
+                        constraints=field.constraints,
+                    )
+                )
+
+            new_schema = Schema(
+                name=record.schema.name,
+                fields=tuple(new_schema_fields),
+                description=record.schema.description,
+            )
+
             new_record = DataRecord(
                 data=new_data,
-                schema=record.schema,
+                schema=new_schema,
                 metadata=record.metadata,
             )
             result.append(new_record)
@@ -477,9 +499,20 @@ def drop_fields(fields: list[str]) -> Callable[[list[DataRecord]], list[DataReco
         for record in data:
             new_data = {k: v for k, v in record.data.items() if k not in fields_set}
 
+            # Update schema to remove dropped fields
+            new_schema_fields = [
+                field for field in record.schema.fields if field.name not in fields_set
+            ]
+
+            new_schema = Schema(
+                name=record.schema.name,
+                fields=tuple(new_schema_fields),
+                description=record.schema.description,
+            )
+
             new_record = DataRecord(
                 data=new_data,
-                schema=record.schema,
+                schema=new_schema,
                 metadata=record.metadata,
             )
             result.append(new_record)
@@ -513,9 +546,20 @@ def select_fields(fields: list[str]) -> Callable[[list[DataRecord]], list[DataRe
         for record in data:
             new_data = {k: v for k, v in record.data.items() if k in fields_set}
 
+            # Update schema to keep only selected fields
+            new_schema_fields = [
+                field for field in record.schema.fields if field.name in fields_set
+            ]
+
+            new_schema = Schema(
+                name=record.schema.name,
+                fields=tuple(new_schema_fields),
+                description=record.schema.description,
+            )
+
             new_record = DataRecord(
                 data=new_data,
-                schema=record.schema,
+                schema=new_schema,
                 metadata=record.metadata,
             )
             result.append(new_record)
