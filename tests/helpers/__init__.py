@@ -19,10 +19,14 @@ from tests.helpers.factories import (
     make_asset,
     make_asset_graph,
     make_data_record,
+    make_diamond_asset_graph,
+    make_linear_asset_graph,
     make_operator,
     make_pipeline,
     make_pipeline_context,
+    make_product_schema,
     make_schema,
+    make_user_schema,
 )
 
 __all__ = [
@@ -43,8 +47,12 @@ __all__ = [
     "make_asset",
     "make_asset_graph",
     "make_data_record",
+    "make_diamond_asset_graph",
+    "make_linear_asset_graph",
     "make_operator",
     "make_pipeline",
     "make_pipeline_context",
+    "make_product_schema",
     "make_schema",
+    "make_user_schema",
 ]
