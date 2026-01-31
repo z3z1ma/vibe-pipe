@@ -3,9 +3,8 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (9)
+- # Tickets (8)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
-- - `vp-36be` P1 in_progress - Adopt schema-first source_path parsing in config + transforms (deps:vp-f701)
 - - `vp-66d2` P1 in_progress - Sprint prep: Testing Tooling Cohesion
 - - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
 - - `vp-8866` P1 open - Normalize integration test tagging for *_integration files
