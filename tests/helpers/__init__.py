@@ -24,6 +24,11 @@ from tests.helpers.factories import (
     make_pipeline_context,
     make_schema,
 )
+from tests.helpers.snapshots import (
+    SnapshotMismatchError,
+    assert_match_snapshot,
+    assert_matches_snapshot,
+)
 
 __all__ = [
     # Assertions
@@ -47,4 +52,8 @@ __all__ = [
     "make_pipeline",
     "make_pipeline_context",
     "make_schema",
+    # Snapshots
+    "assert_match_snapshot",
+    "assert_matches_snapshot",
+    "SnapshotMismatchError",
 ]

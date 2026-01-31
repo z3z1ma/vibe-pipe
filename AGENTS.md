@@ -33,6 +33,27 @@ Notes:
 - Single test (node id): `uv run pytest tests/test_pipeline.py::test_pipeline_execution -q`
 - By keyword: `uv run pytest -k "pipeline_execution" -q`
 - With coverage (local): `uv run pytest --cov=src --cov-report=term-missing`
+- Update snapshots: `uv run pytest --update-snapshots`
+
+### Snapshot Testing
+
+Snapshot testing is available for catching regressions in data transformations and pipeline outputs.
+
+- Create snapshots on first run: `uv run pytest`
+- Update existing snapshots: `uv run pytest --update-snapshots`
+- Run snapshot tests only: `uv run pytest tests/test_testing_infrastructure.py::test_snapshot_pipeline_output -v`
+- Snapshot directory: `tests/snapshots/`
+
+When to use snapshot testing:
+- Data transformations: Verify output structure and values
+- API responses: Catch schema or data changes
+- Pipeline results: Ensure consistent behavior across code changes
+- Complex nested data: Where traditional assertions would be verbose
+
+When to use traditional assertions:
+- Simple values and types
+- Specific business rules that need clear documentation
+- Performance-critical code requiring explicit checks
 
 ### Integration tests (Docker)
 
