@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-31T19:34:41.806Z No learning - git summary showed only build artifact changes (uv.lock, egg-info)
 - 2026-01-31T18:56:44.083Z Implemented snapshot testing framework with 17 tests, 3 example snapshot tests, and --update-snapshots pytest flag support
 - 2026-01-31T18:44:00.918Z Refine autolearn guidance to better handle Plan Mode and low-signal ticket/doc-heavy diffs; strengthen related workflow instincts.
 - 2026-01-31T18:36:35.799Z Refined autolearn guidance for ticket/process-heavy diffs and reinforced read-only/Plan Mode and ticket-churn heuristics.

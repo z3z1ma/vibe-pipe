@@ -3,18 +3,18 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (8)
+- # Tickets (7)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
 - - `vp-66d2` P1 in_progress - Sprint prep: Testing Tooling Cohesion
 - - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
-- - `vp-8866` P1 open - Normalize integration test tagging for *_integration files
-- - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
+- - `vp-8866` P1 in_progress - Normalize integration test tagging for *_integration files
 - - `vp-0429` P2 in_progress - Phase 3 Testing: Implement Snapshot Testing Framework
-- - `vp-8210` P2 open - Expose specialized factory helpers via tests.helpers
+- - `vp-8210` P2 in_progress - Expose specialized factory helpers via tests.helpers
 - - `vp-830c` P2 open - Update testing docs to align with uv + integration markers (deps:vp-8866)
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-31T19:34:41.806Z No learning - git summary showed only build artifact changes (uv.lock, egg-info)
 - 2026-01-31T18:56:44.083Z Implemented snapshot testing framework with 17 tests, 3 example snapshot tests, and --update-snapshots pytest flag support
 - 2026-01-31T18:44:00.918Z Refine autolearn guidance to better handle Plan Mode and low-signal ticket/doc-heavy diffs; strengthen related workflow instincts.
 - 2026-01-31T18:36:35.799Z Refined autolearn guidance for ticket/process-heavy diffs and reinforced read-only/Plan Mode and ticket-churn heuristics.
@@ -44,5 +44,4 @@ High-level direction and priorities.
 - 2026-01-30T18:02:40.795Z Refine autolearn to treat derived index diffs (services/index.json) as low-signal and avoid inferring dependency learnings from them.
 - 2026-01-30T17:58:39.370Z Added an instinct for JSON-only autolearn responses; strengthened Loom ticket long-body and safe-quoting instincts based on recent large ticket updates.
 - 2026-01-30T17:50:32.221Z Added an instinct to treat services/index.json as generated; strengthened Loom ticket long-body and quoting heuristics.
-- 2026-01-30T17:44:04.444Z Reinforce Loom ticket long-body/quoting habits and codify that services/index.json is derived via refresh-index, not manually edited.
 <!-- END:compound:roadmap-ai-notes -->
