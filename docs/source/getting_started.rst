@@ -24,7 +24,7 @@ Basic Usage
 Defining Assets
 ~~~~~~~~~~~~~~~
 
-Assets are the building blocks of Vibe Piper pipelines. Use the ``@asset`` decorator to define data transformations:
+Assets are the building blocks of Vibe Piper pipelines. Use the ``@asset`` decorator or builder pattern to define data transformations:
 
 .. code-block:: python
 
@@ -57,13 +57,6 @@ Building Pipelines
 
 Vibe Piper provides multiple ways to build pipelines:
 
-**Using @asset decorator with automatic inference:**
-
-.. code-block:: python
-
-   # Assets are automatically collected in a PipelineBuilder
-   # when using @asset decorator (see example above)
-
 **Using PipelineBuilder (fluent interface):**
 
 .. code-block:: python
@@ -93,12 +86,15 @@ Vibe Piper provides multiple ways to build pipelines:
    with PipelineDefinitionContext("my_pipeline") as pipeline:
        @pipeline.asset()
        def raw_data():
+           """Source asset - no dependencies."""
            return [1, 2, 3]
 
        @pipeline.asset()
        def processed_data(raw_data):
+           """Depends on raw_data (inferred from parameter name)."""
            return [x * 2 for x in raw_data]
 
+   # Assets are collected automatically within the context
    graph = pipeline.build()
 
 **Note:** Dependencies are automatically inferred from function parameter names that match existing asset names (e.g., ``raw_data`` parameter in ``processed_data`` depends on ``raw_data`` asset).
@@ -106,27 +102,38 @@ Vibe Piper provides multiple ways to build pipelines:
 Multi-Upstream Assets
 ~~~~~~~~~~~~~~~~~~~~
 
-When an asset depends on multiple upstream assets, use the parameter name that matches the pattern:
+When an asset depends on multiple upstream assets, it receives an ``UpstreamData`` object:
 
 .. code-block:: python
 
-   from vibe_piper import UpstreamData
+   from vibe_piper import UpstreamData, PipelineContext
 
    @asset
-   def multi_source_data(users: list[dict], orders: list[dict]) -> list[dict]:
+   def merge_users_orders(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
        """
        Combine user and order data.
 
-       When multiple dependencies exist, you can access them individually
-       by parameter name, or use UpstreamData for structured access.
+       When an asset has multiple dependencies, the executor passes
+       an UpstreamData object containing all upstream results.
        """
-       # Users and orders are individual parameters
-       # Access by parameter name
+       # Access upstream data by asset name
+       users = upstream["users"]
+       orders = upstream["orders"]
+
+       # Merge data
        user_ids = {u["id"] for u in users}
        for order in orders:
            if order["user_id"] in user_ids:
                order["user_exists"] = True
+
        return orders
+
+   # The assets would be defined elsewhere:
+   # @asset
+   # def users() -> list[dict]: ...
+   #
+   # @asset
+   # def orders() -> list[dict]: ...
 
 Pipeline Execution
 ~~~~~~~~~~~~~~~~~

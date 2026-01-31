@@ -5,8 +5,12 @@ Pipeline Building
 ---------------
 
 .. autofunction:: vibe_piper.pipeline.build_pipeline
-.. autofunction:: vibe_piper.pipeline.PipelineBuilder
-.. autofunction:: vibe_piper.pipeline.PipelineDefinitionContext
+.. autoclass:: vibe_piper.pipeline.PipelineBuilder
+   :members:
+   :undoc-members:
+.. autoclass:: vibe_piper.pipeline.PipelineDefinitionContext
+   :members:
+   :undoc-members:
 .. autofunction:: vibe_piper.pipeline.infer_dependencies_from_signature
 
 Asset Decorator

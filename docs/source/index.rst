@@ -39,40 +39,34 @@ Quick Example
 
 .. code-block:: python
 
-   from vibe_piper import asset, build_pipeline, CSVReader, CSVWriter
+   from vibe_piper import asset, PipelineBuilder, CSVReader, CSVWriter
    from pathlib import Path
 
-   # Define assets using @asset decorator
-   @asset
-   def extract_users() -> list[dict]:
-       """Extract user data from CSV."""
-       reader = CSVReader(Path("data/users.csv"))
-       records = reader.read()
-       return [record.data for record in records]
-
-   @asset
-   def transform_users(extract_users: list[dict]) -> list[dict]:
-       """Transform and filter users."""
-       # Filter active users
-       active_users = [user for user in extract_users if user.get("status") == "active"]
-       return active_users
-
-   @asset
-   def aggregate_by_category(transform_users: list[dict]) -> list[dict]:
-       """Aggregate users by category."""
-       from collections import Counter
-       categories = Counter(user.get("category", "unknown") for user in transform_users)
-       return [{"category": k, "count": v} for k, v in categories.items()]
-
-   # Build and execute pipeline
+   # Build pipeline using explicit builder pattern
    pipeline = build_pipeline("user_pipeline")
-   # Assets are automatically added to the builder when using @asset decorator
-   # Or add assets explicitly: pipeline.asset("name", fn=func)
+
+   # Define and add assets to pipeline
+   pipeline.asset(
+       name="extract_users",
+       fn=lambda: [
+           {"id": 1, "name": "Alice", "status": "active"},
+           {"id": 2, "name": "Bob", "status": "inactive"},
+       ],
+       asset_type="memory",
+   )
+
+   pipeline.asset(
+       name="transform_users",
+       fn=lambda extract_users: [u for u in extract_users if u.get("status") == "active"],
+       depends_on=["extract_users"],
+   )
+
+   # Build the asset graph
    graph = pipeline.build()
    print(f"Pipeline graph: {graph.name}")
 
-   # Note: Execution is handled by the execution engine
-   # See getting_started.rst for full execution examples
+   # Note: See getting_started.rst for @asset decorator usage
+   # and execution with ExecutionEngine
 
 
 Indices and tables
