@@ -16,15 +16,15 @@ Everything outside AI-managed blocks is human-owned.
   - testable (has checks / validation),
   - and safe (no secrets).
 
-- Keep the repo's "core context" small and stable:
-  - AGENTS.md: behavioral + pointers + indexes
+ - Keep the repo's "core context" small and stable:
+  - AGENTS.md: behavioral + always-on context + pointers
   - LOOM_PROJECT.md: constitution
   - LOOM_ROADMAP.md: direction
   - LOOM_CHANGELOG.md: memory deltas
 <!-- END:compound:project-ai-constitution -->
 
 <!-- BEGIN:compound:project-links -->
-- `AGENTS.md` - agent behavior + indexes (skills, instincts, rules)
+- `AGENTS.md` - agent behavior + always-on context + indexes (instincts, rules)
 - `LOOM_PROJECT.md` - constitution
 - `LOOM_ROADMAP.md` - direction + backlog
 - `LOOM_CHANGELOG.md` - AI-first memory deltas

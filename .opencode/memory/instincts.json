@@ -2,640 +2,213 @@
   "version": 1,
   "instincts": [
     {
-      "id": "optional-type-checking-guard",
-      "title": "Use TYPE_CHECKING guard for optional type imports",
-      "trigger": "Importing types only for type checking (Schema, DataType) used only in annotations",
-      "action": "Import optional types inside TYPE_CHECKING block, import at runtime in else block. This allows module to work without the optional dependency.",
+      "id": "memory-store-mass-diff-low-signal",
+      "title": "Treat large memory store diffs as low-signal",
+      "trigger": "Git diffstat shows large deletions/rewrites in .opencode/memory/instincts.json and/or .opencode/memory/INSTINCTS.md without corresponding product code changes.",
+      "action": "Assume bookkeeping/cleanup; avoid inferring new behaviors. Prefer small updates to existing instincts/skills, or no-op if evidence is only memory-store churn.",
       "tags": [],
-      "confidence": 0.8200000000000001,
+      "confidence": 0.9800000000000002,
       "status": "active",
-      "created_at": "2026-01-29T23:33:07.624Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
+      "created_at": "2026-01-31T03:38:36.670Z",
+      "updated_at": "2026-01-31T04:50:37.019Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:33:07.624Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+          "ts": "2026-01-31T03:38:36.670Z",
+          "sessionID": "ses_3ede26c36ffeocH9ryCUNKW1jy"
         },
         {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Optional dependency typing pattern remains a repeated integration concern; worth reinforcing."
-        }
-      ]
-    },
-    {
-      "id": "baseline-json-storage-pattern",
-      "title": "Store reference data as JSON with metadata",
-      "trigger": "Implementing historical data storage with timestamp, sample_size, columns for later retrieval",
-      "action": "Save data to JSON files with metadata dict (created_at, sample_size, columns, schema_name). Store data list efficiently. Create methods for add, get, get_metadata, list, delete.",
-      "tags": [],
-      "confidence": 0.75,
-      "status": "active",
-      "created_at": "2026-01-29T23:33:07.624Z",
-      "updated_at": "2026-01-29T23:33:07.624Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:33:07.624Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "jsonl-append-only-time-series",
-      "title": "Use JSONL format for append-only time-series data",
-      "trigger": "Storing time-series drift history that only grows",
-      "action": "Write each entry as a line to JSONL file (json.dumps(entry) + newline). Efficient append-only, easy to read latest N entries with tail.",
-      "tags": [],
-      "confidence": 0.72,
-      "status": "active",
-      "created_at": "2026-01-29T23:33:07.624Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:33:07.624Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+          "ts": "2026-01-31T03:59:10.547Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Session diffstat shows large deletions/rewrites in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md (plus AGENTS/LOOM docs churn) without corresponding product code changes; treat as bookkeeping/cleanup and avoid inventing new heuristics."
         },
         {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "History/time-series persistence patterns continue to prefer append-only JSONL for drift/validation events."
+          "ts": "2026-01-31T04:03:28.880Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "This session shows very large churn in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md with minimal corroborating product-code evidence; reinforces treating memory-store rewrites as cleanup noise."
+        },
+        {
+          "ts": "2026-01-31T04:18:13.513Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Autolearn git summary shows massive rewrite/deletions in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md without corresponding product code changes; treat as housekeeping and avoid inferring new behaviors."
+        },
+        {
+          "ts": "2026-01-31T04:32:43.781Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Autolearn context shows large churn in .opencode/memory/instincts.json (-/+) and .opencode/memory/INSTINCTS.md without product code diffs; treat as bookkeeping/cleanup."
+        },
+        {
+          "ts": "2026-01-31T04:45:49.458Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Diffstat dominated by large deletions/rewrites in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md with no product code context; treat as cleanup/regen noise."
+        },
+        {
+          "ts": "2026-01-31T04:50:37.019Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Git diffstat shows large deletions/rewrites in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md without corresponding product code changes."
         }
       ]
     },
     {
-      "id": "validation-result-wrapper-mapping",
-      "title": "Map domain results to ValidationResult format",
-      "trigger": "Creating wrapper functions that convert domain types to validation framework ValidationResult",
-      "action": "Create wrapper function that takes domain-specific result (DriftResult) and returns ValidationResult (is_valid=alert_level != 'critical', errors=list for critical, warnings=list for recommendations). Map fields appropriately.",
+      "id": "claude-opencode-skill-mirror-artifact",
+      "title": "Treat .claude/.opencode skill diffs as mirror noise",
+      "trigger": "Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.",
+      "action": "Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.",
       "tags": [],
-      "confidence": 0.7,
+      "confidence": 0.9100000000000001,
       "status": "active",
-      "created_at": "2026-01-29T23:33:07.624Z",
-      "updated_at": "2026-01-29T23:33:07.624Z",
+      "created_at": "2026-01-31T04:03:28.880Z",
+      "updated_at": "2026-01-31T04:50:37.019Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:33:07.624Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+          "ts": "2026-01-31T04:03:28.880Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu"
+        },
+        {
+          "ts": "2026-01-31T04:18:13.513Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Same skills changed under both .claude/skills/ and .opencode/skills/ in diffstat; treat .claude as mirror/sync artifact and propose learning changes targeting .opencode only."
+        },
+        {
+          "ts": "2026-01-31T04:32:43.781Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Same skills updated under both .claude/skills/ and .opencode/skills/ (compound-apply-spec, compound-workflows); treat .claude as mirror/sync noise and target .opencode only."
+        },
+        {
+          "ts": "2026-01-31T04:45:49.458Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Same skill edits appear under both .claude/skills/* and .opencode/skills/* in the diffstat; reinforces treating .claude as mirror/sync artifact."
+        },
+        {
+          "ts": "2026-01-31T04:50:37.019Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Same skill files changed under both .claude/skills/ and .opencode/skills/ (e.g., compound-apply-spec, compound-workflows), consistent with mirror/sync artifact rather than independent learnings."
         }
       ]
     },
     {
-      "id": "immutable-result-dataclass-frozen",
-      "title": "Use @dataclass(frozen=True) for immutable result types",
-      "trigger": "Creating result types that should never be modified after creation",
-      "action": "Mark result dataclasses with frozen=True to ensure immutability and enable hashability.",
+      "id": "ticket-and-doc-churn-low-signal",
+      "title": "Treat ticket/docs churn as low-signal",
+      "trigger": "Git diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits with no corresponding product code changes.",
+      "action": "Avoid inventing new product behaviors; limit proposals to workflow hygiene (skills/instinct wording tweaks, docs.sync) and keep docs block edits minimal unless a stable always-on principle changed.",
       "tags": [],
-      "confidence": 0.65,
+      "confidence": 0.78,
       "status": "active",
-      "created_at": "2026-01-29T23:33:07.624Z",
-      "updated_at": "2026-01-29T23:33:07.624Z",
+      "created_at": "2026-01-31T04:32:43.781Z",
+      "updated_at": "2026-01-31T04:50:37.019Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:33:07.624Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+          "ts": "2026-01-31T04:32:43.781Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu"
+        },
+        {
+          "ts": "2026-01-31T04:45:49.458Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Recent changes heavily involve .tickets/*.md and LOOM_*.md/AGENTS.md alongside memory store churn; avoid inferring product behavior from this diff shape."
+        },
+        {
+          "ts": "2026-01-31T04:50:37.019Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits; treat as process churn and avoid inferring product behavior changes."
         }
       ]
     },
     {
-      "id": "inst-20250129-001",
-      "title": "Auto-store validation results in history",
-      "trigger": "validation_suite_completed",
-      "action": "store_validation_result",
+      "id": "phase3-ticket-scoping-investigation",
+      "title": "Investigate Phase 3 tickets with empty/unclear bodies",
+      "trigger": "Investigating a Phase 3 ticket (vp-cf95, vp-6cf1, vp-7d49, vp-f17e, vp-0429) that has empty body or unclear status",
+      "action": "1. Check ROADMAP.md for the ticket's Phase 3 role (Orchestration, CLI, Scheduling, Monitoring, Testing) and component description. 2. Check all related Phase 3 tickets to see overall completion status. 3. For testing tickets, verify what infrastructure exists (tests/, tests/helpers/, fixtures, factories) vs. what's missing. 4. If a skill exists for the component (e.g., .opencode/skills/snapshot-testing/SKILL.md), check if implementation exists. 5. Provide clear recommendation with evidence: implement, defer, or close. 6. Document investigation in ticket notes and commit notes file.",
       "tags": [],
       "confidence": 0.85,
       "status": "active",
-      "created_at": "2026-01-29T23:36:28.501Z",
-      "updated_at": "2026-01-29T23:36:28.501Z",
+      "created_at": "2026-01-31T04:35:41.546Z",
+      "updated_at": "2026-01-31T04:47:31.569Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:36:28.501Z",
-          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
+          "ts": "2026-01-31T04:35:41.546Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
+        },
+        {
+          "ts": "2026-01-31T04:47:31.569Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Successfully used to investigate vp-0429: checked ROADMAP.md context, verified Phase 3 ticket statuses, identified snapshot testing as only missing Testing Layer component, provided implement recommendation, documented findings in INVESTIGATION_NOTES.md, manager acknowledged and will schedule implementation."
         }
       ]
     },
     {
-      "id": "inst-20250129-002",
-      "title": "Initialize database schema for new history stores",
-      "trigger": "new_history_store_created",
-      "action": "initialize_schema",
+      "id": "ticket-scope-check-implementation-gap",
+      "title": "Check for implementation gap when scoping tickets",
+      "trigger": "Scoping a ticket where skill definition exists but implementation code is missing",
+      "action": "1. Verify skill exists (e.g., .opencode/skills/snapshot-testing/SKILL.md). 2. Check if implementation files exist (e.g., tests/helpers/snapshots.py, tests/snapshots/). 3. If skill exists but implementation missing: implement (not defer/close). 4. Consider priority: P2 low-priority but completes phase requirements. 5. Ensure ticket body has clear scope and acceptance criteria.",
       "tags": [],
-      "confidence": 0.8,
+      "confidence": 0.7999999999999999,
       "status": "active",
-      "created_at": "2026-01-29T23:36:28.501Z",
-      "updated_at": "2026-01-29T23:36:28.501Z",
+      "created_at": "2026-01-31T04:35:41.546Z",
+      "updated_at": "2026-01-31T04:47:31.569Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:36:28.501Z",
-          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
+          "ts": "2026-01-31T04:35:41.546Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
+        },
+        {
+          "ts": "2026-01-31T04:47:31.569Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Confirmed in vp-0429 investigation: snapshot-testing skill exists at .opencode/skills/snapshot-testing/SKILL.md but tests/helpers/snapshots.py and tests/snapshots/ are missing. Correctly recommended implementation (not defer/close) based on evidence gap."
         }
       ]
     },
     {
-      "id": "inst-20250129-003",
-      "title": "Auto-store validation results when suite completes",
-      "trigger": "validation_suite_completed",
-      "action": "store_validation_result",
+      "id": "snapshot-testing-implementation-check",
+      "title": "Verify snapshot testing implementation status",
+      "trigger": "Investigating Phase 3 testing or any testing-related ticket",
+      "action": "1. Check if tests/helpers/snapshots.py exists. 2. Check if tests/helpers/test_snapshots.py exists. 3. Check if tests/snapshots/ directory exists. 4. If missing: check if snapshot-testing skill exists at .opencode/skills/snapshot-testing/SKILL.md. 5. If skill exists but implementation missing: recommend implementation (2-3 hour estimate, low effort, high value). 6. Document gap in investigation notes.",
       "tags": [],
       "confidence": 0.9,
       "status": "active",
-      "created_at": "2026-01-29T23:40:14.274Z",
-      "updated_at": "2026-01-29T23:40:14.274Z",
+      "created_at": "2026-01-31T04:35:41.546Z",
+      "updated_at": "2026-01-31T04:47:31.569Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:40:14.274Z",
-          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
-        }
-      ]
-    },
-    {
-      "id": "inst-20250129-004",
-      "title": "Initialize database schema for new validation history stores",
-      "trigger": "new_history_store_created",
-      "action": "initialize_schema",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T23:40:14.274Z",
-      "updated_at": "2026-01-29T23:40:14.274Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:40:14.274Z",
-          "sessionID": "ses_3f421bb4affeONWsqgs3vEW4ZC"
-        }
-      ]
-    },
-    {
-      "id": "pandas-string-accessor-error-pattern",
-      "title": "Pandas Series.str accessor missing in text cleaning",
-      "trigger": "Test failures showing text not cleaned (whitespace not trimmed, case not changed) when using pandas DataFrame operations",
-      "action": "When applying string operations to DataFrame columns in pandas 2.x, always use Series.str accessor. Pattern is: df[col].str.trim() or df[col].str.lower(). Never apply string methods directly to column values.",
-      "tags": [],
-      "confidence": 0.98,
-      "status": "active",
-      "created_at": "2026-01-29T23:52:31.831Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:52:31.831Z",
-          "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
+          "ts": "2026-01-31T04:35:41.546Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
         },
         {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Repeated failures/notes around pandas 2.x string ops; guidance kept emphasizing Series.str usage."
+          "ts": "2026-01-31T04:47:31.569Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Verified in vp-0429 investigation: tests/helpers/snapshots.py does not exist, tests/helpers/test_snapshots.py does not exist, tests/snapshots/ directory does not exist. Gap confirmed and recommendation to implement was correct."
         }
       ]
     },
     {
-      "id": "nullable-schema-fields-for-data-with-nones",
-      "title": "Set nullable=True on SchemaField when test data contains None values",
-      "trigger": "Creating test fixtures with DataRecord objects that will have None/null values in specific fields",
-      "action": "When creating SchemaField for any field that might contain None in test data, set nullable=True. DataRecord.__post_init__ raises ValueError if a non-nullable field contains None.",
-      "tags": [],
-      "confidence": 0.92,
-      "status": "active",
-      "created_at": "2026-01-29T23:52:31.831Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:52:31.831Z",
-          "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
-        },
-        {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Test fixture/schema nullability noted as a frequent source of ValueError when records contain None."
-        }
-      ]
-    },
-    {
-      "id": "float-to-int-type-safety-in-outlier-replacement",
-      "title": "Handle type mismatch when replacing outliers with mean/median into integer columns",
-      "trigger": "Replacing outliers (always float mean/median) into DataFrame columns with integer dtype",
-      "action": "Either convert integer column to float before replacement (df[col] = df[col].astype(float)), or explicitly cast mean/median to int (int(mean_val)) when assigning back. Pandas will raise TypeError setting float into int64 Series.",
-      "tags": [],
-      "confidence": 0.88,
-      "status": "active",
-      "created_at": "2026-01-29T23:52:31.831Z",
-      "updated_at": "2026-01-30T00:15:12.873Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:52:31.831Z",
-          "sessionID": "ses_3f421a2b6ffeHWqQsWf7wdrUWl"
-        },
-        {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Outlier replacement type mismatch (float statistic into int dtype) called out as a common pitfall to guard for."
-        }
-      ]
-    },
-    {
-      "id": "drift-baseline-storage-json",
-      "title": "Store drift baselines as JSON with metadata",
-      "trigger": "Implementing drift detection with historical baseline comparison",
-      "action": "Store baseline data as JSON file with metadata (timestamp, sample_size, columns, schema_name). Create BaselineStore class with add_baseline, get_baseline, get_metadata, list_baselines, delete_baseline methods.",
-      "tags": [],
-      "confidence": 0.8,
-      "status": "active",
-      "created_at": "2026-01-29T23:54:28.549Z",
-      "updated_at": "2026-01-29T23:54:28.549Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:54:28.549Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "drift-threshold-validation",
-      "title": "Validate drift thresholds on configuration",
-      "trigger": "Creating DriftThresholds configuration class",
-      "action": "Validate that warning < critical, all thresholds in [0,1] range, and warning < psi_critical, with clear error messages.",
+      "id": "ticket-investigation-workflow",
+      "title": "Follow complete ticket investigation workflow",
+      "trigger": "Completing ticket investigation/scoping work",
+      "action": "1. Document findings in ticket notes with clear status. 2. Create investigation notes file (INVESTIGATION_NOTES.md or similar). 3. Commit investigation documentation with clear message. 4. Notify manager via loom team send with summary and recommendation. 5. Add ticket note documenting manager communication. 6. Wait for manager scheduling decision (loom team wait). 7. Check inbox for manager response on interval.",
       "tags": [],
       "confidence": 0.75,
       "status": "active",
-      "created_at": "2026-01-29T23:54:28.549Z",
-      "updated_at": "2026-01-29T23:54:28.549Z",
+      "created_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T04:47:31.569Z",
       "evidence": [
         {
-          "ts": "2026-01-29T23:54:28.549Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
+          "ts": "2026-01-31T04:47:31.569Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
         }
       ]
     },
     {
-      "id": "drift-history-timestamp-tracking",
-      "title": "Track drift results with timestamps for trend analysis",
-      "trigger": "Implementing DriftHistory class for drift monitoring",
-      "action": "Store each drift check with timestamp, baseline_id, method, drift_score, and alert_level to enable temporal trend analysis.",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-29T23:54:28.549Z",
-      "updated_at": "2026-01-29T23:54:28.549Z",
-      "evidence": [
-        {
-          "ts": "2026-01-29T23:54:28.549Z",
-          "sessionID": "ses_3f423bbacffeOy5Uj6zfY1jYce"
-        }
-      ]
-    },
-    {
-      "id": "inst-20260130-001",
-      "title": "CompoundSpec v2 skill updates must be full-body",
-      "trigger": "Producing a CompoundSpec v2 with skills.update entries",
-      "action": "Re-emit the entire final managed body for any skills.update[].body (no snippets/diffs), keep paths repo-root-relative, and include auto/sessionID plus docs.sync if indexes should refresh.",
-      "tags": [],
-      "confidence": 0.8500000000000001,
-      "status": "active",
-      "created_at": "2026-01-30T00:15:12.873Z",
-      "updated_at": "2026-01-30T03:10:17.032Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T00:15:12.873Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e"
-        },
-        {
-          "ts": "2026-01-30T01:09:11.730Z",
-          "sessionID": "ses_3f39fd14fffe3C00AJzxtXyAqh",
-          "note": "This session's autolearn prompt reiterated the mandatory rule: skills.update[].body must re-emit the entire final managed body (no snippets/diffs)."
-        },
-        {
-          "ts": "2026-01-30T03:10:17.032Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Recent autolearn context requires re-emitting full managed bodies for skills.update[].body to avoid invalid partial updates."
-        }
-      ]
-    },
-    {
-      "id": "avoid-committing-egg-info",
-      "title": "Treat egg-info diffs as build artifacts",
-      "trigger": "Git diff shows changes under `src/*.egg-info/` (e.g., `PKG-INFO`, `requires.txt`) without intentional packaging/version work",
-      "action": "Assume the changes are generated; do not include them in commits/PRs and instead regenerate/clean the working tree via the repo's normal install workflow before re-checking diffs",
+      "id": "manager-acknowledgment-confirmation",
+      "title": "Acknowledge and document manager messages about ticket decisions",
+      "trigger": "Receiving manager message acknowledging investigation or providing scheduling decision",
+      "action": "1. Acknowledge manager message (loom team inbox ack <id>). 2. Update ticket with note documenting manager's decision/acknowledgment. 3. Document next steps (await scheduling, ready for implementation, defer/close). 4. Return to waiting state if no work assigned.",
       "tags": [],
       "confidence": 0.7,
       "status": "active",
-      "created_at": "2026-01-30T00:47:20.149Z",
-      "updated_at": "2026-01-30T00:47:20.149Z",
+      "created_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T04:47:31.569Z",
       "evidence": [
         {
-          "ts": "2026-01-30T00:47:20.149Z",
-          "sessionID": "ses_3f3b9f29dffeLfwiKyS5pJk6x9"
-        }
-      ]
-    },
-    {
-      "id": "egg-info-churn-is-build-noise",
-      "title": "Treat .egg-info diffs as build noise",
-      "trigger": "git diff shows only src/vibe_piper.egg-info/* changes (PKG-INFO, SOURCES.txt, requires.txt) with no src/ or tests/ edits",
-      "action": "Assume these are generated artifacts; avoid proposing learnings from them and avoid including them in commits unless the repo explicitly tracks egg-info as source of truth.",
-      "tags": [],
-      "confidence": 0.7,
-      "status": "active",
-      "created_at": "2026-01-30T01:09:11.730Z",
-      "updated_at": "2026-01-30T01:09:11.730Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T01:09:11.730Z",
-          "sessionID": "ses_3f39fd14fffe3C00AJzxtXyAqh"
-        }
-      ]
-    },
-    {
-      "id": "egg-info-diff-hygiene",
-      "title": "Treat src/*.egg-info diffs as generated noise",
-      "trigger": "git diff shows changes under src/*.egg-info/ (PKG-INFO, SOURCES.txt, requires.txt) after installs/runs",
-      "action": "Assume generated metadata; avoid committing unless intentionally updating packaging. Prefer adding src/*.egg-info/ to .gitignore and cleaning the working tree by removing the generated directories, then re-running only the needed uv commands.",
-      "tags": [],
-      "confidence": 0.82,
-      "status": "active",
-      "created_at": "2026-01-30T01:22:03.863Z",
-      "updated_at": "2026-01-30T01:22:03.863Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T01:22:03.863Z",
-          "sessionID": "ses_3f39f6b4affegW0YueTnLRJkTJ"
-        }
-      ]
-    },
-    {
-      "id": "inst-20260130-002",
-      "title": "Editable install egg-info noise",
-      "trigger": "Git shows changes under src/*.egg-info after running uv editable installs (uv pip install -e .).",
-      "action": "Treat src/*.egg-info as generated noise: avoid committing unless intentionally updating packaging metadata; use the existing python-egg-info-hygiene skill to decide whether to ignore, clean, or commit.",
-      "tags": [],
-      "confidence": 0.8800000000000001,
-      "status": "active",
-      "created_at": "2026-01-30T01:25:08.462Z",
-      "updated_at": "2026-01-30T04:44:58.023Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T01:25:08.462Z",
-          "sessionID": "ses_3f39f6b4affegW0YueTnLRJkTJ"
-        },
-        {
-          "ts": "2026-01-30T03:10:17.032Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e",
-          "note": "Repo workflow uses `uv pip install -e .`; egg-info diffs under src/*.egg-info are common generated noise and should be excluded unless doing packaging work."
-        },
-        {
-          "ts": "2026-01-30T04:44:58.023Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Session diff included multiple src/vibe_piper.egg-info files modified alongside uv.lock changes, matching the pattern that editable installs generate egg-info noise."
-        }
-      ]
-    },
-    {
-      "id": "compound-state-json-noop",
-      "title": "Treat compound state.json diffs as no-op",
-      "trigger": "Git summary shows only .opencode/compound/state.json changed",
-      "action": "Treat as internal bookkeeping; propose no memory/product changes and avoid suggesting commits or follow-up work based on it.",
-      "tags": [],
-      "confidence": 0.7,
-      "status": "active",
-      "created_at": "2026-01-30T02:01:31.629Z",
-      "updated_at": "2026-01-30T02:01:31.629Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T02:01:31.629Z",
-          "sessionID": "ses_3f39fcbc8ffesoNca6Upw7Zl97"
-        }
-      ]
-    },
-    {
-      "id": "loom-docs-merge-conflict-markers",
-      "title": "Resolve merge conflict markers in LOOM docs",
-      "trigger": "Git diff or file contents show merge conflict markers (<<<<<<<, =======, >>>>>>>) in LOOM_CHANGELOG.md or LOOM_ROADMAP.md (especially inside/near compound-managed fences).",
-      "action": "Manually resolve by removing conflict markers, preserving the compound BEGIN/END fences, merging content (often keep both sides but dedupe repeated entries), and ensuring lists remain valid markdown. After resolution, run docs sync to refresh derived indexes/blocks.",
-      "tags": [],
-      "confidence": 0.85,
-      "status": "active",
-      "created_at": "2026-01-30T02:25:30.059Z",
-      "updated_at": "2026-01-30T02:25:30.059Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T02:25:30.059Z",
-          "sessionID": "ses_3f3c2fef3ffet4DgJC7FV2fb1e"
-        }
-      ]
-    },
-    {
-      "id": "egg-info-diffs-uv-editable-install",
-      "title": "Treat src/*.egg-info diffs as generated noise",
-      "trigger": "git diff shows changes under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt), often after running `uv pip install -e .` or similar editable install steps",
-      "action": "Assume these are generated artifacts; avoid committing them by default. If they are untracked, add src/*.egg-info/ to .gitignore. If they are tracked, only commit them when the project explicitly wants egg-info checked in, and include a clear commit message explaining why.",
-      "tags": [],
-      "confidence": 0.8200000000000001,
-      "status": "active",
-      "created_at": "2026-01-30T03:03:55.988Z",
-      "updated_at": "2026-01-30T04:44:58.023Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T03:03:55.988Z",
-          "sessionID": "ses_3f333be91ffebe9bPRlChpv8wd"
-        },
-        {
-          "ts": "2026-01-30T04:44:58.023Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Observed egg-info diffs (PKG-INFO/SOURCES.txt/requires.txt) after uv activity; reinforces treating these as generated artifacts."
-        }
-      ]
-    },
-    {
-      "id": "inst-20260130-003",
-      "title": "Plan mode read-only compliance",
-      "trigger": "System reminder indicates Plan Mode is ACTIVE / READ-ONLY phase with a prohibition on edits or file-modifying commands.",
-      "action": "Do not modify files or run write-effect shell commands; restrict work to reading/inspection tools (Read/Glob/Grep/webfetch) and read-only bash commands (e.g., git status/diff/log). Defer implementation until Plan Mode ends.",
-      "tags": [],
-      "confidence": 1,
-      "status": "active",
-      "created_at": "2026-01-30T04:28:26.742Z",
-      "updated_at": "2026-01-30T07:36:39.597Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T04:28:26.742Z",
-          "sessionID": "ses_3f2e8c84effe1PxTy81Ie7Inm8"
-        },
-        {
-          "ts": "2026-01-30T05:13:38.737Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "System reminder emphasized Plan Mode read-only constraints; reinforces avoiding write-effect tool usage in that phase."
-        },
-        {
-          "ts": "2026-01-30T05:20:31.972Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "System reminder shows Plan Mode (read-only) constraints are enforced and must override normal edit/command behavior."
-        },
-        {
-          "ts": "2026-01-30T05:56:15.134Z",
-          "sessionID": "ses_3f2af33dcffeccGoVTK64JQFK0",
-          "note": "System reminder explicitly enforced Plan Mode read-only (no file edits, no write-effect bash)."
-        },
-        {
-          "ts": "2026-01-30T05:57:14.024Z",
-          "sessionID": "ses_3f2af3941ffe0DF9l5zVVwAYu4",
-          "note": "Session included an explicit system reminder that Plan Mode is ACTIVE/READ-ONLY and forbids any file edits or write-effect commands; git summary shows 0 changed files."
-        },
-        {
-          "ts": "2026-01-30T06:34:08.700Z",
-          "sessionID": "ses_3f2af2e35fferc7DAfpdXR4aRS",
-          "note": "System reminder explicitly indicated Plan Mode ACTIVE / READ-ONLY with strict prohibition on edits and write-effect commands; reinforces need to constrain to read/inspect only."
-        },
-        {
-          "ts": "2026-01-30T07:09:23.939Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "System reminder in this session explicitly states Plan Mode is ACTIVE / READ-ONLY and forbids any file edits or write-effect commands; confirms the trigger/action pair is correct."
-        },
-        {
-          "ts": "2026-01-30T07:13:04.525Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "System reminder indicated Plan Mode is ACTIVE / READ-ONLY with strict prohibition on edits."
-        },
-        {
-          "ts": "2026-01-30T07:15:55.772Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "System issued explicit Plan Mode READ-ONLY reminder forbidding any file edits or write-effect shell commands; reinforces using only inspection tools and read-only bash."
-        },
-        {
-          "ts": "2026-01-30T07:31:49.251Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "System reminder explicitly enforced Plan Mode READ-ONLY: no edits, no write-effect shell commands; only inspection tools and read-only bash."
-        },
-        {
-          "ts": "2026-01-30T07:36:39.597Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "System reminder explicitly stated Plan Mode is ACTIVE / READ-ONLY and forbids any file edits or write-effect commands."
-        }
-      ]
-    },
-    {
-      "id": "inst-autolearn-json-only",
-      "title": "Autolearn Output Must Be JSON Only",
-      "trigger": "Responding to a background autolearn prompt that explicitly requires valid JSON-only output (no code fences, no commentary).",
-      "action": "Return exactly one JSON object matching the specified schema; include required fields (schema_version, auto.reason, auto.sessionID), and avoid any extra text.",
-      "tags": [],
-      "confidence": 0.9600000000000002,
-      "status": "active",
-      "created_at": "2026-01-30T04:59:29.428Z",
-      "updated_at": "2026-01-30T07:41:52.139Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T04:59:29.428Z",
-          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
-        },
-        {
-          "ts": "2026-01-30T05:13:38.737Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "This session's autolearn prompt explicitly required JSON-only output (no fences/commentary) with a strict schema."
-        },
-        {
-          "ts": "2026-01-30T05:20:31.972Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "Autolearn prompt explicitly requires JSON-only output with a strict schema; reinforces the need to emit exactly one JSON object with no extra text."
-        },
-        {
-          "ts": "2026-01-30T07:13:04.525Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "Background autolearn prompt explicitly required JSON-only output (no code fences/commentary)."
-        },
-        {
-          "ts": "2026-01-30T07:36:39.597Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Autolearn prompt required JSON-only output with a strict schema; no code fences or commentary."
-        },
-        {
-          "ts": "2026-01-30T07:41:52.139Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Autolearn prompt explicitly required JSON-only output (no fences/commentary) and Plan Mode reminder reinforced output/operation constraints."
-        }
-      ]
-    },
-    {
-      "id": "inst-services-index-json-change-audit",
-      "title": "Audit services/index.json diffs",
-      "trigger": "`services/index.json` changes (especially without `services/*.md` changes)",
-      "action": "Re-run `loom workspace services refresh-index`, then verify whether any `services/*.md` should change; commit only a derived index that corresponds to intentional `services/*.md` updates (never hand-edit `services/index.json`).",
-      "tags": [],
-      "confidence": 0.67,
-      "status": "active",
-      "created_at": "2026-01-30T05:05:53.475Z",
-      "updated_at": "2026-01-30T05:05:53.475Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T05:05:53.475Z",
-          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
-        }
-      ]
-    },
-    {
-      "id": "inst-autolearn-repo-relative-paths",
-      "title": "Autolearn uses repo-root-relative paths",
-      "trigger": "An autolearn/background CompoundSpec prompt includes a Path rule requiring repo-root-relative file references",
-      "action": "In any markdown emitted inside skills/docs/changelog, reference files using repo-root-relative paths (no absolute paths, no file:// URIs).",
-      "tags": [],
-      "confidence": 0.9000000000000001,
-      "status": "active",
-      "created_at": "2026-01-30T05:13:38.737Z",
-      "updated_at": "2026-01-30T07:41:52.139Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T05:13:38.737Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z"
-        },
-        {
-          "ts": "2026-01-30T05:20:31.972Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "Autolearn prompt reiterates the repo-root-relative path constraint for any file references in markdown content."
-        },
-        {
-          "ts": "2026-01-30T07:13:04.525Z",
-          "sessionID": "ses_3f2fefdbeffeAWzI0sFyP0lc1z",
-          "note": "Autolearn prompt reiterated repo-root-relative path rule for any referenced files."
-        },
-        {
-          "ts": "2026-01-30T07:36:39.597Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Autolearn prompt reiterated repo-root-relative path rule for any file references in emitted markdown."
-        },
-        {
-          "ts": "2026-01-30T07:41:52.139Z",
-          "sessionID": "ses_3f2e8ce06ffevAYdf1gYVcEmzQ",
-          "note": "Autolearn prompt reiterated repo-root-relative path rule for any referenced files in emitted markdown content."
-        }
-      ]
-    },
-    {
-      "id": "inst-workspace-add-remove-only-via-loom",
-      "title": "Manage workspace.json via loom workspace",
-      "trigger": "About to add/remove a service repo, or you notice workspace.json needs changes (new repo, remote, default branch).",
-      "action": "Use `loom workspace add/remove` (not manual edits). Then run `loom workspace sync --clone` and `loom workspace services refresh-index` so clones and services/index.json stay consistent and derived.",
-      "tags": [],
-      "confidence": 0.72,
-      "status": "active",
-      "created_at": "2026-01-30T05:20:08.706Z",
-      "updated_at": "2026-01-30T05:20:08.706Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T05:20:08.706Z",
-          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
-        }
-      ]
-    },
-    {
-      "id": "inst-compound-autolearn-json-only-v2",
-      "title": "Autolearn responses are JSON-only CompoundSpec v2",
-      "trigger": "Prompt explicitly requests a background autolearn output and specifies 'Output only valid JSON' with 'CompoundSpec v2' schema.",
-      "action": "Return a single JSON object matching schema_version=2 (no commentary, no code fences). Prefer updating existing skills/docs over creating duplicates; avoid proposing product code changes.",
-      "tags": [],
-      "confidence": 0.72,
-      "status": "active",
-      "created_at": "2026-01-30T05:42:05.560Z",
-      "updated_at": "2026-01-30T05:42:05.560Z",
-      "evidence": [
-        {
-          "ts": "2026-01-30T05:42:05.560Z",
-          "sessionID": "ses_3f2e08e5affeY5i5erfnmWJ1N7"
+          "ts": "2026-01-31T04:47:31.569Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
         }
       ]
     }

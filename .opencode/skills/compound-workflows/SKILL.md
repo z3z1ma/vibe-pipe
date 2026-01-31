@@ -59,11 +59,11 @@ The point is not vibes. The point is *reusable procedure*.
 ### `/workflows:compound <ticket-id>`
 
 - Write memory notes (loom memory) that future planning can recall.
-- Propose skill/instinct/docs changes as a **CompoundSpec v2** JSON object.
-  - For `skills.update[]`, re-emit the **entire final managed body**.
-- Call `compound_apply()` to apply:
+- Propose skill/instinct/doc updates as a **CompoundSpec v2** JSON object.
+- Call `compound_apply()` to make it real:
   - create/update skills under `.opencode/skills/`
-  - update AI-managed blocks in `AGENTS.md`, `LOOM_PROJECT.md`, `LOOM_ROADMAP.md`, `LOOM_CHANGELOG.md`
+  - update AI-managed blocks in `AGENTS.md`, `LOOM_PROJECT.md`, `LOOM_ROADMAP.md`
+  - append an agent-optimized changelog entry
   - sync derived indexes
 
 ## Operational defaults

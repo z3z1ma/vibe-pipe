@@ -20,13 +20,13 @@ So we separate:
 
 ## CompoundSpec v2
 
-Top-level keys:
+Top-level shape:
 
 - `schema_version`: must be `2`
 - `auto`: `{ reason, sessionID }`
-- `instincts`: `{ create: [], update: [] }`
-- `skills`: `{ create: [], update: [] }`
-- `docs`: `{ sync: boolean, blocks?: { upsert?: [] } }`
+- `instincts`: `{ create[], update[] }`
+- `skills`: `{ create[], update[] }`
+- `docs`: `{ sync, blocks? }`
 - `changelog`: `{ note }`
 
 ### `instincts`
@@ -42,23 +42,27 @@ Top-level keys:
 Notes:
 - `name` should match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
 - `body` is markdown without frontmatter.
-- For `skills.update[]`, `body` must be the **entire final managed body** (no snippets/diffs).
+- For `skills.update[]`, `body` must be the entire final managed body (no snippets/diffs).
 
 ### `docs`
 
-- `sync: true` refreshes derived indexes (skills index, instincts index).
-- `blocks.upsert[]`: `{ file, id, content }` updates AI-managed blocks only.
-  - Use repo-root-relative paths, e.g. `AGENTS.md`, `LOOM_ROADMAP.md`.
+- Prefer `docs.sync: true` when changing skills/instincts so derived indexes refresh.
+- Optionally upsert AI-managed blocks:
+  - `docs.blocks.upsert[]`: `{ file, id, content }`
+
+Use repo-root-relative paths when referencing files (e.g., `AGENTS.md`, `LOOM_ROADMAP.md`).
 
 ## Output hygiene
 
-- If a prompt requires **JSON-only**, output a single JSON object (no code fences, no commentary).
-- Follow any prompt constraints (e.g., max skills/instincts per run).
+- Output exactly one JSON object.
+- Do not wrap in code fences.
+- Do not include commentary.
 
 ## Apply
 
-1. Produce a single valid JSON object (the CompoundSpec v2).
-2. Run `compound_apply()` to apply it.
+Call:
+
+- `compound_apply()`
 <!-- END:compound:skill-managed -->
 
 ## Manual notes
