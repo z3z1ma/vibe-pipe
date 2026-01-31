@@ -137,8 +137,19 @@ def create_asset(
     if backoff is not None:
         asset_config["backoff"] = backoff
 
-    # Note: cache, cache_ttl, parallel, lazy are stored as top-level fields on Asset,
-    # not in the config dict. This is a design decision for direct access.
+    # For backward compatibility with orchestration.py, populate config entries
+    # for cache, cache_ttl, parallel, lazy
+    if cache:
+        asset_config["cache"] = True
+    if cache_ttl is not None:
+        asset_config["cache_ttl"] = cache_ttl
+    if parallel:
+        asset_config["parallel"] = True
+    if lazy:
+        asset_config["lazy"] = True
+
+    # Note: cache, cache_ttl, parallel, lazy are ALSO stored as top-level fields on Asset
+    # for direct access convenience.
 
     # Create operator if requested
     asset_operator: Operator | None = None
