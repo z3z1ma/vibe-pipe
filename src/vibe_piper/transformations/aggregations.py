@@ -163,7 +163,9 @@ class GroupBy:
         # Combine group columns with aggregations
         result_df = grouped[self.group_by].first()
         for alias, values in result_data.items():
-            result_df[alias] = values.values
+            # Use .values.tolist() to handle pandas 3.x grouped aggregation results
+            # grouped.apply() returns Series with group index, we need just the values
+            result_df[alias] = values.values.tolist()
 
         # Convert back to DataRecords
         return self._dataframe_to_records(result_df, data[0].schema)
