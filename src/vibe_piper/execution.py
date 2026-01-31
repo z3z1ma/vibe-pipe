@@ -160,15 +160,15 @@ class DefaultExecutor:
         self,
         asset: Asset,
         context: PipelineContext,
-        upstream_results: Mapping[str, Any] | UpstreamData,
+        upstream_data: UpstreamData,
     ) -> AssetResult:
         """
-        Execute an asset and return the result.
+        Execute an asset and return result.
 
         Args:
             asset: The asset to execute
             context: The pipeline execution context
-            upstream_results: Results from upstream assets
+            upstream_data: UpstreamData containing results from upstream assets
 
         Returns:
             AssetResult containing execution outcome
@@ -182,34 +182,9 @@ class DefaultExecutor:
 
             # Check if asset has an operator to execute
             if asset.operator:
-                # Pass all upstream results, not just the first one
-                # Normalize to UpstreamData for multi-upstream support
-                if isinstance(upstream_results, UpstreamData):
-                    upstream_data_wrapper = upstream_results
-                elif upstream_results:
-                    # Convert Mapping to UpstreamData for new contract
-                    upstream_data_wrapper = UpstreamData(raw=upstream_results)
-                else:
-                    # No upstream dependencies - pass empty UpstreamData
-                    upstream_data_wrapper = UpstreamData(raw={})
-
-                # Execute the operator's function with upstream data and context
-                # Handle backward compatibility: try new contract (UpstreamData), fallback to old (raw data)
-                try:
-                    # Try new contract: operator expects UpstreamData
-                    result_data = asset.operator.fn(upstream_data_wrapper, context)
-                except (TypeError, KeyError):
-                    # Fallback to old contract: operator expects raw data
-                    # Unwrap first upstream result for backward compatibility
-                    upstream_keys = upstream_data_wrapper.keys
-                    if len(upstream_keys) == 1:
-                        # Single upstream dependency - unwrap its data
-                        first_key = upstream_keys[0]
-                        raw_data = upstream_data_wrapper[first_key]
-                        result_data = asset.operator.fn(raw_data, context)
-                    else:
-                        # Multiple upstream - operator must use new contract
-                        raise
+                # Execute the operator's function with UpstreamData and context
+                # Operators in AssetGraph model always receive UpstreamData (structured upstream results)
+                result_data = asset.operator.fn(upstream_data, context)
 
                 # Check if we should materialize data
                 if strategy.should_materialize(context):
@@ -267,11 +242,8 @@ class DefaultExecutor:
                 # Calculate checksum for data integrity
                 checksum = calculate_checksum(result_data)
 
-                # Extract lineage keys from upstream results (compatible with both types)
-                if isinstance(upstream_results, UpstreamData):
-                    lineage_keys = upstream_results.keys
-                else:
-                    lineage_keys = tuple(upstream_results.keys())
+                # Extract lineage keys from upstream data
+                lineage_keys = upstream_data.keys
 
                 return AssetResult(
                     asset_name=asset.name,
@@ -287,11 +259,8 @@ class DefaultExecutor:
                 )
             else:
                 # No operator, just return success with no data
-                # Extract lineage keys from upstream results (compatible with both types)
-                if isinstance(upstream_results, UpstreamData):
-                    lineage_keys = upstream_results.keys
-                else:
-                    lineage_keys = tuple(upstream_results.keys())
+                # Extract lineage keys from upstream data
+                lineage_keys = upstream_data.keys
 
                 return AssetResult(
                     asset_name=asset.name,
@@ -306,11 +275,8 @@ class DefaultExecutor:
                 )
 
         except Exception as e:
-            # Extract lineage keys from upstream results (compatible with both types)
-            if isinstance(upstream_results, UpstreamData):
-                lineage_keys = upstream_results.keys
-            else:
-                lineage_keys = tuple(upstream_results.keys())
+            # Extract lineage keys from upstream data
+            lineage_keys = upstream_data.keys
 
             return AssetResult(
                 asset_name=asset.name,
@@ -436,14 +402,16 @@ class ExecutionEngine:
 
             # Get upstream results for this asset
             dependencies = graph.get_dependencies(asset_name)
-            upstream_results = {
+            upstream_raw = {
                 dep.name: asset_results.get(dep.name, None)
                 for dep in dependencies
                 if dep.name in asset_results
             }
+            # Wrap in UpstreamData for consistent operator contract
+            upstream_data = UpstreamData(raw=upstream_raw)
 
             # Execute the asset
-            result = self._execute_asset_with_retry(asset, context, upstream_results, retry_counts)
+            result = self._execute_asset_with_retry(asset, context, upstream_data, retry_counts)
 
             asset_results[asset_name] = result
 
@@ -488,7 +456,7 @@ class ExecutionEngine:
         self,
         asset: Asset,
         context: PipelineContext,
-        upstream_results: Mapping[str, Any],
+        upstream_data: UpstreamData,
         retry_counts: dict[str, int],
     ) -> AssetResult:
         """
@@ -497,13 +465,13 @@ class ExecutionEngine:
         Args:
             asset: The asset to execute
             context: Pipeline context
-            upstream_results: Results from upstream assets
+            upstream_data: UpstreamData containing results from upstream assets
             retry_counts: Dictionary tracking retry counts per asset
 
         Returns:
             AssetResult from the execution attempt
         """
-        result = self.executor.execute(asset, context, upstream_results)
+        result = self.executor.execute(asset, context, upstream_data)
 
         # If retry strategy is enabled and execution failed
         if self.error_strategy == ErrorStrategy.RETRY and not result.success:
@@ -512,8 +480,6 @@ class ExecutionEngine:
             if retry_count < self.max_retries:
                 retry_counts[asset.name] = retry_count + 1
                 # Retry the asset
-                return self._execute_asset_with_retry(
-                    asset, context, upstream_results, retry_counts
-                )
+                return self._execute_asset_with_retry(asset, context, upstream_data, retry_counts)
 
         return result
