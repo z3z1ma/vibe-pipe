@@ -15,6 +15,10 @@ High-level direction and priorities.
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-31T05:41:35.241Z Strengthened Phase 3 investigation and scoping instincts with evidence from vp-0429 workflow (investigation, documentation, manager communication, idle waiting)
+- 2026-01-31T05:34:54.917Z Reinforced heuristics for ticket/docs-heavy diffs and Plan Mode read-only autolearn constraints.
+- 2026-01-31T05:30:34.740Z Strengthen low-signal heuristic for ticket-only diffs to keep autolearn proposals minimal and avoid inventing product behavior.
+- 2026-01-31T04:50:38.761Z Reinforce low-signal heuristics for memory/docs/ticket churn and mirrored skill edits; strengthen read-only/Plan Mode guardrails.
 - 2026-01-31T04:47:32.470Z Strengthened Phase 3 investigation instincts with evidence from vp-0429, learned ticket investigation workflow pattern (investigate-doc-commit-notify-wait)
 - 2026-01-31T04:45:50.725Z Strengthened heuristics to treat memory-store rewrites, mirrored .claude skill edits, and ticket/docs-heavy diffs as low-signal for product learning, and to obey Plan Mode read-only constraints.
 - 2026-01-31T04:35:42.478Z Learned Phase 3 ticket investigation pattern from vp-0429 scope clarification: check ROADMAP context, verify implementation gaps, provide evidence-based recommendation (implement/defer/close), document findings in INVESTIGATION_NOTES.md
@@ -41,10 +45,6 @@ High-level direction and priorities.
 - 2026-01-30T16:17:05.527Z Idle session; no new tool activity or concrete learnings to encode.
 - 2026-01-30T16:09:04.331Z Add instinct to strictly obey Plan mode read-only constraint when system reminder is present.
 - 2026-01-30T15:57:25.912Z Add instinct to strictly enforce read-only behavior when Plan Mode system reminder is present.
-- 2026-01-30T07:41:53.586Z Reinforced autolearn output hygiene: JSON-only responses and repo-relative path discipline.
-- 2026-01-30T07:36:40.764Z Reinforced confidence in Plan Mode read-only compliance and autolearn JSON-only + repo-relative path hygiene.
-- 2026-01-30T07:31:50.233Z Reinforced Plan Mode read-only constraint and added always-on AGENTS context for uv-only tooling + repo-relative path hygiene.
-- 2026-01-30T07:26:57.024Z No memory updates proposed; prompt context shows no meaningful changes to generalize.
 <!-- END:compound:roadmap-ai-notes -->
 ||||||| 7a7535a
 - 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.

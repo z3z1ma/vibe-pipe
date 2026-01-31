@@ -7,10 +7,10 @@
       "trigger": "Git diffstat shows large deletions/rewrites in .opencode/memory/instincts.json and/or .opencode/memory/INSTINCTS.md without corresponding product code changes.",
       "action": "Assume bookkeeping/cleanup; avoid inferring new behaviors. Prefer small updates to existing instincts/skills, or no-op if evidence is only memory-store churn.",
       "tags": [],
-      "confidence": 0.9800000000000002,
+      "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T03:38:36.670Z",
-      "updated_at": "2026-01-31T04:50:37.019Z",
+      "updated_at": "2026-01-31T05:57:33.736Z",
       "evidence": [
         {
           "ts": "2026-01-31T03:38:36.670Z",
@@ -45,6 +45,11 @@
           "ts": "2026-01-31T04:50:37.019Z",
           "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
           "note": "Git diffstat shows large deletions/rewrites in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md without corresponding product code changes."
+        },
+        {
+          "ts": "2026-01-31T05:57:33.736Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Large rewrite deltas in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md alongside ticket/docs edits; consistent with cleanup/refresh rather than new learnings."
         }
       ]
     },
@@ -91,10 +96,10 @@
       "trigger": "Git diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits with no corresponding product code changes.",
       "action": "Avoid inventing new product behaviors; limit proposals to workflow hygiene (skills/instinct wording tweaks, docs.sync) and keep docs block edits minimal unless a stable always-on principle changed.",
       "tags": [],
-      "confidence": 0.78,
+      "confidence": 0.9000000000000001,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-01-31T04:50:37.019Z",
+      "updated_at": "2026-01-31T05:57:33.736Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -109,6 +114,21 @@
           "ts": "2026-01-31T04:50:37.019Z",
           "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
           "note": "Diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits; treat as process churn and avoid inferring product behavior changes."
+        },
+        {
+          "ts": "2026-01-31T05:30:33.076Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Git diffstat shows only a .tickets/ change (.tickets/vp-a340.md) with no product code changes; reinforces treating ticket/doc-only churn as low-signal and keeping autolearn minimal."
+        },
+        {
+          "ts": "2026-01-31T05:34:53.092Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Git diffstat is dominated by .tickets/*.md plus small AGENTS.md/LOOM_CHANGELOG.md edits, with no product code changes."
+        },
+        {
+          "ts": "2026-01-31T05:57:33.736Z",
+          "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
+          "note": "Diffstat dominated by .tickets/*.md and LOOM_*/AGENTS.md edits with no product code; reinforces treating this as process/memory churn rather than behavior changes."
         }
       ]
     },
@@ -118,10 +138,10 @@
       "trigger": "Investigating a Phase 3 ticket (vp-cf95, vp-6cf1, vp-7d49, vp-f17e, vp-0429) that has empty body or unclear status",
       "action": "1. Check ROADMAP.md for the ticket's Phase 3 role (Orchestration, CLI, Scheduling, Monitoring, Testing) and component description. 2. Check all related Phase 3 tickets to see overall completion status. 3. For testing tickets, verify what infrastructure exists (tests/, tests/helpers/, fixtures, factories) vs. what's missing. 4. If a skill exists for the component (e.g., .opencode/skills/snapshot-testing/SKILL.md), check if implementation exists. 5. Provide clear recommendation with evidence: implement, defer, or close. 6. Document investigation in ticket notes and commit notes file.",
       "tags": [],
-      "confidence": 0.85,
+      "confidence": 0.95,
       "status": "active",
       "created_at": "2026-01-31T04:35:41.546Z",
-      "updated_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T05:41:34.211Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:35:41.546Z",
@@ -131,6 +151,11 @@
           "ts": "2026-01-31T04:47:31.569Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
           "note": "Successfully used to investigate vp-0429: checked ROADMAP.md context, verified Phase 3 ticket statuses, identified snapshot testing as only missing Testing Layer component, provided implement recommendation, documented findings in INVESTIGATION_NOTES.md, manager acknowledged and will schedule implementation."
+        },
+        {
+          "ts": "2026-01-31T05:41:34.211Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Successfully used in vp-0429 investigation: checked ROADMAP.md Phase 3 context, verified all Phase 3 tickets (vp-cf95, vp-6cf1, vp-7d49, vp-f17e), checked existing testing infrastructure (tests/, helpers/, fixtures), identified snapshot testing as only missing component, provided implement recommendation with evidence, documented findings in INVESTIGATION_NOTES.md, communicated to manager via loom team send."
         }
       ]
     },
@@ -140,10 +165,10 @@
       "trigger": "Scoping a ticket where skill definition exists but implementation code is missing",
       "action": "1. Verify skill exists (e.g., .opencode/skills/snapshot-testing/SKILL.md). 2. Check if implementation files exist (e.g., tests/helpers/snapshots.py, tests/snapshots/). 3. If skill exists but implementation missing: implement (not defer/close). 4. Consider priority: P2 low-priority but completes phase requirements. 5. Ensure ticket body has clear scope and acceptance criteria.",
       "tags": [],
-      "confidence": 0.7999999999999999,
+      "confidence": 0.8999999999999999,
       "status": "active",
       "created_at": "2026-01-31T04:35:41.546Z",
-      "updated_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T05:41:34.211Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:35:41.546Z",
@@ -153,6 +178,11 @@
           "ts": "2026-01-31T04:47:31.569Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
           "note": "Confirmed in vp-0429 investigation: snapshot-testing skill exists at .opencode/skills/snapshot-testing/SKILL.md but tests/helpers/snapshots.py and tests/snapshots/ are missing. Correctly recommended implementation (not defer/close) based on evidence gap."
+        },
+        {
+          "ts": "2026-01-31T05:41:34.211Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Confirmed in vp-0429: snapshot-testing skill exists at .opencode/skills/snapshot-testing/SKILL.md but implementation files (tests/helpers/snapshots.py, tests/snapshots/) do not exist. Correctly recommended implementation based on gap evidence rather than deferring/closing without investigation."
         }
       ]
     },
@@ -162,10 +192,10 @@
       "trigger": "Investigating Phase 3 testing or any testing-related ticket",
       "action": "1. Check if tests/helpers/snapshots.py exists. 2. Check if tests/helpers/test_snapshots.py exists. 3. Check if tests/snapshots/ directory exists. 4. If missing: check if snapshot-testing skill exists at .opencode/skills/snapshot-testing/SKILL.md. 5. If skill exists but implementation missing: recommend implementation (2-3 hour estimate, low effort, high value). 6. Document gap in investigation notes.",
       "tags": [],
-      "confidence": 0.9,
+      "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T04:35:41.546Z",
-      "updated_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T05:41:34.211Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:35:41.546Z",
@@ -175,6 +205,11 @@
           "ts": "2026-01-31T04:47:31.569Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
           "note": "Verified in vp-0429 investigation: tests/helpers/snapshots.py does not exist, tests/helpers/test_snapshots.py does not exist, tests/snapshots/ directory does not exist. Gap confirmed and recommendation to implement was correct."
+        },
+        {
+          "ts": "2026-01-31T05:41:34.211Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Verified in vp-0429 investigation: tests/helpers/snapshots.py does not exist, tests/helpers/test_snapshots.py does not exist, tests/snapshots/ directory does not exist. Gap identification was accurate and led to correct implementation recommendation (2-3 hour estimate, low effort, high value)."
         }
       ]
     },
@@ -184,14 +219,19 @@
       "trigger": "Completing ticket investigation/scoping work",
       "action": "1. Document findings in ticket notes with clear status. 2. Create investigation notes file (INVESTIGATION_NOTES.md or similar). 3. Commit investigation documentation with clear message. 4. Notify manager via loom team send with summary and recommendation. 5. Add ticket note documenting manager communication. 6. Wait for manager scheduling decision (loom team wait). 7. Check inbox for manager response on interval.",
       "tags": [],
-      "confidence": 0.75,
+      "confidence": 0.85,
       "status": "active",
       "created_at": "2026-01-31T04:47:31.569Z",
-      "updated_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T05:41:34.211Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:47:31.569Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
+        },
+        {
+          "ts": "2026-01-31T05:41:34.211Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Successfully followed workflow in vp-0429: investigated, documented findings in ticket notes, created INVESTIGATION_NOTES.md, committed documentation (86a54e0), notified manager via loom team send, added progress notes, acknowledged manager communication, used loom team wait to await scheduling decision."
         }
       ]
     },
@@ -201,14 +241,36 @@
       "trigger": "Receiving manager message acknowledging investigation or providing scheduling decision",
       "action": "1. Acknowledge manager message (loom team inbox ack <id>). 2. Update ticket with note documenting manager's decision/acknowledgment. 3. Document next steps (await scheduling, ready for implementation, defer/close). 4. Return to waiting state if no work assigned.",
       "tags": [],
-      "confidence": 0.7,
+      "confidence": 0.7999999999999999,
       "status": "active",
       "created_at": "2026-01-31T04:47:31.569Z",
-      "updated_at": "2026-01-31T04:47:31.569Z",
+      "updated_at": "2026-01-31T05:41:34.211Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:47:31.569Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13"
+        },
+        {
+          "ts": "2026-01-31T05:41:34.211Z",
+          "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
+          "note": "Used in vp-0429: received manager message acknowledging investigation, acknowledged via loom team inbox ack, added ticket note documenting manager decision, waited for scheduling decision via loom team wait."
+        }
+      ]
+    },
+    {
+      "id": "inst-egg-info-deletions-are-cleanup",
+      "title": "Treat egg-info mass deletions as artifact cleanup",
+      "trigger": "git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)",
+      "action": "Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather than code reasoning.",
+      "tags": [],
+      "confidence": 0.74,
+      "status": "active",
+      "created_at": "2026-01-31T05:59:37.394Z",
+      "updated_at": "2026-01-31T05:59:37.394Z",
+      "evidence": [
+        {
+          "ts": "2026-01-31T05:59:37.394Z",
+          "sessionID": "ses_3edc88ed4ffey0EZaYmPtPrUju"
         }
       ]
     }
