@@ -16,64 +16,172 @@ Or for development:
 
    git clone https://github.com/your-org/vibe-piper.git
    cd vibe-piper
-   pip install -e ".[dev]"
+   uv sync --dev
 
 Basic Usage
 -----------
 
-Creating a Pipeline
-~~~~~~~~~~~~~~~~~~~
+Defining Assets
+~~~~~~~~~~~~~~~
 
-A Pipeline is a sequence of transformations applied to data:
-
-.. code-block:: python
-
-   from vibe_piper import Pipeline, Stage
-
-   pipeline = Pipeline(
-       name="my_pipeline",
-       description="Processes text data"
-   )
-
-Adding Stages
-~~~~~~~~~~~~~
-
-Stages are individual transformation steps:
+Assets are the building blocks of Vibe Piper pipelines. Use the ``@asset`` decorator or builder pattern to define data transformations:
 
 .. code-block:: python
 
-   # Define a transformation function
-   def remove_special_chars(text: str) -> str:
-       import re
-       return re.sub(r'[^a-zA-Z0-9\s]', '', text)
+   from vibe_piper import asset, build_pipeline
 
-   # Add it as a stage
-   pipeline.add_stage(
-       Stage(
-           name="clean_text",
-           transform=remove_special_chars,
-           description="Removes special characters from text"
-       )
-   )
+   @asset
+   def source_data() -> list[dict]:
+       """Extract source data."""
+       return [
+           {"id": 1, "name": "Alice", "score": 85},
+           {"id": 2, "name": "Bob", "score": 92},
+           {"id": 3, "name": "Charlie", "score": 78},
+       ]
 
-   # Add more stages
-   pipeline.add_stage(
-       Stage(name="normalize_spaces", transform=lambda x: ' '.join(x.split()))
-   )
+   @asset
+   def filtered_users(source_data: list[dict]) -> list[dict]:
+       """Filter users with high scores."""
+       return [user for user in source_data if user["score"] > 80]
 
-Running a Pipeline
-~~~~~~~~~~~~~~~~~~
+   @asset
+   def aggregated_data(filtered_users: list[dict]) -> dict:
+       """Aggregate user statistics."""
+       return {
+           "count": len(filtered_users),
+           "avg_score": sum(u["score"] for u in filtered_users) / len(filtered_users),
+       }
 
-Execute all stages in sequence:
+Building Pipelines
+~~~~~~~~~~~~~~~~~
+
+Vibe Piper provides multiple ways to build pipelines:
+
+**Using PipelineBuilder (fluent interface):**
 
 .. code-block:: python
 
-   result = pipeline.run("  Hello,   World!!!  ")
-   # Result: "Hello World"
+   from vibe_piper import build_pipeline, AssetType
+
+   pipeline = build_pipeline("my_pipeline")
+   pipeline.asset(
+       name="source",
+       fn=lambda: [1, 2, 3],
+       asset_type=AssetType.MEMORY,
+   )
+   pipeline.asset(
+       name="doubled",
+       fn=lambda source: [x * 2 for x in source],
+       depends_on=["source"],  # Optional: dependencies can be explicit
+   )
+
+   graph = pipeline.build()
+
+**Using PipelineDefinitionContext (declarative syntax):**
+
+.. code-block:: python
+
+   from vibe_piper import PipelineDefinitionContext
+
+   with PipelineDefinitionContext("my_pipeline") as pipeline:
+       @pipeline.asset()
+       def raw_data():
+           """Source asset - no dependencies."""
+           return [1, 2, 3]
+
+       @pipeline.asset()
+       def processed_data(raw_data):
+           """Depends on raw_data (inferred from parameter name)."""
+           return [x * 2 for x in raw_data]
+
+   # Assets are collected automatically within the context
+   graph = pipeline.build()
+
+**Note:** Dependencies are automatically inferred from function parameter names that match existing asset names (e.g., ``raw_data`` parameter in ``processed_data`` depends on ``raw_data`` asset).
+
+Multi-Upstream Assets
+~~~~~~~~~~~~~~~~~~~~
+
+When an asset depends on multiple upstream assets, it receives an ``UpstreamData`` object:
+
+.. code-block:: python
+
+   from vibe_piper import UpstreamData, PipelineContext
+
+   @asset
+   def merge_users_orders(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
+       """
+       Combine user and order data.
+
+       When an asset has multiple dependencies, the executor passes
+       an UpstreamData object containing all upstream results.
+       """
+       # Access upstream data by asset name
+       users = upstream["users"]
+       orders = upstream["orders"]
+
+       # Merge data
+       user_ids = {u["id"] for u in users}
+       for order in orders:
+           if order["user_id"] in user_ids:
+               order["user_exists"] = True
+
+       return orders
+
+   # The assets would be defined elsewhere:
+   # @asset
+   # def users() -> list[dict]: ...
+   #
+   # @asset
+   # def orders() -> list[dict]: ...
+
+Pipeline Execution
+~~~~~~~~~~~~~~~~~
+
+Execute pipelines using the execution engine:
+
+.. code-block:: python
+
+   from vibe_piper import ExecutionEngine, PipelineContext
+
+   # Create execution context
+   context = PipelineContext(
+       pipeline_id="my_pipeline",
+       run_id="run_001",
+       config={"log_level": "INFO"},
+   )
+
+   # Execute the asset graph
+   engine = ExecutionEngine()
+   result = engine.execute(graph, context)
+
+   if result.success:
+       print(f"Pipeline succeeded! Executed {result.assets_succeeded} assets.")
+   else:
+       print(f"Pipeline failed: {result.errors}")
+
+Configuration
+~~~~~~~~~~~~
+
+Configure pipelines with PipelineContext:
+
+.. code-block:: python
+
+   from vibe_piper import PipelineContext
+
+   context = PipelineContext(
+       pipeline_id="my_pipeline",
+       run_id="run_001",
+       config={
+           "checkpoint_dir": "./checkpoints",
+           "log_level": "DEBUG",
+           "max_workers": 4,
+       },
+   )
 
 Next Steps
 ----------
 
-* Check out the :doc:`api/index` for detailed API documentation
+* Check out :doc:`api/index` for detailed API documentation
 * See :doc:`development` for development setup and guidelines
 * Read :doc:`contributing` to learn how to contribute

@@ -777,6 +777,64 @@ uv run ruff check src tests
 
 ---
 
+## Migration Guide
+
+If you were using early versions of Vibe Piper, here are the key API changes:
+
+### Core Abstraction Changes
+
+**Old API (deprecated):**
+```python
+from vibe_piper import Pipeline, Stage
+
+pipeline = Pipeline(name="my_pipeline")
+pipeline.add_stage(Stage(name="clean", transform=lambda x: x.strip()))
+result = pipeline.run(data)
+```
+
+**New API (current):**
+```python
+from vibe_piper import PipelineBuilder, asset
+
+# Using PipelineBuilder (explicit builder pattern)
+pipeline = PipelineBuilder("my_pipeline")
+
+pipeline.asset(name="source_data", fn=lambda: ["  hello  "])
+
+@asset
+def clean_data(source_data):
+    return [x.strip() for x in source_data]
+
+pipeline.asset(name="clean_data", fn=clean_data, depends_on=["source_data"])
+graph = pipeline.build()
+
+# Execute with ExecutionEngine
+from vibe_piper import ExecutionEngine, PipelineContext
+engine = ExecutionEngine()
+context = PipelineContext(pipeline_id="my_pipeline", run_id="run_1")
+result = engine.execute(graph, context)
+```
+
+### Key Changes
+
+- **Stages → Assets**: Pipeline stages are now assets with explicit dependencies
+- **Automatic Dependency Inference**: Dependencies are inferred from function parameter names
+- **Separate Contexts**:
+  - `PipelineContext` (runtime): Execution configuration and state
+  - `PipelineDefinitionContext` (definition-time): For building pipelines declaratively
+- **Multi-Upstream Support**: Assets with multiple dependencies receive structured `UpstreamData`
+
+### Migration Tips
+
+1. Replace `Pipeline` with `build_pipeline()` or `PipelineDefinitionContext`
+2. Replace `Stage` with `@asset` decorator
+   - **Important**: `@asset` decorator alone creates an Asset object
+   - Use `PipelineBuilder.asset()` or `@pipeline.asset()` within a context to register assets
+3. Dependencies are now inferred from parameter names (e.g., `def process(source_data:` depends on `source_data` asset)
+4. Use `ExecutionEngine.execute()` to run pipelines instead of `pipeline.run()`
+
+---
+
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](docs/source/contributing.rst) for guidelines.

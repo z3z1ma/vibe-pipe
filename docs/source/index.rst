@@ -27,31 +27,45 @@ Getting Started
 Features
 --------
 
-* **Declarative Pipeline Definition**: Build data pipelines using a clean, declarative syntax
-* **Composable Stages**: Chain transformations together in a flexible, reusable way
+* **Declarative Pipeline Definition**: Build data pipelines using @asset decorator with automatic dependency inference
 * **Type Safety**: Full type hint support for better IDE integration and fewer runtime errors
-* **Simple and Expressive**: Intuitive API that makes complex data transformations easy
+* **Asset-Based Design**: Define reusable data assets with clear dependencies
+* **Flexible Execution**: Multiple pipeline building styles (decorator, builder, context manager)
+* **Multi-Upstream Support**: Handle complex dependencies with UpstreamData type
+* **Data Quality**: Built-in expectations and validation rules
 
 Quick Example
 -------------
 
 .. code-block:: python
 
-   from vibe_piper import Pipeline, Stage
+   from vibe_piper import build_pipeline
 
-   # Create a pipeline
-   pipeline = Pipeline(name="data_processor")
+   # Build pipeline using explicit builder pattern
+   pipeline = build_pipeline("user_pipeline")
 
-   # Add stages
-   pipeline.add_stage(
-       Stage(name="clean", transform=lambda x: x.strip())
+   # Define and add assets to pipeline
+   pipeline.asset(
+       name="extract_users",
+       fn=lambda: [
+           {"id": 1, "name": "Alice", "status": "active"},
+           {"id": 2, "name": "Bob", "status": "inactive"},
+       ],
+       asset_type="memory",
    )
-   pipeline.add_stage(
-       Stage(name="uppercase", transform=lambda x: x.upper())
+
+   pipeline.asset(
+       name="transform_users",
+       fn=lambda extract_users: [u for u in extract_users if u.get("status") == "active"],
+       depends_on=["extract_users"],
    )
 
-   # Run the pipeline
-   result = pipeline.run("  hello  ")  # Returns "HELLO"
+   # Build the asset graph
+   graph = pipeline.build()
+   print(f"Pipeline graph: {graph.name}")
+
+   # Note: See getting_started.rst for @asset decorator usage
+   # and execution with ExecutionEngine
 
 
 Indices and tables
