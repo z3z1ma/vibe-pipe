@@ -11,7 +11,7 @@ from vibe_piper import (
     ExecutionEngine,
     OperatorType,
     PipelineBuilder,
-    PipelineDefContext,
+    PipelineDefinitionContext,
     build_pipeline,
 )
 
@@ -223,24 +223,24 @@ class TestBuildPipelineFunction:
         assert len(graph.assets) == 2
 
 
-class TestPipelineDefContext:
-    """Tests for PipelineDefContext class."""
+class TestPipelineDefinitionContext:
+    """Tests for PipelineDefinitionContext class."""
 
     def test_create_context(self) -> None:
-        """Test creating a PipelineDefContext."""
-        context = PipelineDefContext("test_pipeline")
+        """Test creating a PipelineDefinitionContext."""
+        context = PipelineDefinitionContext("test_pipeline")
         assert context._builder.name == "test_pipeline"
 
     def test_context_manager_usage(self) -> None:
-        """Test using PipelineDefContext as a context manager."""
-        with PipelineDefContext("test_pipeline") as ctx:
-            assert isinstance(ctx, PipelineDefContext)
+        """Test using PipelineDefinitionContext as a context manager."""
+        with PipelineDefinitionContext("test_pipeline") as ctx:
+            assert isinstance(ctx, PipelineDefinitionContext)
 
     def test_add_asset_via_decorator(self) -> None:
-        """Test adding assets using the decorator syntax."""
+        """Test adding assets using a decorator syntax."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
@@ -254,7 +254,7 @@ class TestPipelineDefContext:
         """Test adding an asset with a custom name."""
         from vibe_piper import PipelineContext as PCtx
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset(name="custom_name")
             def source(ctx: PCtx) -> list[int]:
@@ -267,7 +267,7 @@ class TestPipelineDefContext:
         """Test adding assets with dependencies using decorator syntax."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
@@ -285,7 +285,7 @@ class TestPipelineDefContext:
         """Test adding multiple assets within a context."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source1(ctx: PipelineContext) -> list[int]:
@@ -307,7 +307,7 @@ class TestPipelineDefContext:
         """Test using @pipeline.asset without parentheses."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset
             def source(ctx: PipelineContext) -> list[int]:
@@ -321,7 +321,7 @@ class TestPipelineDefContext:
         """Test adding an asset with custom type in context."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset(asset_type=AssetType.FILE)
             def source(ctx: PipelineContext) -> list[int]:
@@ -336,7 +336,7 @@ class TestPipelineDefContext:
 
         metadata = {"owner": "team"}
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset(metadata=metadata)
             def source(ctx: PipelineContext) -> list[int]:
@@ -346,10 +346,10 @@ class TestPipelineDefContext:
         assert graph.assets[0].metadata == metadata
 
     def test_build_from_context(self) -> None:
-        """Test building a graph from PipelineDefContext."""
+        """Test building a graph from PipelineDefinitionContext."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
@@ -360,10 +360,10 @@ class TestPipelineDefContext:
         assert graph.name == "test_pipeline"
 
     def test_execute_pipeline_from_context(self) -> None:
-        """Test executing a pipeline built from PipelineDefContext."""
+        """Test executing a pipeline built from PipelineDefinitionContext."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
@@ -384,7 +384,7 @@ class TestPipelineDefContext:
         """Test building a more complex pipeline with multiple levels."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("complex_pipeline") as pipeline:
+        with PipelineDefinitionContext("complex_pipeline") as pipeline:
 
             @pipeline.asset()
             def raw(ctx: PipelineContext) -> list[int]:
@@ -431,7 +431,7 @@ class TestIntegration:
         # Build with context
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test") as pipeline:
+        with PipelineDefinitionContext("test") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
@@ -456,7 +456,7 @@ class TestIntegration:
         #     d
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("diamond") as pipeline:
+        with PipelineDefinitionContext("diamond") as pipeline:
 
             @pipeline.asset()
             def a(ctx: PipelineContext) -> list[int]:
@@ -485,7 +485,7 @@ class TestIntegration:
         """Test a pipeline with independent assets (no dependencies)."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("independent") as pipeline:
+        with PipelineDefinitionContext("independent") as pipeline:
 
             @pipeline.asset()
             def asset1(ctx: PipelineContext) -> list[int]:
@@ -717,7 +717,7 @@ class TestPipelineValidation:
         """Test that validation works with PipelineContext as well."""
         from vibe_piper import PipelineContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source(ctx: PipelineContext) -> list[int]:
