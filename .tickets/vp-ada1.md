@@ -38,3 +38,13 @@ Suggested order: 6.
 **2026-01-31T21:15:20Z**
 
 Investigating issues: 1) README line 156 uses build_pipeline(load_results) which expects a string, 2) CLI name mismatch (vibe-piper vs vibepiper), 3) Examples already have tests.
+
+**2026-01-31T21:20:40Z**
+
+Completed all tasks:
+1. Fixed README Quick Start example to use PipelineDefinitionContext pattern instead of incorrect build_pipeline(load_results)
+2. Updated README CLI examples from 'vibe-piper' to 'vibepiper'
+3. Verified CORE_ABSTRACTION_CONTRACT.md is aligned with current API (no changes needed)
+4. Fixed bug in src/vibe_piper/__init__.py - file I/O connectors were in __all__ but not imported
+5. Added smoke test file tests/test_readme_examples.py with 2 tests that both pass
+6. All changes committed (b76cbd6)
