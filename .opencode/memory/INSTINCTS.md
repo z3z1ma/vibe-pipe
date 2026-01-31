@@ -39,6 +39,9 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **pipeline-execution-parity-as-contract** (70%)
   - Trigger: Changes touch pipeline execution and a parity-focused test file (e.g., tests/*parity*.py).
   - Action: Treat parity tests as the contract: keep them explicit about user-facing vs agent-facing execution paths, and prefer simplifying the contract rather than expanding mocking complexity when refactoring …
+- **ruff-f401-unused-import** (70%)
+  - Trigger: Ruff/lint reports F401: imported but unused
+  - Action: Remove the unused import; if intentionally kept for side effects, add an explicit usage or a narrowly-scoped ignore with a comment explaining why.
 
 ## Notes
 

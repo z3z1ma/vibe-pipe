@@ -362,6 +362,23 @@
           "sessionID": "ses_3ea5780f7ffeL17r0v0S9Yer5y"
         }
       ]
+    },
+    {
+      "id": "ruff-f401-unused-import",
+      "title": "Fix Ruff unused imports (F401)",
+      "trigger": "Ruff/lint reports F401: imported but unused",
+      "action": "Remove the unused import; if intentionally kept for side effects, add an explicit usage or a narrowly-scoped ignore with a comment explaining why.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-01-31T22:09:01.570Z",
+      "updated_at": "2026-01-31T22:09:01.570Z",
+      "evidence": [
+        {
+          "ts": "2026-01-31T22:09:01.570Z",
+          "sessionID": "ses_3ea2c11f8ffeEysiVqgyKsrvO8"
+        }
+      ]
     }
   ]
 }
