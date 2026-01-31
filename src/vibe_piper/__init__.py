@@ -237,6 +237,7 @@ from vibe_piper.types import (
     QualityMetricType,
     Schema,
     SchemaField,
+    UpstreamData,
     ValidationResult,
 )
 
@@ -371,6 +372,7 @@ __all__ = [
     "Operator",
     "OperatorFn",
     "DataRecord",
+    "UpstreamData",
     "SchemaField",
     "PipelineContext",
     "DataType",
