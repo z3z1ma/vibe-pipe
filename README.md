@@ -23,6 +23,19 @@
 >
 > This project is in active development. APIs may evolve as we refine the architecture.
 
+NOTE: this entire codebase was created via the following command:
+
+```bash
+loom team start MiyagiDo \
+  --harness opencode \
+  --model zai-coding-plan/glm-4.7 \
+  --investigator-model openai/gpt-5.2-codex \
+  --worker-model zai-coding-plan/glm-4.7 \
+  --manager-model github-copilot/gemini-3-flash-preview \
+  --integrator-model zai-coding-plan/glm-4.7 \
+  --objective "Create the most robust python based declararive data pipeline, integration, quality, transformation, activation library ever created. Our zen is simplicity, expressiveness, composability, and maximizing function. The UX must be intuitive. Everything must work. Use TDD."
+```
+
 ---
 
 ## Features
