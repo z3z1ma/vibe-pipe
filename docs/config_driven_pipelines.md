@@ -318,39 +318,39 @@ Join with another source/transform.
 
 ```bash
 # Run all assets in pipeline
-vibepiper run --config pipeline.toml
+vibepiper config-run-cmd --config pipeline.toml
 
 # Run specific asset
-vibepiper run --config pipeline.toml --asset clean_users
+vibepiper config-run-cmd --config pipeline.toml --asset clean_users
 
 # Run with environment overrides
-vibepiper run --config pipeline.toml --env DB_HOST=prod-db.example.com
+vibepiper config-run-cmd --config pipeline.toml --env DB_HOST=prod-db.example.com
 
 # Dry run (show what would execute)
-vibepiper run --config pipeline.toml --dry-run
+vibepiper config-run-cmd --config pipeline.toml --dry-run
 
 # Verbose output
-vibepiper run --config pipeline.toml --verbose
+vibepiper config-run-cmd --config pipeline.toml --verbose
 ```
 
 ### Validate Configuration
 
 ```bash
 # Validate pipeline configuration
-vibepiper validate --config pipeline.toml
+vibepiper config-validate-cmd --config pipeline.toml
 
 # Validate with verbose errors
-vibepiper validate --config pipeline.toml --verbose
+vibepiper config-validate-cmd --config pipeline.toml --verbose
 ```
 
 ### Describe Pipeline
 
 ```bash
 # Show pipeline DAG
-vibepiper describe --config pipeline.toml
+vibepiper config-describe-cmd --config pipeline.toml
 
 # Show specific asset
-vibepiper describe --config pipeline.toml --asset clean_users
+vibepiper config-describe-cmd --config pipeline.toml --asset clean_users
 ```
 
 ## Complete Example

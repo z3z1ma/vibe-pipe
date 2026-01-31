@@ -312,7 +312,7 @@ def _parse_pipeline_config(data: dict[str, Any], path: Path) -> PipelineConfig:
         raise ValueError(msg)
 
     for job_data in jobs_data:
-        if not isinstance(jobs_data, dict):
+        if not isinstance(job_data, dict):
             msg = "Each [[jobs]] entry must be a table"
             raise ValueError(msg)
 
@@ -358,6 +358,18 @@ def _parse_source_config(data: dict[str, Any]) -> SourceConfig:
         valid_types = [t.value for t in SourceType]
         msg = f"Source '{name}' has invalid type '{type_value}'. Must be one of {valid_types}"
         raise ValueError(msg) from err
+
+    # Handle TOML array-of-tables nested key issue
+    # When TOML has [[sources]] name="api" followed by [sources.api.auth],
+    # it creates data with nested structure: {"name":"api", "api":{"auth":{...}}}
+    # We need to extract and merge the nested config
+    if name in data and isinstance(data[name], dict):
+        nested_config = data[name]
+        # Create new dict without the name key
+        merged_data = {k: v for k, v in data.items() if k != name}
+        # Merge nested config
+        merged_data.update(nested_config)
+        data = merged_data
 
     # Parse authentication
     auth = None

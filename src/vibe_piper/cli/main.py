@@ -7,6 +7,7 @@ from rich.console import Console
 
 from vibe_piper.cli.commands import (
     config_cmd,
+    config_run,
     dashboard,
     docs,
     init,
@@ -183,7 +184,7 @@ def config_run_cmd(
     ),
 ) -> None:
     """Run a Vibe Piper pipeline from configuration file."""
-    return config_cmd.run(config_path, asset, env_overrides, dry_run, verbose)
+    return config_run.run(config_path, asset, env_overrides, dry_run, verbose)
 
 
 def config_validate_cmd(
@@ -239,9 +240,9 @@ app.command()(asset_show_cmd)
 
 
 # Register config-based pipeline commands
-app.command()(config_cmd.run)
-app.command()(config_cmd.validate)
-app.command()(config_cmd.describe)
+app.command()(config_run_cmd)
+app.command()(config_validate_cmd)
+app.command()(config_describe_cmd)
 
 
 def cli() -> None:
