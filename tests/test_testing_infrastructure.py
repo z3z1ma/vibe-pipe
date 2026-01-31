@@ -15,6 +15,7 @@ from tests.helpers import (
     assert_asset_valid,
     assert_data_conforms_to_schema,
     assert_lineage,
+    assert_matches_snapshot,
     assert_no_circular_dependencies,
     assert_schema_valid,
     assert_topological_order,
@@ -577,3 +578,70 @@ def test_populated_io_manager(populated_io_manager) -> None:
 
     users = populated_io_manager.read("memory://users")
     assert len(users) == 2
+
+
+# =============================================================================
+# Example 11: Snapshot Testing
+# =============================================================================
+
+
+def test_snapshot_pipeline_output() -> None:
+    """Example: Using snapshot testing to verify pipeline output.
+
+    Snapshot tests are useful for verifying that data transformations
+    produce consistent outputs. Run with --update-snapshots to create/update.
+    """
+    pipeline = make_pipeline(
+        name="transform_pipeline",
+        operators=(
+            Operator(
+                name="uppercase",
+                operator_type=OperatorType.TRANSFORM,
+                fn=lambda data, ctx: [{"name": "ALICE"}, {"name": "BOB"}],
+            ),
+        ),
+    )
+
+    result = pipeline.execute([])
+
+    # Snapshot will be created on first run or updated with --update-snapshots
+    assert_matches_snapshot(result, "tests/snapshots/pipeline_output.json")
+
+
+def test_snapshot_data_transformation() -> None:
+    """Example: Snapshot testing for data transformations."""
+    # Sample transformation result
+    transformed_data = {
+        "users": [
+            {"id": 1, "name": "Alice", "status": "active"},
+            {"id": 2, "name": "Bob", "status": "inactive"},
+            {"id": 3, "name": "Charlie", "status": "active"},
+        ],
+        "summary": {"total": 3, "active": 2, "inactive": 1},
+    }
+
+    # Verify transformation output is consistent
+    assert_matches_snapshot(transformed_data, "tests/snapshots/transformation.json")
+
+
+def test_snapshot_api_response() -> None:
+    """Example: Snapshot testing for API responses."""
+    # Mock API response structure
+    api_response = {
+        "status": "success",
+        "code": 200,
+        "data": {
+            "items": [
+                {"id": "item1", "value": 100},
+                {"id": "item2", "value": 200},
+            ],
+            "pagination": {"page": 1, "per_page": 10, "total": 2},
+        },
+        "metadata": {
+            "timestamp": "2026-01-31T12:00:00Z",
+            "version": "1.0",
+        },
+    }
+
+    # Verify API response structure
+    assert_matches_snapshot(api_response, "tests/snapshots/api_response.json")

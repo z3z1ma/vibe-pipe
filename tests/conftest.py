@@ -12,6 +12,26 @@ src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 
+def pytest_addoption(parser: Any) -> None:
+    """Add custom pytest options."""
+    parser.addoption(
+        "--update-snapshots",
+        action="store_true",
+        default=False,
+        help="Update snapshot files with new values instead of comparing",
+    )
+
+
+def pytest_configure(config: Any) -> None:
+    """Configure pytest before test collection."""
+    import os
+
+    # Set environment variable if --update-snapshots flag is used
+    # This allows snapshots module to reliably detect the flag
+    if config.getoption("--update-snapshots", default=False):
+        os.environ["UPDATE_SNAPSHOTS"] = "1"
+
+
 def pytest_collection_modifyitems(config: Any, items: list[pytest.Item]) -> None:
     """Mark tests under tests/integration as integration."""
     for item in items:
@@ -637,6 +657,12 @@ def test_database_url() -> str:
 def test_data_dir(tmp_path_factory: Any) -> Path:
     """Temporary directory for test data files."""
     return tmp_path_factory.mktemp("test_data")
+
+
+@pytest.fixture
+def snapshot_dir(tmp_path: Path) -> Path:
+    """Directory for snapshot files in test runs."""
+    return tmp_path / "snapshots"
 
 
 # =============================================================================
