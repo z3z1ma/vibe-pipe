@@ -109,11 +109,9 @@ from vibe_piper.orchestration import (
 )
 from vibe_piper.pipeline import (
     PipelineBuilder,
+    PipelineDefinitionContext,
     build_pipeline,
     infer_dependencies_from_signature,
-)
-from vibe_piper.pipeline import (
-    PipelineContext as PipelineDefContext,
 )
 from vibe_piper.quality import (
     check_completeness,
@@ -432,8 +430,7 @@ __all__ = [
     "create_parameterized_expectation",
     # Pipeline builders
     "PipelineBuilder",
-    "PipelineContext",
-    "PipelineDefContext",
+    "PipelineDefinitionContext",
     "build_pipeline",
     "infer_dependencies_from_signature",
     # Operators

@@ -8,7 +8,7 @@ signatures.
 
 from vibe_piper import (
     PipelineBuilder,
-    PipelineDefContext,
+    PipelineDefinitionContext,
     infer_dependencies_from_signature,
 )
 
@@ -214,12 +214,12 @@ class TestPipelineBuilderAutoInference:
         assert result.assets_executed == 2
 
 
-class TestPipelineDefContextAutoInference:
-    """Tests for automatic dependency inference in PipelineContext."""
+class TestPipelineDefinitionContextAutoInference:
+    """Tests for automatic dependency inference in PipelineDefinitionContext."""
 
     def test_auto_infer_in_context_manager(self) -> None:
-        """Test automatic inference within PipelineDefContext."""
-        with PipelineDefContext("test_pipeline") as pipeline:
+        """Test automatic inference within PipelineDefinitionContext."""
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def raw_data():
@@ -235,7 +235,7 @@ class TestPipelineDefContextAutoInference:
 
     def test_auto_infer_multiple_in_context(self) -> None:
         """Test inferring multiple dependencies in context manager."""
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source1():
@@ -254,7 +254,7 @@ class TestPipelineDefContextAutoInference:
 
     def test_explicit_depends_on_in_context(self) -> None:
         """Test explicit depends_on in context manager."""
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def asset1():
@@ -277,7 +277,7 @@ class TestPipelineDefContextAutoInference:
         from vibe_piper import ExecutionEngine
         from vibe_piper import PipelineContext as PContext
 
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def data(context: PContext):
@@ -296,7 +296,7 @@ class TestPipelineDefContextAutoInference:
 
     def test_mixed_explicit_and_inferred_in_context(self) -> None:
         """Test mixing explicit and inferred dependencies in context."""
-        with PipelineDefContext("test_pipeline") as pipeline:
+        with PipelineDefinitionContext("test_pipeline") as pipeline:
 
             @pipeline.asset()
             def source1():

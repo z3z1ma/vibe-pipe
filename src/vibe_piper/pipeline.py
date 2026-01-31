@@ -316,7 +316,7 @@ class PipelineBuilder:
         )
 
 
-class PipelineContext:
+class PipelineDefinitionContext:
     """
     Context manager for defining pipelines with nested assets.
 
@@ -329,7 +329,7 @@ class PipelineContext:
     Example:
         Define a pipeline using context manager syntax::
 
-            with PipelineContext("my_pipeline") as pipeline:
+            with PipelineDefinitionContext("my_pipeline") as pipeline:
                 @pipeline.asset()
                 def raw_data():
                     return [1, 2, 3]
@@ -343,16 +343,16 @@ class PipelineContext:
 
     def __init__(self, name: str, description: str | None = None) -> None:
         """
-        Initialize a new PipelineContext.
+        Initialize a new PipelineDefinitionContext.
 
         Args:
             name: The name of the pipeline
-            description: Optional description of the pipeline
+            description: Optional description of pipeline
         """
         self._builder = PipelineBuilder(name, description)
         self._assets: dict[str, Asset] = {}
 
-    def __enter__(self) -> "PipelineContext":
+    def __enter__(self) -> "PipelineDefinitionContext":
         """Enter the context manager."""
         return self
 
@@ -530,7 +530,7 @@ def build_pipeline(name: str, description: str | None = None) -> PipelineBuilder
         A new PipelineBuilder instance
 
     Example:
-        Build a pipeline using the fluent interface::
+        Build a pipeline using fluent interface::
 
             pipeline = (
                 build_pipeline("my_pipeline")
