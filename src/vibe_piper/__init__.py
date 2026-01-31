@@ -408,47 +408,39 @@ from vibe_piper.types import (
 try:
     from vibe_piper.connectors import (
         BigQueryConnector,
+        CSVReader,
+        CSVWriter,
         DatabaseConnector,
+        ExcelReader,
+        ExcelWriter,
         FileReader,
         FileWriter,
+        JSONReader,
+        JSONWriter,
         MySQLConnector,
+        ParquetReader,
+        ParquetWriter,
         PostgreSQLConnector,
         QueryBuilder,
         SnowflakeConnector,
     )
 except ImportError:
     BigQueryConnector = None  # type: ignore
+    CSVReader = None  # type: ignore
+    CSVWriter = None  # type: ignore
     DatabaseConnector = None  # type: ignore
+    ExcelReader = None  # type: ignore
+    ExcelWriter = None  # type: ignore
     FileReader = None  # type: ignore
     FileWriter = None  # type: ignore
+    JSONReader = None  # type: ignore
+    JSONWriter = None  # type: ignore
     MySQLConnector = None  # type: ignore
+    ParquetReader = None  # type: ignore
+    ParquetWriter = None  # type: ignore
     PostgreSQLConnector = None  # type: ignore
     QueryBuilder = None  # type: ignore
     SnowflakeConnector = None  # type: ignore
-
-# File I/O connectors (optional, advanced use)
-try:
-    from vibe_piper.connectors import (
-        CSVReader,
-        CSVWriter,
-        ExcelReader,
-        ExcelWriter,
-        JSONReader,
-        JSONWriter,
-        ParquetReader,
-        ParquetWriter,
-        infer_schema_from_file,
-    )
-except ImportError:
-    CSVReader = None  # type: ignore
-    CSVWriter = None  # type: ignore
-    ExcelReader = None  # type: ignore
-    ExcelWriter = None  # type: ignore
-    JSONReader = None  # type: ignore
-    JSONWriter = None  # type: ignore
-    ParquetReader = None  # type: ignore
-    ParquetWriter = None  # type: ignore
-    infer_schema_from_file = None  # type: ignore
 
 # Monitoring & Observability (optional, advanced use)
 try:
