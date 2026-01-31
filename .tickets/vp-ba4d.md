@@ -1,6 +1,6 @@
 ---
 "id": "vp-ba4d"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T15:11:44Z"
