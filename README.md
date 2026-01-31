@@ -701,6 +701,82 @@ Vibe Piper is built with a modular, composable architecture:
 
 ---
 
+## Operator Data Contract
+
+Vibe Piper uses two execution models with different operator contracts. When writing operators, it's important to understand which model you're using.
+
+### AssetGraph Model (Production - Recommended)
+
+For production pipelines with `@asset` decorators and `AssetGraph`, operators receive **`UpstreamData`** (structured upstream results):
+
+```python
+from vibe_piper import asset, UpstreamData, PipelineContext
+
+# Single upstream dependency
+@asset
+def transform_single(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
+    """Operator receives UpstreamData with one upstream."""
+    # Access upstream data by asset name
+    source_data = upstream["source_asset"]
+    return [{"processed": x} for x in source_data]
+
+# Multiple upstream dependencies
+@asset
+def join_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
+    """Operator receives UpstreamData with multiple upstreams."""
+    # Access all upstream data
+    left_data = upstream["left_asset"]
+    right_data = upstream["right_asset"]
+    return {**left_data, **right_data}
+
+# Source asset (no upstreams)
+@asset
+def extract_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
+    """Source asset receives empty UpstreamData."""
+    assert upstream.keys == ()  # No upstreams
+    return [{"id": 1, "name": "Alice"}]
+```
+
+**UpstreamData API:**
+- `upstream["asset_name"]` - Get data from specific upstream asset
+- `upstream.get("asset_name", default)` - Safe access with default value
+- `upstream.keys` - Get tuple of all upstream asset names
+- `"asset_name" in upstream` - Check if upstream exists
+- `upstream.as_dict()` - Get all upstream data as dictionary
+
+### Pipeline Model (Simple - Scripts)
+
+For simple in-memory transformations using `Pipeline` class, operators receive **raw data** directly:
+
+```python
+from vibe_piper import Pipeline, Operator, OperatorType
+
+def simple_transform(data: Any, context: PipelineContext) -> Any:
+    """Operator receives raw data directly."""
+    # data is the output from previous operator or initial input
+    return [x * 2 for x in data]
+
+operator = Operator(
+    name="double_values",
+    operator_type=OperatorType.TRANSFORM,
+    fn=simple_transform,
+)
+
+pipeline = Pipeline(name="simple", operators=(operator,))
+result = pipeline.execute([1, 2, 3])
+```
+
+### Choosing the Right Model
+
+| Model | Use Case | Operator Signature |
+|--------|-----------|------------------|
+| **AssetGraph** | Production pipelines, materialization, DAGs | `fn(upstream: UpstreamData, context) -> Any` |
+| **Pipeline** | Quick scripts, simple transformations, in-memory | `fn(data: Any, context) -> Any` |
+
+**Recommendation:** Use AssetGraph with `@asset` decorators for production code. It provides structured access to upstreams, supports multi-upstream scenarios, and integrates with materialization and orchestration.
+
+---
+
 ## Documentation
 
 Full documentation is available at: [https://your-org.github.io/vibe-piper](https://your-org.github.io/vibe-piper)

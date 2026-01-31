@@ -58,6 +58,7 @@ Users have no clear guidance on:
 3. **Orchestration-ready**: Integrates with scheduling, caching, and quality checks
 4. **Declarative**: Uses decorators (`@asset`) and builders for clear intent
 5. **Production-proven**: Used by execution engines, orchestration, and quality systems
+6. **Explicit Data Contract**: `UpstreamData` provides clear, structured access to upstream results
 
 **When to use AssetGraph:**
 - Production data pipelines
@@ -95,27 +96,66 @@ The two `*Context` classes serve different purposes and must have distinct names
 
 ### Operator Data Contract
 
-**Canonical Signature:**
+**Two Execution Models Have Different Contracts:**
+
+#### Pipeline Model (Simple, Linear)
+Operators in `Pipeline` model receive raw data directly:
 ```python
 def operator_function(
-    data: Any,
+    data: Any,  # Raw data from previous operator
     context: PipelineContext,
 ) -> Any:
     """
     Args:
         data: Input data (from upstream operator or initial input)
+              Can be any Python type: dict, list, DataRecord, etc.
         context: Runtime execution context with pipeline_id, run_id, config, state
 
     Returns:
         Transformed data for downstream consumption
 
     Invariants:
-        - data can be any Python type (dict, list, DataRecord, DataFrame, etc.)
         - context is always provided during execution (never None)
         - Return type can differ from input type
-        - Exceptions propagate and fail the pipeline
+        - Exceptions propagate and fail pipeline
     """
 ```
+
+#### AssetGraph Model (DAG-Based Production)
+Operators in `AssetGraph` model receive structured `UpstreamData`:
+```python
+def asset_operator_function(
+    upstream: UpstreamData,  # Structured upstream results
+    context: PipelineContext,
+) -> Any:
+    """
+    Args:
+        upstream: UpstreamData containing results from all upstream assets
+                - Single upstream: upstream.keys == ("asset_name",)
+                - Multi upstream: upstream.keys == ("asset1", "asset2", ...)
+                - No upstream (source): upstream.keys == ()
+        context: Runtime execution context with pipeline_id, run_id, config, state
+
+    Returns:
+        Transformed data for downstream consumption
+
+    Accessing Upstream Data:
+        - upstream["asset_name"] - Get data from specific upstream asset
+        - upstream.get("asset_name", default) - Safe access with default
+        - upstream.keys - Get all upstream asset names
+        - "asset_name" in upstream - Check if asset exists
+
+    Invariants:
+        - upstream is always UpstreamData type (never None)
+        - context is always provided during execution (never None)
+        - Return type can differ from input type
+        - Exceptions propagate and fail pipeline
+    """
+```
+
+**Canonical Type Alias:**
+- `OperatorFn[T_input, T_output]` - Generic operator signature (Pipeline model)
+- `AssetOperatorFn[T_output]` - Asset-specific signature with UpstreamData (AssetGraph model)
 
 **PipelineContext Contract:**
 ```python
@@ -142,9 +182,16 @@ Vibe Piper has three execution layers:
 ### Layer 1: Operator Execution (Unit)
 - **Purpose:** Execute a single transformation function
 - **Context:** `PipelineContext` (runtime)
+- **Two Contracts:**
+  - **Pipeline model:** `operator.fn(raw_data, context)` - receives raw data
+  - **AssetGraph model:** `operator.fn(upstream_data, context)` - receives `UpstreamData`
 - **Example:**
   ```python
-  operator.fn(data, context)
+  # Pipeline model (simple)
+  operator.fn([1, 2, 3], context)
+
+  # AssetGraph model (production)
+  operator.fn(UpstreamData(raw={"asset1": [1, 2, 3]}), context)
   ```
 
 ### Layer 2: Pipeline Execution (Sequential)

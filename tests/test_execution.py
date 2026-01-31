@@ -19,6 +19,7 @@ from vibe_piper import (
     Operator,
     OperatorType,
     PipelineContext,
+    UpstreamData,
 )
 
 
@@ -212,7 +213,7 @@ class TestDefaultExecutor:
         executor = DefaultExecutor()
         context = PipelineContext(pipeline_id="test", run_id="test-run")
 
-        result = executor.execute(asset, context, {})
+        result = executor.execute(asset, context, UpstreamData(raw={}))
 
         assert result.success is True
         assert result.asset_name == "test_asset"
@@ -229,7 +230,7 @@ class TestDefaultExecutor:
         executor = DefaultExecutor()
         context = PipelineContext(pipeline_id="test", run_id="test-run")
 
-        result = executor.execute(asset, context, {})
+        result = executor.execute(asset, context, UpstreamData(raw={}))
 
         assert result.success is True
         assert result.data is None
@@ -256,7 +257,7 @@ class TestDefaultExecutor:
         executor = DefaultExecutor()
         context = PipelineContext(pipeline_id="test", run_id="test-run")
 
-        result = executor.execute(asset, context, {})
+        result = executor.execute(asset, context, UpstreamData(raw={}))
 
         assert result.success is False
         assert result.error is not None
@@ -284,8 +285,8 @@ class TestDefaultExecutor:
         executor = DefaultExecutor()
         context = PipelineContext(pipeline_id="test", run_id="test-run")
 
-        upstream_results = {"asset1": "data1", "asset2": "data2"}
-        result = executor.execute(asset, context, upstream_results)
+        upstream_data = UpstreamData(raw={"asset1": "data1", "asset2": "data2"})
+        result = executor.execute(asset, context, upstream_data)
 
         assert result.lineage == ("asset1", "asset2")
 
