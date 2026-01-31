@@ -3,15 +3,11 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (11)
-- - `vp-45d3` P1 in_progress - Finalize operator data contract (UpstreamData + context)
-- - `vp-64cd` P1 in_progress - Consolidate ExecutionEngine + OrchestrationEngine
-- - `vp-8783` P1 in_progress - ADR: canonical pipeline abstractions + contract update
+- # Tickets (7)
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
-- - `vp-f5a4` P1 in_progress - Fix OrchestrationEngine bugs: incremental execution and state management
-- - `vp-28e9` P2 open - Curate public API surface + exports
+- - `vp-28e9` P2 in_progress - Untitled
 - - `vp-ada1` P2 open - Align docs/examples + CLI naming with canonical API
-- - `vp-e990` P2 open - Update README with canonical pipeline model guidance
+- - `vp-e990` P2 in_progress - Update README with canonical pipeline model guidance
 - - `vp-6d4f` P3 open - Create migration guide for Pipeline -> AssetGraph
 - - `vp-7ae9` P3 open - Update API documentation with execution layering examples
 - - `vp-f498` P4 open - Add AssetGraph.from_pipeline() adapter method
