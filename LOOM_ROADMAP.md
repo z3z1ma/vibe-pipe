@@ -3,9 +3,8 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (8)
+- # Tickets (7)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
-- - `vp-c7ed` P1 in_progress - Fix syntax errors in transformation pipeline tests
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
 - - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
 - - `vp-786e` P2 open - Align asset creation paths (decorators vs builder)

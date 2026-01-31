@@ -168,7 +168,7 @@ This block is maintained by the compound plugin.
 - **manager-acknowledgment-confirmation** (80%)
   - Trigger: Receiving manager message acknowledging investigation or providing scheduling decision
   - Action: 1. Acknowledge manager message (loom team inbox ack <id>). 2. Update ticket with note documenting manager's decision/acknowledgment. 3. Document next steps (await scheduling, ready for implementation,…
-- **inst-egg-info-deletions-are-cleanup** (74%)
+- **inst-egg-info-deletions-are-cleanup** (76%)
   - Trigger: git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)
   - Action: Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather…
 <!-- END:compound:instincts-index -->

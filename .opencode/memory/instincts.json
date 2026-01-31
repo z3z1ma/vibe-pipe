@@ -273,14 +273,19 @@
       "trigger": "git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)",
       "action": "Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather than code reasoning.",
       "tags": [],
-      "confidence": 0.74,
+      "confidence": 0.76,
       "status": "active",
       "created_at": "2026-01-31T05:59:37.394Z",
-      "updated_at": "2026-01-31T05:59:37.394Z",
+      "updated_at": "2026-01-31T16:02:56.459Z",
       "evidence": [
         {
           "ts": "2026-01-31T05:59:37.394Z",
           "sessionID": "ses_3edc88ed4ffey0EZaYmPtPrUju"
+        },
+        {
+          "ts": "2026-01-31T16:02:56.459Z",
+          "sessionID": "ses_3eb560b27ffenBJ0PDpL1Ri20S",
+          "note": "Recent diff was limited to src/vibe_piper.egg-info metadata; supports treating egg-info diffs as low-signal packaging artifacts unless explicitly intentional."
         }
       ]
     }

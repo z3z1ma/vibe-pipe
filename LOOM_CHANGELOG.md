@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-31T16:02:57.529Z Slightly strengthened the heuristic that src/*.egg-info diffs (e.g., SOURCES.txt) are usually generated noise from uv/editable installs and should not drive product inferences.
 - 2026-01-31T06:29:30.337Z Strengthen heuristics that large memory-store diffs and ticket/doc churn are low-signal without accompanying product code changes.
 - 2026-01-31T05:59:40.275Z Reinforce treating src/*.egg-info churn (including mass deletions) as generated-artifact cleanup and non-signal for product behavior.
 - 2026-01-31T05:57:35.344Z Reinforce strict read-only behavior in Plan Mode and treat ticket/docs/memory-store churn as low-signal evidence.
