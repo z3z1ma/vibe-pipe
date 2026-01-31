@@ -1,6 +1,6 @@
 ---
 "id": "vp-f5a4"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T20:24:27Z"

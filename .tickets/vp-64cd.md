@@ -1,6 +1,6 @@
 ---
 "id": "vp-64cd"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T19:56:05Z"

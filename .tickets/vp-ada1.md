@@ -32,3 +32,9 @@ Suggested order: 6.
 - CLI name is consistent across docs and code.
 - CORE_ABSTRACTION_CONTRACT.md references are aligned with ADR decisions.
 - Example tests or smoke checks added where feasible.
+
+## Notes
+
+**2026-01-31T21:15:20Z**
+
+Investigating issues: 1) README line 156 uses build_pipeline(load_results) which expects a string, 2) CLI name mismatch (vibe-piper vs vibepiper), 3) Examples already have tests.
