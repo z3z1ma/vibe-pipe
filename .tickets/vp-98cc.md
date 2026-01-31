@@ -207,3 +207,7 @@ Current commit: 8eb6b9f
 **2026-01-31T18:03:52Z**
 
 Manager review: approved docs alignment changes on branch team/vp-98cc (sha 8eb6b9f). Ruff check passed; ruff format not applicable for README. Docs build via sphinx-build not runnable locally due to missing dependency; will address separately if needed. Enqueuing to merge queue.
+
+**2026-01-31T18:05:41Z**
+
+Shipped to main via merge-queue (SHIP OK 2026-01-31; item=ff24dd9530).

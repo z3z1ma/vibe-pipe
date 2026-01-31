@@ -83,3 +83,7 @@ Committed draft implementation (sha f4a9fd8): added `src/vibe_piper/schema/mappi
 **2026-01-31T18:03:54Z**
 
 Manager note: core schema-first mapping/path parsing should live in vp-f701. vp-36be should focus on adopting that shared API into pipeline_config + transformations + tests; coordinate with vp-f701 to avoid duplicate parser implementations.
+
+**2026-01-31T18:06:10Z**
+
+Inbox update: vp-f701 landed (commit 148c46b) with stable schema-first mapping API: `vibe_piper.schema.mapping.parse_source_path/extract_value/convert_value` and `vibe_piper.schema.field_mapper.map_record_to_schema`. Next step: merge main into this branch, revert/remove my prototype schema/mapping implementation, and rewire generator/transforms/tests to call the vp-f701 API only.
