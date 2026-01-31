@@ -775,6 +775,8 @@ result = pipeline.execute([1, 2, 3])
 
 **Recommendation:** Use AssetGraph with `@asset` decorators for production code. It provides structured access to upstreams, supports multi-upstream scenarios, and integrates with materialization and orchestration.
 
+**Learn more:** See the [Execution Layering Guide](docs/execution_layering.md) for comprehensive documentation on when to use each layer.
+
 ---
 
 ## Documentation
@@ -784,6 +786,7 @@ Full documentation is available at: [https://your-org.github.io/vibe-piper](http
 ### Core Topics
 
 - **[Getting Started](docs/source/getting_started.rst)** - Installation and basic usage
+- **[Execution Layering Guide](docs/execution_layering.md)** - Understanding the three execution layers (Operator, Pipeline, AssetGraph)
 - **[Pipeline Guide](docs/source/pipeline_guide.rst)** - Building and orchestrating pipelines
 - **[Connectors](docs/source/connectors.rst)** - Database and file connectors
 - **[API Reference](docs/source/api_reference.rst)** - Complete API documentation
@@ -913,24 +916,17 @@ result = orchestration_engine.execute(graph, context)
 
 ### Execution Layering
 
-Vibe Piper provides a layered execution architecture with shared core utilities:
+Vibe Piper provides a layered execution architecture with three execution levels:
 
-- **Shared Core** (`src/vibe_piper/_execution_core.py`):
-  - `get_execution_order_for_targets()` - Computes minimal execution order with dependencies
-  - `aggregate_base_metrics()` - Aggregates execution metrics across assets
-  - `build_execution_result()` - Builds ExecutionResult from asset results
+- **Layer 1: Operator Execution** - Single transformation functions with unit testing support
+- **Layer 2: Pipeline Execution** - Sequential operator chains for quick scripts
+- **Layer 3: AssetGraph Execution** - DAG-based production pipelines with orchestration
 
-- **ExecutionEngine** (`src/vibe_piper/execution.py`):
-  - Sequential asset graph execution
-  - Error handling with retry support
-  - Uses shared core utilities for ordering and metrics
-
-- **OrchestrationEngine** (`src/vibe_piper/orchestration.py`):
-  - Parallel execution with thread pools
-  - State tracking and incremental runs
-  - Checkpointing and recovery
-  - Result caching with TTL
-  - Uses shared core utilities for ordering and metrics
+**Learn more:** See the [Execution Layering Guide](docs/execution_layering.md) for:
+- Detailed examples of each layer
+- Comparison of use cases
+- Migration guide from Pipeline to AssetGraph
+- Advanced orchestration features
 ```
 
 ### Key Changes

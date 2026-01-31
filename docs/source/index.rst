@@ -20,6 +20,7 @@ Getting Started
    :caption: Contents:
 
    getting_started
+   execution_layering
    api/index
    contributing
    development

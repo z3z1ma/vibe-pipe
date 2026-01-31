@@ -1,6 +1,9 @@
 Core API
 ========
 
+.. note::
+   For comprehensive guidance on choosing the right execution layer, see the :doc:`execution_layering` guide.
+
 Pipeline Building
 ---------------
 
