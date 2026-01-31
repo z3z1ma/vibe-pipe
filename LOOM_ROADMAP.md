@@ -3,13 +3,12 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (6)
+- # Tickets (5)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
 - - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
-- - `vp-786e` P2 in_progress - Untitled
 - - `vp-98cc` P2 open - Public API + docs alignment for core abstractions
-- - `vp-b2ef` P2 in_progress - Asset execution data contract for multi-upstream dependencies
+- - `vp-b2ef` P2 open - Asset execution data contract for multi-upstream dependencies
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
