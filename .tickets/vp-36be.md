@@ -1,6 +1,6 @@
 ---
 "id": "vp-36be"
-"status": "in_progress"
+"status": "closed"
 "deps":
 - "vp-f701"
 "links":
