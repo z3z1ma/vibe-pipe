@@ -140,6 +140,20 @@ field = SchemaField(
 - `OBJECT`: Nested objects
 - `ANY`: Any type
 
+### Schema-first mapping (`source_path`)
+
+`SchemaField` supports an optional `source_path` attribute for schema-first mapping from
+nested source records (dicts + lists) into a schema-shaped record.
+
+`source_path` syntax supports dot + bracket notation:
+
+- `company.name` (nested dict key)
+- `tags[0]` (list index)
+- `data.items[0].name` (mixed)
+
+When a `source_path` is missing from the source record, extraction returns `None` and emits a
+warning.
+
 ### DataRecord
 
 A single record that conforms to a schema:
