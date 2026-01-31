@@ -33,9 +33,10 @@ def pytest_configure(config: Any) -> None:
 
 
 def pytest_collection_modifyitems(config: Any, items: list[pytest.Item]) -> None:
-    """Mark tests under tests/integration as integration."""
+    """Mark tests under tests/integration or named *_integration.py as integration."""
     for item in items:
-        if "/tests/integration/" in str(item.fspath):
+        fspath_str = str(item.fspath)
+        if "/tests/integration/" in fspath_str or fspath_str.endswith("_integration.py"):
             item.add_marker(pytest.mark.integration)
 
 
