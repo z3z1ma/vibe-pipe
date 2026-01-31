@@ -1,6 +1,6 @@
 ---
 "id": "vp-c7ed"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T15:41:51Z"
