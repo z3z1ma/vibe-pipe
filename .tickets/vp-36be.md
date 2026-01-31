@@ -87,3 +87,19 @@ Manager note: core schema-first mapping/path parsing should live in vp-f701. vp-
 **2026-01-31T18:06:10Z**
 
 Inbox update: vp-f701 landed (commit 148c46b) with stable schema-first mapping API: `vibe_piper.schema.mapping.parse_source_path/extract_value/convert_value` and `vibe_piper.schema.field_mapper.map_record_to_schema`. Next step: merge main into this branch, revert/remove my prototype schema/mapping implementation, and rewire generator/transforms/tests to call the vp-f701 API only.
+
+**2026-01-31T18:19:48Z**
+
+Per team guidance, reset branch to clean origin/main-only history (renamed prior experimental branch to `team/vp-36be-old`). New commit 883e1d9 adds adoption wiring: config generator + transformations try to call `vibe_piper.schema.mapping.extract_value` when present, but keep dot-only fallback when schema mapping isn’t available (until vp-f701 lands). Added bracket-indexing tests gated by `pytest.importorskip("vibe_piper.schema.mapping")` so CI stays green pre-vp-f701. Ran: `uv run ruff format src tests`, `uv run ruff check src tests`, `uv run pytest ...` (new bracket tests currently skip because schema mapping isn’t in main yet). Blocking item: once vp-f701 merges, remove fallback + unskip/expand tests to enforce bracket syntax behavior and update docs/comments accordingly.
+
+**2026-01-31T19:11:55Z**
+
+Team update: w3 resumed vp-f701; keep vp-36be as-is (fallback ok) until vp-f701 merges to main. After vp-f701 lands, remove dot-only fallback and make bracket tests assertive. Current vp-36be branch is clean (origin/main + commit 883e1d9).
+
+**2026-01-31T19:13:33Z**
+
+Manager review: APPROVED sha 883e1d9. Enqueued to merge queue as item 47473c7755 (branch team/vp-36be, worker w2).
+
+**2026-01-31T19:14:03Z**
+
+Merged into team/merge-queue-wait as 6e2d0cb (merge queue item 47473c7755 marked done).
