@@ -7,6 +7,7 @@ import pytest
 
 from vibe_piper.pipeline_config.parser import (
     AuthConfig,
+    CheckType,
     ExpectationCheck,
     ExpectationConfig,
     JobConfig,
@@ -463,7 +464,7 @@ version = "1.0.0"
 """
         )
 
-        with pytest.raises(ValueError, match="Pipeline name is required"):
+        with pytest.raises(PipelineConfigError, match="Pipeline name is required"):
             load_pipeline_config(config_file)
 
     def test_missing_source_type_raises_error(self, tmp_path: Path) -> None:
@@ -481,7 +482,9 @@ endpoint = "/data"
 """
         )
 
-        with pytest.raises(ValueError, match="Source 'api_source' must have a 'type' field"):
+        with pytest.raises(
+            PipelineConfigError, match="Source 'api_source' must have a 'type' field"
+        ):
             load_pipeline_config(config_file)
 
     def test_duplicate_source_names_raise_error(self, tmp_path: Path) -> None:
@@ -506,7 +509,7 @@ table = "users"
 """
         )
 
-        with pytest.raises(ValueError, match="Duplicate source name: users"):
+        with pytest.raises(PipelineConfigError, match="Duplicate source name: users"):
             load_pipeline_config(config_file)
 
 

@@ -37,7 +37,6 @@ from vibe_piper.transformations.cleaning import (
 )
 from vibe_piper.types import DataRecord, DataType, Schema, SchemaField
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================

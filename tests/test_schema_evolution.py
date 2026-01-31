@@ -17,6 +17,7 @@ from typing import Any
 import pytest
 
 from vibe_piper import (
+    BackwardCompatibilityChecker,
     BreakingChangeDetector,
     BreakingChangeSeverity,
     ChangeType,
@@ -27,17 +28,10 @@ from vibe_piper import (
     SchemaChange,
     SchemaDiff,
     SchemaField,
-    BackwardCompatibilityChecker,
-    schema_version,
+    define_schema,
     get_schema_history,
     reset_schema_history,
-    define_schema,
-)
-from vibe_piper.schema_evolution import (
-    SemanticVersion,
-    MigrationStep,
-    SchemaHistory,
-    SchemaHistoryEntry,
+    schema_version,
 )
 from vibe_piper.schema_definitions import (
     Boolean as BooleanField,
