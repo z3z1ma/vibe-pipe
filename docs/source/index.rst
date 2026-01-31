@@ -27,31 +27,52 @@ Getting Started
 Features
 --------
 
-* **Declarative Pipeline Definition**: Build data pipelines using a clean, declarative syntax
-* **Composable Stages**: Chain transformations together in a flexible, reusable way
+* **Declarative Pipeline Definition**: Build data pipelines using @asset decorator with automatic dependency inference
 * **Type Safety**: Full type hint support for better IDE integration and fewer runtime errors
-* **Simple and Expressive**: Intuitive API that makes complex data transformations easy
+* **Asset-Based Design**: Define reusable data assets with clear dependencies
+* **Flexible Execution**: Multiple pipeline building styles (decorator, builder, context manager)
+* **Multi-Upstream Support**: Handle complex dependencies with UpstreamData type
+* **Data Quality**: Built-in expectations and validation rules
 
 Quick Example
 -------------
 
 .. code-block:: python
 
-   from vibe_piper import Pipeline, Stage
+   from vibe_piper import asset, build_pipeline, CSVReader, CSVWriter
+   from pathlib import Path
 
-   # Create a pipeline
-   pipeline = Pipeline(name="data_processor")
+   # Define assets using @asset decorator
+   @asset
+   def extract_users() -> list[dict]:
+       """Extract user data from CSV."""
+       reader = CSVReader(Path("data/users.csv"))
+       records = reader.read()
+       return [record.data for record in records]
 
-   # Add stages
-   pipeline.add_stage(
-       Stage(name="clean", transform=lambda x: x.strip())
-   )
-   pipeline.add_stage(
-       Stage(name="uppercase", transform=lambda x: x.upper())
-   )
+   @asset
+   def transform_users(extract_users: list[dict]) -> list[dict]:
+       """Transform and filter users."""
+       # Filter active users
+       active_users = [user for user in extract_users if user.get("status") == "active"]
+       return active_users
 
-   # Run the pipeline
-   result = pipeline.run("  hello  ")  # Returns "HELLO"
+   @asset
+   def aggregate_by_category(transform_users: list[dict]) -> list[dict]:
+       """Aggregate users by category."""
+       from collections import Counter
+       categories = Counter(user.get("category", "unknown") for user in transform_users)
+       return [{"category": k, "count": v} for k, v in categories.items()]
+
+   # Build and execute pipeline
+   pipeline = build_pipeline("user_pipeline")
+   # Assets are automatically added to the builder when using @asset decorator
+   # Or add assets explicitly: pipeline.asset("name", fn=func)
+   graph = pipeline.build()
+   print(f"Pipeline graph: {graph.name}")
+
+   # Note: Execution is handled by the execution engine
+   # See getting_started.rst for full execution examples
 
 
 Indices and tables
