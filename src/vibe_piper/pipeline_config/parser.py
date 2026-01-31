@@ -312,7 +312,7 @@ def _parse_pipeline_config(data: dict[str, Any], path: Path) -> PipelineConfig:
         raise ValueError(msg)
 
     for job_data in jobs_data:
-        if not isinstance(jobs_data, dict):
+        if not isinstance(job_data, dict):
             msg = "Each [[jobs]] entry must be a table"
             raise ValueError(msg)
 

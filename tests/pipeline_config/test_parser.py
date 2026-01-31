@@ -203,6 +203,177 @@ sources = ["users_api"]
         assert job.schedule == "0 0 * * *"
         assert "users_api" in job.sources
 
+    def test_parse_multiple_jobs(self, tmp_path: Path) -> None:
+        """Test parsing multiple job configurations."""
+        config_file = tmp_path / "multiple_jobs.toml"
+        config_file.write_text(
+            """
+[pipeline]
+name = "test_pipeline"
+version = "1.0.0"
+
+[[sources]]
+name = "users_api"
+type = "api"
+endpoint = "/users"
+
+[[sinks]]
+name = "users_db"
+type = "database"
+connection = "postgres://localhost/test"
+table = "users"
+
+[[jobs]]
+name = "daily_sync"
+schedule = "0 0 * * *"
+sources = ["users_api"]
+sinks = ["users_db"]
+
+[[jobs]]
+name = "hourly_sync"
+schedule = "0 * * * *"
+sources = ["users_api"]
+environment = "prod"
+retry_on_failure = true
+timeout = 3600
+"""
+        )
+
+        config = load_pipeline_config(config_file)
+
+        assert len(config.jobs) == 2
+        assert "daily_sync" in config.jobs
+        assert "hourly_sync" in config.jobs
+
+        daily_job = config.jobs["daily_sync"]
+        assert daily_job.schedule == "0 0 * * *"
+        assert "users_api" in daily_job.sources
+        assert "users_db" in daily_job.sinks
+        assert daily_job.environment == "default"
+        assert daily_job.retry_on_failure is False
+
+        hourly_job = config.jobs["hourly_sync"]
+        assert hourly_job.schedule == "0 * * * *"
+        assert hourly_job.environment == "prod"
+        assert hourly_job.retry_on_failure is True
+        assert hourly_job.timeout == 3600
+
+    def test_parse_job_all_fields(self, tmp_path: Path) -> None:
+        """Test parsing job with all fields populated."""
+        config_file = tmp_path / "job_full.toml"
+        config_file.write_text(
+            """
+[pipeline]
+name = "test_pipeline"
+version = "1.0.0"
+
+[[sources]]
+name = "users_api"
+type = "api"
+endpoint = "/users"
+
+[[transforms]]
+name = "clean_data"
+source = "users_api"
+steps = [{ type = "filter", condition = "email is not null" }]
+
+[[expectations]]
+name = "email_check"
+asset = "clean_data"
+checks = [{ type = "not_null", column = "email" }]
+
+[[sinks]]
+name = "users_db"
+type = "database"
+connection = "postgres://localhost/test"
+table = "users"
+
+[[jobs]]
+name = "full_job"
+schedule = "*/15 * * * *"
+sources = ["users_api"]
+transforms = ["clean_data"]
+expectations = ["email_check"]
+sinks = ["users_db"]
+environment = "production"
+retry_on_failure = true
+timeout = 1800
+description = "Full job with all fields"
+tags = ["critical", "daily"]
+"""
+        )
+
+        config = load_pipeline_config(config_file)
+
+        assert "full_job" in config.jobs
+        job = config.jobs["full_job"]
+        assert job.schedule == "*/15 * * * *"
+        assert "users_api" in job.sources
+        assert "clean_data" in job.transforms
+        assert "email_check" in job.expectations
+        assert "users_db" in job.sinks
+        assert job.environment == "production"
+        assert job.retry_on_failure is True
+        assert job.timeout == 1800
+        assert job.description == "Full job with all fields"
+        assert job.tags == ["critical", "daily"]
+
+    def test_missing_job_name_raises_error(self, tmp_path: Path) -> None:
+        """Test that missing job name raises error."""
+        config_file = tmp_path / "invalid_job.toml"
+        config_file.write_text(
+            """
+[pipeline]
+name = "test_pipeline"
+version = "1.0.0"
+
+[[jobs]]
+schedule = "0 0 * * *"
+"""
+        )
+
+        with pytest.raises(PipelineConfigError, match="Job must have a 'name' field"):
+            load_pipeline_config(config_file)
+
+    def test_missing_job_schedule_raises_error(self, tmp_path: Path) -> None:
+        """Test that missing job schedule raises error."""
+        config_file = tmp_path / "invalid_job.toml"
+        config_file.write_text(
+            """
+[pipeline]
+name = "test_pipeline"
+version = "1.0.0"
+
+[[jobs]]
+name = "my_job"
+"""
+        )
+
+        with pytest.raises(PipelineConfigError, match="Job 'my_job' must have a 'schedule' field"):
+            load_pipeline_config(config_file)
+
+    def test_duplicate_job_names_raise_error(self, tmp_path: Path) -> None:
+        """Test that duplicate job names raise error."""
+        config_file = tmp_path / "duplicate_jobs.toml"
+        config_file.write_text(
+            """
+[pipeline]
+name = "test_pipeline"
+version = "1.0.0"
+
+[[jobs]]
+name = "sync"
+schedule = "0 0 * * *"
+
+[[jobs]]
+name = "sync"
+schedule = "0 1 * * *"
+"""
+        )
+
+        with pytest.raises(PipelineConfigError, match="Duplicate job name: sync"):
+            load_pipeline_config(config_file)
+
     def test_parse_auth_config(self, tmp_path: Path) -> None:
         """Test parsing authentication configuration."""
         config_file = tmp_path / "auth.toml"
