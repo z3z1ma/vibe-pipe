@@ -578,6 +578,92 @@ class AssetGraph:
         # Validate no circular dependencies
         self._validate_no_cycles()
 
+    @classmethod
+    def from_pipeline(cls, pipeline: "Pipeline") -> "AssetGraph":
+        """
+        Create an AssetGraph from a Pipeline.
+
+        This adapter method converts a sequential Pipeline (composed of operators)
+        into an AssetGraph by creating an Asset for each operator and
+        establishing dependencies between them.
+
+        The conversion preserves the operator order: each operator becomes an
+        asset that depends on the previous operator's output.
+
+        Args:
+            pipeline: A Pipeline instance to convert
+
+        Returns:
+            An AssetGraph representing the pipeline as a DAG of assets
+
+        Raises:
+            ValueError: If pipeline has no operators
+
+        Example:
+            Convert a pipeline to an asset graph::
+
+                # Create a sequential pipeline
+                pipeline = Pipeline(
+                    name="my_pipeline",
+                    operators=(
+                        Operator(
+                            name="source",
+                            operator_type=OperatorType.SOURCE,
+                            fn=lambda data, ctx: [1, 2, 3],
+                        ),
+                        Operator(
+                            name="transform",
+                            operator_type=OperatorType.TRANSFORM,
+                            fn=lambda data, ctx: [x * 2 for x in data],
+                        ),
+                    ),
+                )
+
+                # Convert to AssetGraph
+                graph = AssetGraph.from_pipeline(pipeline)
+                # Graph has 2 assets with dependency: transform -> source
+        """
+        if not pipeline.operators:
+            msg = f"Pipeline {pipeline.name!r} has no operators to convert"
+            raise ValueError(msg)
+
+        assets: list[Asset] = []
+        dependencies: dict[str, tuple[str, ...]] = {}
+        previous_asset_name: str | None = None
+
+        for i, operator in enumerate(pipeline.operators):
+            # Create asset from operator
+            asset = Asset(
+                name=operator.name,
+                asset_type=AssetType.MEMORY,
+                uri=f"memory://{operator.name}",
+                schema=operator.output_schema,
+                operator=operator,
+                description=operator.description,
+                config=dict(operator.config),
+                io_manager="memory",
+            )
+            assets.append(asset)
+
+            # Create dependency chain
+            if previous_asset_name is not None:
+                dependencies[operator.name] = (previous_asset_name,)
+
+            previous_asset_name = operator.name
+
+        # Merge pipeline metadata with graph
+        merged_metadata = dict(pipeline.metadata)
+        merged_config = dict(pipeline.config)
+
+        return cls(
+            name=pipeline.name,
+            assets=tuple(assets),
+            dependencies=dependencies,
+            description=pipeline.description,
+            metadata=merged_metadata,
+            config=merged_config,
+        )
+
     def _validate_no_cycles(self) -> None:
         """Detect circular dependencies using DFS."""
         asset_names = {asset.name for asset in self.assets}
