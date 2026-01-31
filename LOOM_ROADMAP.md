@@ -4,7 +4,7 @@ High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (8)
-- - `vp-1cba` P1 open - Debug TRANSFORM asset execution failure
+- - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-28e9` P2 in_progress - Untitled
 - - `vp-ada1` P2 open - Align docs/examples + CLI naming with canonical API
