@@ -10,7 +10,7 @@
       "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T03:38:36.670Z",
-      "updated_at": "2026-01-31T05:57:33.736Z",
+      "updated_at": "2026-01-31T06:29:29.007Z",
       "evidence": [
         {
           "ts": "2026-01-31T03:38:36.670Z",
@@ -50,6 +50,11 @@
           "ts": "2026-01-31T05:57:33.736Z",
           "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
           "note": "Large rewrite deltas in .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md alongside ticket/docs edits; consistent with cleanup/refresh rather than new learnings."
+        },
+        {
+          "ts": "2026-01-31T06:29:29.007Z",
+          "sessionID": "ses_3ed443c3bffebpv9pEDdT7r5pf",
+          "note": "Recent diffstat is dominated by .opencode/memory/instincts.json (+90) and .opencode/memory/INSTINCTS.md (+27) alongside ticket/docs edits; reinforces treating memory-store churn as low-signal unless paired with product code changes."
         }
       ]
     },
@@ -96,10 +101,10 @@
       "trigger": "Git diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits with no corresponding product code changes.",
       "action": "Avoid inventing new product behaviors; limit proposals to workflow hygiene (skills/instinct wording tweaks, docs.sync) and keep docs block edits minimal unless a stable always-on principle changed.",
       "tags": [],
-      "confidence": 0.9000000000000001,
+      "confidence": 0.9300000000000002,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-01-31T05:57:33.736Z",
+      "updated_at": "2026-01-31T06:29:29.007Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -129,6 +134,11 @@
           "ts": "2026-01-31T05:57:33.736Z",
           "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
           "note": "Diffstat dominated by .tickets/*.md and LOOM_*/AGENTS.md edits with no product code; reinforces treating this as process/memory churn rather than behavior changes."
+        },
+        {
+          "ts": "2026-01-31T06:29:29.007Z",
+          "sessionID": "ses_3ed443c3bffebpv9pEDdT7r5pf",
+          "note": "Recent changes heavily involve .tickets/*.md (+72 combined) and AGENTS.md/LOOM_ROADMAP.md/LOOM_CHANGELOG.md (+40) without product code; reinforces avoiding inferred behavior changes from process/doc churn."
         }
       ]
     },

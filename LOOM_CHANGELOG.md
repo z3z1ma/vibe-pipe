@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-31T06:29:30.337Z Strengthen heuristics that large memory-store diffs and ticket/doc churn are low-signal without accompanying product code changes.
 - 2026-01-31T05:59:40.275Z Reinforce treating src/*.egg-info churn (including mass deletions) as generated-artifact cleanup and non-signal for product behavior.
 - 2026-01-31T05:57:35.344Z Reinforce strict read-only behavior in Plan Mode and treat ticket/docs/memory-store churn as low-signal evidence.
 - 2026-01-31T05:41:35.241Z Strengthened Phase 3 investigation and scoping instincts with evidence from vp-0429 workflow (investigation, documentation, manager communication, idle waiting)
