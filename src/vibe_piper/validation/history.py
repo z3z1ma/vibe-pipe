@@ -34,9 +34,7 @@ except ImportError:
     np = None
 
 from vibe_piper.types import (
-    QualityMetric,
     QualityMetricType,
-    ValidationResult,
 )
 
 if TYPE_CHECKING:

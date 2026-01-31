@@ -7,6 +7,7 @@ from rich.console import Console
 
 from vibe_piper.cli.commands import (
     config_cmd,
+    config_run,
     dashboard,
     docs,
     init,
@@ -65,6 +66,13 @@ app = typer.Typer(
     rich_markup_mode="rich",
     callback=main,
 )
+
+# Create config subcommand app
+config_app = typer.Typer(help="Configuration-driven pipeline commands")
+config_app.command()(config_run.run)
+config_app.command()(config_cmd.validate)
+config_app.command()(config_cmd.describe)
+app.add_typer(config_app, name="config")
 
 # Register direct commands
 app.command()(init.init)
@@ -183,7 +191,7 @@ def config_run_cmd(
     ),
 ) -> None:
     """Run a Vibe Piper pipeline from configuration file."""
-    return config_cmd.run(config_path, asset, env_overrides, dry_run, verbose)
+    return config_run.run(config_path, asset, env_overrides, dry_run, verbose)
 
 
 def config_validate_cmd(
@@ -236,12 +244,6 @@ app.command()(pipeline_history_cmd)
 app.command()(pipeline_backfill_cmd)
 app.command()(asset_list_cmd)
 app.command()(asset_show_cmd)
-
-
-# Register config-based pipeline commands
-app.command()(config_cmd.run)
-app.command()(config_cmd.validate)
-app.command()(config_cmd.describe)
 
 
 def cli() -> None:

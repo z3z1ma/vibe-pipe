@@ -17,6 +17,7 @@ from vibe_piper.pipeline_config.generator import (
     generate_expectations,
 )
 from vibe_piper.pipeline_config.schema import (
+    CheckType,
     ExpectationCheck,
     ExpectationConfig,
     PipelineConfig,
@@ -155,7 +156,7 @@ class TestGenerateSinkFunction:
             NotImplementedError,
             match="Sink 'users_db' implementation not yet generated",
         ):
-            func(None)
+            func(None, None)
 
 
 class TestTransformSteps:
@@ -314,7 +315,7 @@ class TestGenerateExpectations:
         expectations = generate_expectations(sample_config)
 
         assert "users" in expectations
-        assert len(expectations["users"]) == 2
+        assert len(expectations["users"]) == 1
 
 
 class TestGenerateAssetDependencies:

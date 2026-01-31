@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Sequence
-from dataclasses import asdict
 from datetime import datetime
 
 from vibe_piper.validation.history import (
@@ -20,7 +19,6 @@ from vibe_piper.validation.history import (
     ValidationRunMetadata,
 )
 from vibe_piper.validation.suite import SuiteValidationResult
-
 
 # =============================================================================
 # Conversion Functions
