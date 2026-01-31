@@ -1,19 +1,14 @@
 {
   "pipeline_id": "test_graph",
-  "run_id": "6763269e-9d70-4bfb-94dd-5593456d16fe",
+  "run_id": "4309cdc1-827d-45f2-ad06-58772263f5eb",
   "completed_assets": [
-    "a",
     "asset1",
-    "asset2",
-    "asset3",
-    "b",
-    "c",
-    "derived",
-    "source",
     "test_asset"
   ],
-  "failed_assets": [],
-  "start_time": "2026-01-31T20:13:24.256173",
-  "last_updated": "2026-01-31T20:13:24.289837",
+  "failed_assets": [
+    "asset2"
+  ],
+  "start_time": "2026-01-31T20:42:39.364446",
+  "last_updated": "2026-01-31T20:42:39.396044",
   "metadata": {}
 }

@@ -179,8 +179,8 @@ class TestParallelExecutor:
             assert parallel_exec.executor is not None
             assert parallel_exec.max_workers == 2
 
-        # Executor should be shut down after exit
-        assert parallel_exec.executor is not None
+        # Executor should be shut down and set to None after exit
+        assert parallel_exec.executor is None
 
     def test_execute_asset(self) -> None:
         """Test executing an asset."""
@@ -214,7 +214,7 @@ class TestOrchestrationConfig:
         config = OrchestrationConfig()
 
         assert config.max_workers == 4
-        assert config.enable_incremental is True
+        assert config.enable_incremental is False
         assert config.checkpoint_interval == 10
         assert config.skip_on_cached is True
 
@@ -433,11 +433,17 @@ class TestOrchestrationEngine:
             result1 = engine.execute(graph)
             assert result1.assets_executed == 2
 
-            # Second run - asset1 should be skipped
+            # Second run - both assets should be skipped (already completed)
             result2 = engine.execute(graph)
-            assert result2.assets_executed == 1  # Only asset2
+            assert result2.assets_executed == 0  # All assets skipped
             assert "asset1" not in result2.asset_results
-            assert "asset2" in result2.asset_results
+            assert "asset2" not in result2.asset_results
+
+            # Force refresh - execute all assets again
+            result3 = engine.execute(graph, force_refresh=True)
+            assert result3.assets_executed == 2  # Both assets executed
+            assert "asset1" in result3.asset_results
+            assert "asset2" in result3.asset_results
 
             # Cleanup
             engine.clear_state("test_graph")

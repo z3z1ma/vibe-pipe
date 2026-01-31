@@ -270,7 +270,7 @@ class OrchestrationConfig:
     """
 
     max_workers: int = 4
-    enable_incremental: bool = True
+    enable_incremental: bool = False
     checkpoint_interval: int = 10
     checkpoint_dir: Path = Path(".checkpoints")
     state_dir: Path = Path(".state")
@@ -322,6 +322,7 @@ class OrchestrationEngine:
         target_assets: tuple[str, ...] | None = None,
         context: PipelineContext | None = None,
         incremental: bool | None = None,
+        force_refresh: bool = False,
     ) -> ExecutionResult:
         """
         Execute an asset graph with orchestration features.
@@ -331,6 +332,7 @@ class OrchestrationEngine:
             target_assets: Optional specific assets to execute (and their dependencies)
             context: Optional pipeline context. If None, creates a new context.
             incremental: Whether to use incremental execution. If None, uses config default.
+            force_refresh: If True, ignore incremental state and execute all assets.
 
         Returns:
             ExecutionResult with details of execution
@@ -359,7 +361,8 @@ class OrchestrationEngine:
         use_cache = self.config.enable_cache
 
         # Load or create execution state
-        if use_incremental:
+        # force_refresh overrides incremental to force fresh execution
+        if use_incremental and not force_refresh:
             state = self.state_manager.load_state(graph.name)
             if state is None:
                 state = ExecutionState(pipeline_id=graph.name, run_id=context.run_id)
@@ -371,7 +374,13 @@ class OrchestrationEngine:
                     f"{len(state.completed_assets)} completed assets"
                 )
         else:
+            # Either incremental disabled or force_refresh=True - start fresh
             state = ExecutionState(pipeline_id=graph.name, run_id=context.run_id)
+            if force_refresh and use_incremental:
+                logger.info(
+                    f"Force refresh requested for {graph.name}: "
+                    f"ignoring incremental state and executing all assets"
+                )
 
         # Initialize cache manager if enabled
         if use_cache and self.cache_manager is None:
@@ -380,7 +389,7 @@ class OrchestrationEngine:
 
         # Determine assets to execute (skip if incremental and completed)
         assets_to_execute = self._filter_assets_for_incremental(
-            execution_order, state, use_incremental
+            execution_order, state, use_incremental and not force_refresh
         )
 
         logger.info(f"Executing {len(assets_to_execute)} assets (incremental={use_incremental})")
@@ -407,7 +416,7 @@ class OrchestrationEngine:
             overall_success = True
             succeeded = 0
             failed = 0
-            errors = []
+            errors: list[str] = []
             duration_ms = (time.time() - start_time) * 1000
             metrics = aggregate_base_metrics(asset_results)
             metrics["duration_ms"] = duration_ms
