@@ -785,6 +785,7 @@ Full documentation is available at: [https://your-org.github.io/vibe-piper](http
 
 - **[Getting Started](docs/source/getting_started.rst)** - Installation and basic usage
 - **[Pipeline Guide](docs/source/pipeline_guide.rst)** - Building and orchestrating pipelines
+- **[Migration Guide: Pipeline → AssetGraph](docs/migration_pipeline_to_assetgraph.md)** - Migrating from Pipeline to AssetGraph
 - **[Connectors](docs/source/connectors.rst)** - Database and file connectors
 - **[API Reference](docs/source/api_reference.rst)** - Complete API documentation
 - **[Error Handling](docs/source/error_handling.rst)** - Retry logic and recovery
