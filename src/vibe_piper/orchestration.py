@@ -9,13 +9,18 @@ import json
 import logging
 import threading
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from vibe_piper._execution_core import (
+    aggregate_base_metrics,
+    build_execution_result,
+    get_execution_order_for_targets,
+)
 from vibe_piper.caching import CacheManager
 from vibe_piper.execution import DefaultExecutor
 from vibe_piper.types import (
@@ -341,7 +346,7 @@ class OrchestrationEngine:
 
         # Determine execution order
         if target_assets:
-            execution_order = self._get_execution_order_for_targets(graph, target_assets)
+            execution_order = get_execution_order_for_targets(graph, target_assets)
         else:
             execution_order = graph.topological_order()
 
@@ -392,40 +397,49 @@ class OrchestrationEngine:
             logger.debug("Using sequential execution")
             asset_results = self._execute_sequential(graph, assets_to_execute, context, state)
 
-        logger.info(f"Executing {len(assets_to_execute)} assets (incremental={use_incremental})")
-
-        # Execute assets (parallel or sequential)
-        if self.config.max_workers > 1:
-            asset_results = self._execute_parallel(graph, assets_to_execute, context, state)
-        else:
-            asset_results = self._execute_sequential(graph, assets_to_execute, context, state)
-
         # Save final state
         if use_incremental:
             self.state_manager.save_state(state)
 
-        # Calculate overall success
+        # Calculate overall success, metrics, and errors
         if not asset_results:
             # No assets were executed (all skipped due to incremental)
+            overall_success = True
             succeeded = 0
             failed = 0
             errors = []
+            duration_ms = (time.time() - start_time) * 1000
+            metrics = aggregate_base_metrics(asset_results)
+            metrics["duration_ms"] = duration_ms
         else:
-            succeeded = sum(1 for r in asset_results.values() if r.success)
-            failed = sum(1 for r in asset_results.values() if not r.success)
-            errors = [
-                f"{name}: {result.error}"
-                for name, result in asset_results.items()
-                if not result.success
-            ]
+            overall_success, succeeded, failed, base_metrics, errors = build_execution_result(
+                asset_results=asset_results,
+                start_time=start_time,
+                timestamp=timestamp,
+            )
+            metrics = base_metrics
+            duration_ms = metrics.get("duration_ms", 0)
 
-        overall_success = failed == 0
+        # Add orchestration-specific metrics
+        metrics["parallel"] = self.config.max_workers > 1
+        metrics["max_workers"] = self.config.max_workers
+        metrics["incremental"] = self.config.enable_incremental
+        metrics["cache_enabled"] = self.config.enable_cache
 
-        # Calculate duration
-        duration_ms = (time.time() - start_time) * 1000
+        # Add cache statistics if available
+        cache_stats = {}
+        if self.cache_manager:
+            cache_stats = self.cache_manager.get_stats()
 
-        # Aggregate metrics
-        metrics = self._aggregate_metrics(asset_results)
+        if cache_stats:
+            metrics.update(
+                {
+                    "cache_hits": cache_stats.get("hits", 0),
+                    "cache_misses": cache_stats.get("misses", 0),
+                    "cache_hit_rate": cache_stats.get("hit_rate", 0),
+                    "cache_entries": cache_stats.get("entries", 0),
+                }
+            )
 
         # Build execution result
         result = ExecutionResult(
@@ -720,93 +734,6 @@ class OrchestrationEngine:
         )
 
         return result
-
-    def _get_execution_order_for_targets(
-        self, graph: AssetGraph, targets: tuple[str, ...]
-    ) -> tuple[str, ...]:
-        """
-        Get execution order for specific target assets and their dependencies.
-
-        Args:
-            graph: The asset graph
-            targets: Target asset names
-
-        Returns:
-            Tuple of asset names in execution order
-        """
-        # Get all dependencies for target assets (recursively)
-        to_execute: set[str] = set()
-        for target in targets:
-            to_execute.add(target)
-            # Add all upstream dependencies
-            deps = graph.get_dependencies(target)
-            for dep in deps:
-                to_execute.add(dep.name)
-                # Recursively add dependencies of dependencies
-                upstream = self._get_execution_order_for_targets(graph, (dep.name,))
-                to_execute.update(upstream)
-
-        # Get full topological order
-        full_order = graph.topological_order()
-
-        # Filter to only include assets we need to execute
-        return tuple(asset for asset in full_order if asset in to_execute)
-
-    def _aggregate_metrics(
-        self, asset_results: Mapping[str, AssetResult]
-    ) -> Mapping[str, int | float]:
-        """
-        Aggregate metrics from all asset results.
-
-        Args:
-            asset_results: Mapping of asset name to result
-
-        Returns:
-            Aggregated metrics
-        """
-        from vibe_piper.types import DataRecord
-
-        total_duration = sum(r.duration_ms for r in asset_results.values())
-
-        # Count rows across all assets
-        total_rows = 0
-        for result in asset_results.values():
-            if (
-                result.data
-                and isinstance(result.data, Sequence)
-                and len(result.data) > 0
-                and isinstance(result.data[0], DataRecord)
-            ):
-                total_rows += len(result.data)
-
-        # Get cache statistics if available
-        cache_stats = {}
-        if self.cache_manager:
-            cache_stats = self.cache_manager.get_stats()
-
-        metrics = {
-            "total_assets": len(asset_results),
-            "total_duration_ms": total_duration,
-            "avg_duration_ms": (total_duration / len(asset_results) if asset_results else 0),
-            "total_rows": total_rows,
-            "parallel": self.config.max_workers > 1,
-            "max_workers": self.config.max_workers,
-            "incremental": self.config.enable_incremental,
-            "cache_enabled": self.config.enable_cache,
-        }
-
-        # Add cache stats
-        if cache_stats:
-            metrics.update(
-                {
-                    "cache_hits": cache_stats.get("hits", 0),
-                    "cache_misses": cache_stats.get("misses", 0),
-                    "cache_hit_rate": cache_stats.get("hit_rate", 0),
-                    "cache_entries": cache_stats.get("entries", 0),
-                }
-            )
-
-        return metrics
 
     def clear_state(self, pipeline_id: str) -> None:
         """

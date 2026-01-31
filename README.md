@@ -821,11 +821,40 @@ def clean_data(source_data):
 pipeline.asset(name="clean_data", fn=clean_data, depends_on=["source_data"])
 graph = pipeline.build()
 
-# Execute with ExecutionEngine
-from vibe_piper import ExecutionEngine, PipelineContext
+# Execute with ExecutionEngine or OrchestrationEngine
+
+from vibe_piper import ExecutionEngine, OrchestrationEngine, PipelineContext
+
+# Basic execution (sequential)
 engine = ExecutionEngine()
 context = PipelineContext(pipeline_id="my_pipeline", run_id="run_1")
 result = engine.execute(graph, context)
+
+# Advanced orchestration (parallel, incremental, caching)
+orch_engine = OrchestrationConfig(max_workers=4, enable_incremental=True)
+context = PipelineContext(pipeline_id="my_pipeline", run_id="run_1")
+result = orchestration_engine.execute(graph, context)
+
+### Execution Layering
+
+Vibe Piper provides a layered execution architecture with shared core utilities:
+
+- **Shared Core** (`src/vibe_piper/_execution_core.py`):
+  - `get_execution_order_for_targets()` - Computes minimal execution order with dependencies
+  - `aggregate_base_metrics()` - Aggregates execution metrics across assets
+  - `build_execution_result()` - Builds ExecutionResult from asset results
+
+- **ExecutionEngine** (`src/vibe_piper/execution.py`):
+  - Sequential asset graph execution
+  - Error handling with retry support
+  - Uses shared core utilities for ordering and metrics
+
+- **OrchestrationEngine** (`src/vibe_piper/orchestration.py`):
+  - Parallel execution with thread pools
+  - State tracking and incremental runs
+  - Checkpointing and recovery
+  - Result caching with TTL
+  - Uses shared core utilities for ordering and metrics
 ```
 
 ### Key Changes
