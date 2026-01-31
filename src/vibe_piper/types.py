@@ -124,6 +124,7 @@ class SchemaField:
         required: Whether the field is required (cannot be None)
         nullable: Whether the field can contain null values
         description: Optional documentation for the field
+        source_path: Optional path to extract the value from nested source records
         constraints: Optional validation constraints (e.g., max_length, min_value)
     """
 
@@ -132,6 +133,7 @@ class SchemaField:
     required: bool = True
     nullable: bool = False
     description: str | None = None
+    source_path: str | None = None
     constraints: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
