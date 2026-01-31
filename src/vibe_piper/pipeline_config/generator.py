@@ -235,9 +235,9 @@ def _extract_fields(step: TransformStep, data: Any) -> Any:
                 value = _get_nested_value(record, source_path)
                 mapped_record[target_field] = value
 
-            # Copy all other fields
+            # Copy all other fields (not in mappings as target fields)
             for key, value in record.items():
-                if key not in step.mappings.values():
+                if key not in step.mappings.keys():
                     mapped_record[key] = value
 
             result.append(mapped_record)
@@ -250,9 +250,9 @@ def _extract_fields(step: TransformStep, data: Any) -> Any:
             value = _get_nested_value(data, source_path)
             mapped_record[target_field] = value
 
-        # Copy all other fields
+        # Copy all other fields (not in mappings as target fields)
         for key, value in data.items():
-            if key not in step.mappings.values():
+            if key not in step.mappings.keys():
                 mapped_record[key] = value
 
         return mapped_record
