@@ -1,6 +1,6 @@
 ---
 "id": "vp-98cc"
-"status": "in_progress"
+"status": "closed"
 "deps":
 - "vp-786e"
 - "vp-a1f7"
@@ -166,3 +166,44 @@ All previous doc issues fixed in commit c93e930:
 3. Sphinx directives fixed (autoclass for classes)
 
 Waiting for manager approval.
+
+**2026-01-31T17:59:58Z**
+
+Fixed all doc-example correctness issues per manager review (commit 8eb6b9f):
+
+1. README Migration Guide:
+   - Clarified @asset alone creates Asset object, does NOT auto-register
+   - Added explicit note to use PipelineBuilder.asset() or @pipeline.asset() to register
+   - Removed incorrect 'Assets are automatically added via @asset' claim
+
+2. docs/source/index.rst:
+   - Removed unused imports (PipelineBuilder, CSVReader, CSVWriter)
+   - Added build_pipeline to import statement
+
+Resubmitted READY_FOR_REVIEW with sha 8eb6b9f.
+
+All doc examples now show correct API usage patterns:
+- @asset decorator creates Asset object
+- Use PipelineBuilder.asset() to explicitly add
+- Or use @pipeline.asset() within PipelineDefinitionContext
+
+**2026-01-31T18:03:19Z**
+
+Sent detailed review response to manager with all requested checks:
+
+- Git log shows 4 clean commits (doc changes only)
+- Git diff shows 5 files changed (docs only)
+- Ruff check: All checks passed
+- Ruff format: Has README.md parsing error (ruff issue with file structure, not code problem)
+- Sphinx build: sphinx-build not in PATH (environment issue, not doc problem)
+- Docs already emphasize PipelineDefinitionContext first in getting_started.rst
+- No .opencode/* or generated artifacts in commits
+- Only .gitignore added and .opencode/compound/state.json removed
+
+Status: Docs examples are accurate and ready for merge.
+
+Current commit: 8eb6b9f
+
+**2026-01-31T18:03:52Z**
+
+Manager review: approved docs alignment changes on branch team/vp-98cc (sha 8eb6b9f). Ruff check passed; ruff format not applicable for README. Docs build via sphinx-build not runnable locally due to missing dependency; will address separately if needed. Enqueuing to merge queue.

@@ -71,3 +71,15 @@ Starting implementation: add shared nested path parser/getter with dot+bracket s
 **2026-01-31T17:55:18Z**
 
 Implemented shared dot+bracket nested path parsing in new `vibe_piper.schema.mapping` and refactored pipeline_config generator + transformations to use it. Updated existing tests and added coverage for list indexing + non-container mid-path returning None. Next: run ruff+pytest, then commit milestone.
+
+**2026-01-31T17:59:59Z**
+
+Team guidance received: avoid implementing schema-first core in this ticket; coordinating with w3 (vp-f701). Current local draft (uncommitted): added `src/vibe_piper/schema/mapping.py` + wired generator/transforms + tests for bracket indexing; found bug in parser for `items[0].name` (dot after bracket). Pausing further work pending w3 direction (cherry-pick into vp-f701 vs revert).
+
+**2026-01-31T18:02:06Z**
+
+Committed draft implementation (sha f4a9fd8): added `src/vibe_piper/schema/mapping.py` (dot+bracket path parser/getter) and refactored `src/vibe_piper/pipeline_config/generator.py` + `src/vibe_piper/transformations/transforms.py` to use it; updated tests for bracket indexing + non-container behavior. Ran: `uv run ruff format src tests`, `uv run ruff check src tests`, `uv run pytest tests/pipeline_config/test_generator.py`, `uv run pytest tests/transformations/test_transforms.py -k \"extract_list_of_dicts or extract_list_index\"`. Full pytest suite currently fails during collection due to missing optional deps (mysql). Pausing further work pending w3 coordination (vp-f701 overlap).
+
+**2026-01-31T18:03:54Z**
+
+Manager note: core schema-first mapping/path parsing should live in vp-f701. vp-36be should focus on adopting that shared API into pipeline_config + transformations + tests; coordinate with vp-f701 to avoid duplicate parser implementations.
