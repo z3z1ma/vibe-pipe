@@ -92,70 +92,80 @@ from vibe_piper import (
     CSVWriter,
 )
 from pathlib import Path
+from vibe_piper import PipelineContext
 
-# Define your data pipeline using @asset decorator
-@asset
-def extract_users() -> list[dict]:
-    """Extract user data from CSV."""
-    reader = CSVReader(Path("data/users.csv"))
-    records = reader.read()
-    return [record.data for record in records]
+# Define your data pipeline using PipelineDefinitionContext with @asset decorator
+with PipelineDefinitionContext("user_analytics") as pipeline:
+    @pipeline.asset()
+    def extract_users(ctx: PipelineContext) -> list[dict]:
+        """Extract user data from CSV."""
+        reader = CSVReader(Path("data/users.csv"))
+        records = reader.read()
+        return [record.data for record in records]
 
-@asset
-def transform_users(extract_users: list[dict]) -> list[dict]:
-    """Transform and filter users."""
-    from vibe_piper.operators import map_transform
+    @pipeline.asset(depends_on=["extract_users"])
+    def transform_users(extract_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Transform and filter users."""
+        from vibe_piper.operators import map_transform
 
-    # Add a computed field
-    with_category = map_transform(
-        extract_users,
-        add_field("category", lambda x: "premium" if x.get("age", 0) > 30 else "standard")
-    )
-
-    # Filter only active users
-    active_users = filter_field_equals(with_category, "status", "active")
-
-    return list(active_users)
-
-@asset
-def aggregate_by_category(transform_users: list[dict]) -> list[dict]:
-    """Aggregate users by category."""
-    return aggregate_group_by(
-        transform_users,
-        group_by="category",
-        aggregations={"count": "count", "avg_age": "avg"}
-    )
-
-@asset
-def load_results(aggregate_by_category: list[dict]) -> str:
-    """Load results to output CSV."""
-    output_path = Path("output/summary.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
-
-    schema = Schema(
-        name="summary",
-        fields=(
-            SchemaField(name="category", data_type=DataType.STRING),
-            SchemaField(name="count", data_type=DataType.INTEGER),
-            SchemaField(name="avg_age", data_type=DataType.FLOAT),
+        # Add a computed field
+        with_category = map_transform(
+            extract_users,
+            add_field("category", lambda x: "premium" if x.get("age", 0) > 30 else "standard")
         )
-    )
 
-    records = [DataRecord(data=row, schema=schema) for row in aggregate_by_category]
-    writer = CSVWriter(output_path)
-    writer.write(records)
+        # Filter only active users
+        active_users = filter_field_equals(with_category, "status", "active")
 
-    return str(output_path)
+        return list(active_users)
+
+    @pipeline.asset(depends_on=["transform_users"])
+    def aggregate_by_category(transform_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Aggregate users by category."""
+        return aggregate_group_by(
+            transform_users,
+            group_by="category",
+            aggregations={"count": "count", "avg_age": "avg"}
+        )
+
+    @pipeline.asset(depends_on=["aggregate_by_category"])
+    def load_results(aggregate_by_category: list[dict], ctx: PipelineContext) -> str:
+        """Load results to output CSV."""
+        output_path = Path("output/summary.csv")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        schema = Schema(
+            name="summary",
+            fields=(
+                SchemaField(name="category", data_type=DataType.STRING),
+                SchemaField(name="count", data_type=DataType.INTEGER),
+                SchemaField(name="avg_age", data_type=DataType.FLOAT),
+            )
+        )
+
+        records = [DataRecord(data=row, schema=schema) for row in aggregate_by_category]
+        writer = CSVWriter(output_path)
+        writer.write(records)
+
+        return str(output_path)
 
 # Execute the pipeline
 if __name__ == "__main__":
-    from vibe_piper import build_pipeline
+    from vibe_piper import ExecutionEngine, PipelineContext
 
-    pipeline = build_pipeline(load_results)
-    result = pipeline.execute()
-    print(f"Pipeline completed! Output: {result}")
+    # Build the asset graph
+    graph = pipeline.build()
+
+    # Execute with the execution engine
+    engine = ExecutionEngine()
+    context = PipelineContext(pipeline_id="user_analytics", run_id="run_1")
+    result = engine.execute(graph, context)
+
+    if result.success:
+        print(f"Pipeline completed! Assets executed: {result.assets_executed}")
+        print(f"Output: {result.asset_results.get('load_results', {}).data}")
+    else:
+        print(f"Pipeline failed: {result.error}")
 ```
 
 That's it! You now have a production-grade data pipeline with:
@@ -643,19 +653,19 @@ Vibe Piper includes a CLI for common operations:
 
 ```bash
 # Run a pipeline
-vibe-piper run pipeline.py
+vibepiper run pipeline.py
 
 # Validate a pipeline definition
-vibe-piper validate pipeline.py
+vibepiper validate pipeline.py
 
 # Visualize pipeline DAG
-vibe-piper visualize pipeline.py --output pipeline_graph.png
+vibepiper visualize pipeline.py --output pipeline_graph.png
 
 # Run tests
-vibe-piper test
+vibepiper test
 
 # Check data quality
-vibe-piper check-quality data.csv --schema schema.json
+vibepiper check-quality data.csv --schema schema.json
 ```
 
 ---

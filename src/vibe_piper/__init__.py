@@ -254,8 +254,18 @@ except ImportError:
 try:
     from vibe_piper.connectors import (
         BigQueryConnector,
+        CSVReader,
+        CSVWriter,
         DatabaseConnector,
+        ExcelReader,
+        ExcelWriter,
+        FileReader,
+        FileWriter,
+        JSONReader,
+        JSONWriter,
         MySQLConnector,
+        ParquetReader,
+        ParquetWriter,
         PostgreSQLConnector,
         QueryBuilder,
         SnowflakeConnector,
@@ -540,6 +550,8 @@ __all__ = [
     "ExcelReader",
     "ExcelWriter",
     "infer_schema_from_file",
+    "map_type_from_vibepiper",
+    "map_type_to_vibepiper",
     # External quality tools
     "QualityToolAdapter",
     "QualityToolResult",
