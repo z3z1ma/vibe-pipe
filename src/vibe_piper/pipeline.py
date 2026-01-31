@@ -515,10 +515,6 @@ class PipelineDefinitionContext:
         return self._builder.build()
 
 
-# Alias for backward compatibility
-PipelineContext = PipelineDefinitionContext
-
-
 def build_pipeline(name: str, description: str | None = None) -> PipelineBuilder:
     """
     Create a new PipelineBuilder for building a pipeline.
