@@ -6,10 +6,10 @@ High-level direction and priorities.
 - # Tickets (7)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
 - - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
-- - `vp-98cc` P1 in_progress - Public API + docs alignment for core abstractions (deps:vp-786e,vp-a1f7,vp-b2ef)
+- - `vp-98cc` P1 in_progress - Public API + docs alignment for core abstractions
 - - `vp-a511` P1 in_progress - Fix LOOM_ROADMAP merge artifact + refresh backlog
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
-- - `vp-36be` P1 open - Adopt schema-first source_path parsing in config + transforms (deps:vp-f701)
+- - `vp-36be` P1 open - Adopt schema-first source_path parsing in config + transforms
 - - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
 <!-- END:compound:roadmap-backlog -->
 
