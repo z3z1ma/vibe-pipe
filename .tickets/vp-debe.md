@@ -159,3 +159,41 @@ Manager confirmed: Stick with global registry approach despite complexity.
 4. Run tests to verify canonical API works
 
 **Next immediate step**: Fix ruff syntax errors that are blocking commits.
+
+**2026-01-31T20:39:31Z**
+
+## Progress Update
+
+**Implemented:**
+1. Global asset registry in decorators.py
+2. build_pipeline() accepts Callable|Asset union
+3. build_pipeline_from_assets() handles both types
+
+**Next Steps:**
+1. Resolve pre-commit hook issues (ruff type errors)
+2. Run tests to verify canonical API works
+3. Add remaining tests from UNIFICATION_PLAN.md
+4. Update documentation for new API
+
+**Current Issue:**
+Pre-commit ruff hook is still reporting errors that need resolution before proceeding with testing.
+
+**2026-01-31T20:45:08Z**
+
+## BLOCKED - Filesystem/Git Sync Issue
+
+**Current Issue**:
+- Created `pipeline_builder.py` in local worktree
+- Committed changes to git
+- File not showing in worktree (git status shows untracked)
+- Possibly a worktree sync issue
+
+**What's happening**:
+The `pipeline_builder.py` file was created locally and committed, but the worktree doesn't have the file. This could be a worktree synchronization issue or a git filter problem.
+
+**Need help**:
+1. Should I reset worktree to main and re-apply?
+2. Should I try different approach to create files?
+3. Is there a git filter preventing `pipeline_builder.py` from being tracked?
+
+Worker: w3
