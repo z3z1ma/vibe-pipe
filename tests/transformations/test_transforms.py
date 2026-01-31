@@ -330,7 +330,7 @@ class TestFilterByField:
         transform = filter_by_field("age", 30, operator="lt")
         result = transform(sample_data)
 
-        assert len(result) == 3
+        assert len(result) == 2  # Bob (25) and Diana (28) have age < 30
         assert all(r.get("age") < 30 for r in result)
 
     def test_filter_in(self, sample_data: list[DataRecord]) -> None:
@@ -343,9 +343,17 @@ class TestFilterByField:
 
     def test_filter_is_null(self, sample_data: list[DataRecord]) -> None:
         """Test filtering for null values."""
+        # Create a schema with name as nullable for this test
+        test_schema = Schema(
+            name="test",
+            fields=(
+                SchemaField(name="id", data_type=DataType.INTEGER, required=True),
+                SchemaField(name="name", data_type=DataType.STRING, required=True, nullable=True),
+            ),
+        )
         sample_with_null = [
-            DataRecord(data={"id": 1, "name": "Alice"}, schema=sample_data[0].schema),
-            DataRecord(data={"id": 2, "name": None}, schema=sample_data[0].schema),
+            DataRecord(data={"id": 1, "name": "Alice"}, schema=test_schema),
+            DataRecord(data={"id": 2, "name": None}, schema=test_schema),
         ]
         transform = filter_by_field("name", None, operator="is_null")
         result = transform(sample_with_null)
@@ -592,7 +600,7 @@ class TestCastField:
         """Test casting null value."""
         schema = Schema(
             name="test",
-            fields=(SchemaField(name="value", data_type=DataType.STRING),),
+            fields=(SchemaField(name="value", data_type=DataType.STRING, nullable=True),),
         )
         data = [DataRecord(data={"value": None}, schema=schema)]
 
