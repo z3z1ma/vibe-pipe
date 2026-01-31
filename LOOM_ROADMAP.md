@@ -44,10 +44,6 @@ High-level direction and priorities.
 - 2026-01-30T16:17:05.527Z Idle session; no new tool activity or concrete learnings to encode.
 - 2026-01-30T16:09:04.331Z Add instinct to strictly obey Plan mode read-only constraint when system reminder is present.
 - 2026-01-30T15:57:25.912Z Add instinct to strictly enforce read-only behavior when Plan Mode system reminder is present.
-<!-- END:compound:roadmap-ai-notes -->
-||||||| 7a7535a
 - 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
 - 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
 <!-- END:compound:roadmap-ai-notes -->
-- 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
-- 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
