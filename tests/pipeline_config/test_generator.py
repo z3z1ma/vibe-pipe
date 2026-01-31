@@ -189,6 +189,45 @@ class TestTransformSteps:
         result = _extract_fields(step, data)
 
         assert result["company_name"] == "Acme"
+        assert "id" in result  # Other fields preserved
+
+    def test_extract_fields_no_duplicate_when_target_matches_source_key(self) -> None:
+        """Test that mapping doesn't create duplicate fields when target name matches a source key."""
+        step = TransformStep(
+            type=TransformType.EXTRACT_FIELDS,
+            mappings={"company": "company.name"},  # Map target "company" to source "company.name"
+        )
+
+        data = [{"id": 1, "company": {"name": "Acme"}}]
+
+        result = _extract_fields(step, data)
+
+        # The nested value should be extracted, not duplicated by copy loop
+        assert result[0]["company"] == "Acme"  # Extracted value
+        assert "id" in result[0]  # Other fields preserved
+
+    def test_extract_fields_all_unmapped_fields_preserved(self) -> None:
+        """Test that all unmapped top-level fields are preserved correctly."""
+        step = TransformStep(
+            type=TransformType.EXTRACT_FIELDS,
+            mappings={"company_name": "company.name"},
+        )
+
+        data = [
+            {
+                "id": 1,
+                "company": {"name": "Acme"},
+                "email": "test@example.com",
+                "status": "active",
+            }
+        ]
+
+        result = _extract_fields(step, data)
+
+        assert result[0]["company_name"] == "Acme"  # Mapped field
+        assert result[0]["id"] == 1  # Unmapped field preserved
+        assert result[0]["email"] == "test@example.com"  # Unmapped field preserved
+        assert result[0]["status"] == "active"  # Unmapped field preserved
 
     def test_filter_rows_not_null(self) -> None:
         """Test filtering rows with 'is not null' condition."""
@@ -271,6 +310,18 @@ class TestHelperFunctions:
         result = _get_nested_value(data, "company.address")
 
         assert result is None
+
+    def test_get_nested_value_dot_only_syntax(self) -> None:
+        """Test that dot notation works (bracket syntax not supported)."""
+        data = {"company": {"name": "Acme", "type": "Tech"}}
+
+        # Dot notation: works
+        assert _get_nested_value(data, "company.name") == "Acme"
+        assert _get_nested_value(data, "company.type") == "Tech"
+
+        # Bracket notation: returns None (not supported in config generator)
+        # Note: For bracket syntax, use schema-first mapping system
+        assert _get_nested_value(data, "company[name]") is None
 
     def test_evaluate_condition_is_not_null(self) -> None:
         """Test evaluating 'is not null' condition."""
