@@ -1071,6 +1071,93 @@ class Observable(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class UpstreamData:
+    """
+    Container for upstream dependency data in multi-upstream scenarios.
+
+    When an asset has multiple upstream dependencies, this type provides
+    structured access to all upstream results. Assets receive this
+    type instead of raw upstream data when they have multiple dependencies.
+
+    Attributes:
+        raw: The raw upstream results mapping (asset name -> AssetResult or data)
+    """
+
+    raw: Mapping[str, Any]
+
+    @property
+    def keys(self) -> tuple[str, ...]:
+        """
+        Get upstream asset names in dependency order.
+
+        Returns:
+            Tuple of upstream asset names
+        """
+        return tuple(self.raw.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get upstream data by asset name.
+
+        Provides dictionary-like access for convenience.
+
+        Args:
+            key: Name of the upstream asset
+
+        Returns:
+            The data from the specified upstream asset
+
+        Raises:
+            KeyError: If the upstream asset name is not found
+        """
+        if key not in self.raw:
+            msg = f"Upstream asset {key!r} not found in {list(self.keys)}"
+            raise KeyError(msg)
+        result = self.raw[key]
+        # Extract data from AssetResult if needed
+        if hasattr(result, "data"):
+            return result.data
+        return result
+
+    def get(self, key: str, default: T | None = None) -> Any | T:
+        """
+        Get upstream data by asset name with default value.
+
+        Args:
+            key: Name of the upstream asset
+            default: Default value to return if key not found
+
+        Returns:
+            The data from the specified upstream asset, or default if not found
+        """
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def __contains__(self, key: str) -> bool:
+        """
+        Check if an upstream asset name exists.
+
+        Args:
+            key: Name of the upstream asset to check
+
+        Returns:
+            True if the upstream asset exists in the mapping
+        """
+        return key in self.raw
+
+    def as_dict(self) -> Mapping[str, Any]:
+        """
+        Get all upstream data as a dictionary.
+
+        Returns:
+            Dictionary mapping asset names to their data
+        """
+        return {name: self.get(name) for name in self.keys}
+
+
 class Executor(Protocol):
     """
     Protocol for executing assets.
@@ -1083,7 +1170,7 @@ class Executor(Protocol):
         self,
         asset: "Asset",
         context: "PipelineContext",
-        upstream_results: Mapping[str, Any],
+        upstream_results: Mapping[str, Any] | UpstreamData,
     ) -> "AssetResult":
         """
         Execute an asset and return the result.
