@@ -3,14 +3,17 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (7)
-- - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
-- - `vp-66d2` P1 in_progress - Sprint prep: Testing Tooling Cohesion
-- - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
-- - `vp-8866` P1 in_progress - Normalize integration test tagging for *_integration files
-- - `vp-0429` P2 in_progress - Phase 3 Testing: Implement Snapshot Testing Framework
-- - `vp-8210` P2 in_progress - Expose specialized factory helpers via tests.helpers
-- - `vp-830c` P2 in_progress - Update testing docs to align with uv + integration markers (deps:vp-8866)
+- # Tickets (10)
+- - `vp-45d3` P1 open - Finalize operator data contract (UpstreamData + context)
+- - `vp-64cd` P1 open - Consolidate ExecutionEngine + OrchestrationEngine
+- - `vp-8783` P1 in_progress - ADR: canonical pipeline abstractions + contract update
+- - `vp-debe` P1 open - Unify pipeline definition APIs (builder/context/@asset)
+- - `vp-28e9` P2 open - Curate public API surface + exports
+- - `vp-ada1` P2 open - Align docs/examples + CLI naming with canonical API
+- - `vp-e990` P2 open - Update README with canonical pipeline model guidance
+- - `vp-6d4f` P3 open - Create migration guide for Pipeline -> AssetGraph
+- - `vp-7ae9` P3 open - Update API documentation with execution layering examples
+- - `vp-f498` P4 open - Add AssetGraph.from_pipeline() adapter method
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
