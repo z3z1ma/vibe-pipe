@@ -2,9 +2,9 @@ LICENSE
 README.md
 pyproject.toml
 src/vibe_piper/__init__.py
+src/vibe_piper/asset_factory.py
 src/vibe_piper/benchmarks.py
 src/vibe_piper/caching.py
-src/vibe_piper/core.py
 src/vibe_piper/decorators.py
 src/vibe_piper/error_handling.py
 src/vibe_piper/execution.py
@@ -29,6 +29,8 @@ src/vibe_piper.egg-info/top_level.txt
 src/vibe_piper/cli/__init__.py
 src/vibe_piper/cli/main.py
 src/vibe_piper/cli/commands/__init__.py
+src/vibe_piper/cli/commands/config_cmd.py
+src/vibe_piper/cli/commands/config_run.py
 src/vibe_piper/cli/commands/dashboard.py
 src/vibe_piper/cli/commands/docs.py
 src/vibe_piper/cli/commands/init.py
@@ -154,6 +156,7 @@ src/vibe_piper/web/middleware/error_handler.py
 src/vibe_piper/web/middleware/rate_limit.py
 src/vibe_piper/web/middleware/request_id.py
 tests/test_advanced_retry.py
+tests/test_asset_creation_parity.py
 tests/test_basic.py
 tests/test_cleaning.py
 tests/test_decorators.py
