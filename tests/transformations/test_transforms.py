@@ -137,6 +137,13 @@ class TestExtractNestedValue:
         result = extract_nested_value(data, "user.name")
         assert result is None
 
+    def test_extract_list_index_when_available(self) -> None:
+        """Test bracket indexing via schema-first mapping utilities when present."""
+        pytest.importorskip("vibe_piper.schema.mapping")
+
+        data = {"tags": ["a", "b"]}
+        assert extract_nested_value(data, "tags[0]") == "a"
+
 
 class TestExtractFields:
     """Test extract_fields transformation."""
