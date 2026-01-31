@@ -197,3 +197,40 @@ The `pipeline_builder.py` file was created locally and committed, but the worktr
 3. Is there a git filter preventing `pipeline_builder.py` from being tracked?
 
 Worker: w3
+
+**2026-01-31T21:18:43Z**
+
+### Latest Commit: Global Asset Registry Implementation
+
+Progress Made:
+1. Fixed duplicate registry code in decorators.py
+2. Added parameter storage to track original function signatures
+3. Updated build_pipeline_from_assets to use stored parameters
+4. Fixed wrapper in asset_factory.py to handle functions with 0, 1, or 2+ parameters
+5. Fixed mypy and type errors
+6. All code compiles and type-checks pass
+
+Current Issue:
+SOURCE assets (no dependencies) execute successfully.
+TRANSFORM assets (with dependencies) fail with error: takes 1 positional argument but 2 were given
+
+Root Cause Analysis:
+- Pipeline correctly builds dependency graph and sets operator_type=TRANSFORM
+- Execution engine calls asset.operator.fn(upstream_data, context) with 2 args
+- Wrapper receives (data, context) and checks original function signature
+- For TRANSFORM with 1 parameter, wrapper calls fn(data) with 1 arg
+- But error message says 2 args were given to the function
+- This suggests wrapper might not be the one being called, or there's caching
+
+Next Steps:
+1. Debug why TRANSFORM assets fail despite wrapper logic
+2. Check if execution engine is using correct assets from pipeline
+3. Consider if there's a global registry state issue
+
+Committed Changes:
+- src/vibe_piper/__init__.py (export get_asset_params)
+- src/vibe_piper/decorators.py (add parameter storage)
+- src/vibe_piper/pipeline_builder.py (use stored params, update operator_type)
+- src/vibe_piper/asset_factory.py (improved wrapper)
+- src/vibe_piper/pipeline.py (type fixes)
+- tests/test_pipeline_execution_parity.py (fix attribute name)
