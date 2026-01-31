@@ -581,3 +581,41 @@ Transformations have issue:
 - Awaiting specialist w13 and manager guidance on next steps
 
 Note to Manager: Ready for review of my work on this ticket. The TRANSFORM execution issue is a separate problem being handled in parallel.
+
+**2026-01-31T22:13:11Z**
+
+### Specialist w13 Work Complete: Transformations Fix Merged
+
+**Latest Update:**
+- vp-1cba (transformations fix) has been shipped to team/merge-queue
+- Ticket is enqueued for merge to main
+- Transformation functions in operations.py have been fixed to accept proper signatures
+
+**Manager Instructions:**
+1. Merge main into team/vp-debe branch
+2. Verify that global registry and build_pipeline logic work end-to-end with new transformation fixes
+3. If everything passes, submit work for manager review
+
+**My Work Status:**
+- ✅ Global asset registry implemented and complete
+- ✅ Original function parameter storage complete
+- ✅ Wrapper logic handles UpstreamData correctly
+- ✅ Pipeline builder uses assets as-is without recreation
+- ✅ build_pipeline() supports canonical API
+- ✅ Deprecation warning added for builder mode
+
+**Pending Actions:**
+- Wait for vp-1cba to merge to main
+- Merge main into team/vp-debe branch
+- Run full test suite to verify end-to-end execution
+- Submit work for manager review
+
+**Expected Outcome:**
+Once transformation fixes are merged, the canonical API should work end-to-end:
+- @asset decorator creates executable assets with proper operators
+- build_pipeline(asset_fn) builds dependency graph via global registry
+- Execution engine calls assets with correct parameters
+- Transformations receive (data, context) matching new signatures
+
+**Note:**
+My work on this ticket is complete and blocked only on external dependency. The unification work is ready for final verification once transformations are available in this worktree.
