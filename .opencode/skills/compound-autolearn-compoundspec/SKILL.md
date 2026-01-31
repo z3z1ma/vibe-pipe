@@ -21,38 +21,61 @@ Turn an autolearn prompt (recent activity + constraints) into a valid CompoundSp
 - If a system reminder indicates read-only / Plan Mode:
   - Do not propose product code changes.
   - Keep proposals strictly within skills/instincts/docs/changelog.
+  - Do not propose actions that imply file modifications outside the allowed set.
 - Use the git summary (changed_files + diffstat) as evidence for what to learn.
 - If the diffstat is empty (or there are no meaningful file changes):
   - Do not invent learnings.
   - Emit empty `instincts.create/update` and `skills.create/update`.
   - Set `docs.sync: false`.
   - Use a changelog note that explains the skip (e.g., "Autolearn ran with no diff evidence; skipped memory updates.")
-- Treat generated/derived artifacts as low-signal evidence:
-  - If `services/index.json` changes without corresponding `services/*.md` edits, assume it was refreshed and do not infer new dependency learnings.
-  - If `.opencode/memory/instincts.json` / `.opencode/memory/INSTINCTS.md` show large rewrites or deletions, assume cleanup and avoid inventing new heuristics from it.
-  - If changes appear duplicated under both `.claude/skills/` and `.opencode/skills/`, assume a mirror/sync artifact; prefer learning proposals that target `.opencode/skills/` only.
-  - If the diff is primarily additions/deletions under `src/*.egg-info/`, assume packaging metadata cleanup/regeneration noise and avoid learning anything beyond "egg-info is generated" unless the prompt explicitly states an intentional packaging change.
-- Prefer:
-  - `instincts.update[]` to strengthen an existing heuristic
-  - `skills.update[]` to refine an existing skill
-  - `skills.create[]` only if there is no close match
-- If the diff is primarily ticket/process artifacts (e.g. `.tickets/*.md`):
-  - Prefer updating Loom-ticket/workflow-related instincts over creating new skills.
-  - Avoid proposing docs block changes unless a stable, always-on principle changed.
+
+## Evidence hygiene (low-signal diffs)
+
+Treat generated/derived artifacts as low-signal evidence:
+- If `services/index.json` changes without corresponding `services/*.md` edits, assume it was refreshed and do not infer new dependency learnings.
+- If `.opencode/memory/instincts.json` / `.opencode/memory/INSTINCTS.md` show large rewrites or deletions, assume cleanup and avoid inventing new heuristics from it.
+- If changes appear duplicated under both `.claude/skills/` and `.opencode/skills/`, assume a mirror/sync artifact; prefer learning proposals that target `.opencode/skills/` only.
+- If the diff is primarily additions/deletions under `src/*.egg-info/`, assume packaging metadata cleanup/regeneration noise and avoid learning anything beyond "egg-info is generated" unless the prompt explicitly states an intentional packaging change.
+
+## Ticket/process-heavy diffs
+
+- If the diff is primarily ticket/process artifacts (e.g. `.tickets/*.md`, `LOOM_ROADMAP.md`, `LOOM_CHANGELOG.md`, `AGENTS.md`) with no corresponding product code changes:
+  - Prefer `instincts.update[]` that strengthen workflow heuristics (triage, scoping, read-only constraints).
+  - Avoid creating new skills unless a repeated procedural gap is clearly demonstrated.
+  - Avoid proposing docs block updates unless a stable always-on principle changed.
+  - Do not infer or describe product behavior changes.
+
+## Prefer updates over creation
+
+Prefer:
+- `instincts.update[]` to strengthen an existing heuristic
+- `skills.update[]` to refine an existing skill
+- `skills.create[]` only if there is no close match
+
+## Skill updates
+
 - If updating a skill:
   - Re-emit the entire final managed body (no diffs/snippets).
   - Keep it checklist-like.
+
+## Instinct quality bar
+
 - Keep instincts crisp:
   - Trigger is a concrete situation.
   - Action is a concrete behavior.
   - Confidence is 0.6-0.85 unless repeated evidence.
-- Keep proposals small:
-  - Max 3 skills per run.
-  - Max 8 instinct updates per run.
-- Output hygiene:
-  - Output exactly one JSON object.
-  - No code fences, no commentary.
-  - Use repo-root-relative paths in any markdown content.
+
+## Keep proposals small
+
+- Max 3 skills per run.
+- Max 8 instinct updates per run.
+
+## Output hygiene
+
+- Output exactly one JSON object.
+- Do not wrap in code fences.
+- Do not include commentary.
+- Use repo-root-relative paths in any markdown content.
 
 # Suggested Minimal Template
 - `auto.reason` from prompt (often `session.idle`).

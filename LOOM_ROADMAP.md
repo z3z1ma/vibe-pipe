@@ -3,16 +3,28 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (6)
+- # Tickets (9)
 - - `vp-211d` P1 in_progress - Sprint prep: Phase 1 foundations + config pipelines hardening
 - - `vp-36be` P1 in_progress - Adopt schema-first source_path parsing in config + transforms (deps:vp-f701)
+- - `vp-66d2` P1 in_progress - Sprint prep: Testing Tooling Cohesion
 - - `vp-7686` P1 in_progress - Sprint prep: Bootstrap backlog + objective
-- - `vp-a511` P1 in_progress - Fix LOOM_ROADMAP merge artifact + refresh backlog
+- - `vp-8866` P1 open - Normalize integration test tagging for *_integration files
 - - `vp-f701` P1 in_progress - Schema-first mapping (source_path + conversions)
-- - `vp-0429` P2 open - Phase 3 Testing: Implement Snapshot Testing Framework
+- - `vp-0429` P2 in_progress - Phase 3 Testing: Implement Snapshot Testing Framework
+- - `vp-8210` P2 open - Expose specialized factory helpers via tests.helpers
+- - `vp-830c` P2 open - Update testing docs to align with uv + integration markers (deps:vp-8866)
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
+- 2026-01-31T18:56:44.083Z Implemented snapshot testing framework with 17 tests, 3 example snapshot tests, and --update-snapshots pytest flag support
+- 2026-01-31T18:44:00.918Z Refine autolearn guidance to better handle Plan Mode and low-signal ticket/doc-heavy diffs; strengthen related workflow instincts.
+- 2026-01-31T18:36:35.799Z Refined autolearn guidance for ticket/process-heavy diffs and reinforced read-only/Plan Mode and ticket-churn heuristics.
+- 2026-01-31T16:46:48.605Z Refine autolearn procedure: when diffstat is empty, emit a justified no-op spec instead of inventing learnings.
+- 2026-01-31T16:25:46.611Z Strengthen heuristics for treating ticket/roadmap-only diffs as low-signal and for documenting investigation/scoping work directly in tickets.
+- 2026-01-31T16:02:57.529Z Slightly strengthened the heuristic that src/*.egg-info diffs (e.g., SOURCES.txt) are usually generated noise from uv/editable installs and should not drive product inferences.
+- 2026-01-31T06:29:30.337Z Strengthen heuristics that large memory-store diffs and ticket/doc churn are low-signal without accompanying product code changes.
+- 2026-01-31T05:59:40.275Z Reinforce treating src/*.egg-info churn (including mass deletions) as generated-artifact cleanup and non-signal for product behavior.
+- 2026-01-31T05:57:35.344Z Reinforce strict read-only behavior in Plan Mode and treat ticket/docs/memory-store churn as low-signal evidence.
 - 2026-01-31T05:41:35.241Z Strengthened Phase 3 investigation and scoping instincts with evidence from vp-0429 workflow (investigation, documentation, manager communication, idle waiting)
 - 2026-01-31T05:34:54.917Z Reinforced heuristics for ticket/docs-heavy diffs and Plan Mode read-only autolearn constraints.
 - 2026-01-31T05:30:34.740Z Strengthen low-signal heuristic for ticket-only diffs to keep autolearn proposals minimal and avoid inventing product behavior.
@@ -34,15 +46,4 @@ High-level direction and priorities.
 - 2026-01-30T17:58:39.370Z Added an instinct for JSON-only autolearn responses; strengthened Loom ticket long-body and safe-quoting instincts based on recent large ticket updates.
 - 2026-01-30T17:50:32.221Z Added an instinct to treat services/index.json as generated; strengthened Loom ticket long-body and quoting heuristics.
 - 2026-01-30T17:44:04.444Z Reinforce Loom ticket long-body/quoting habits and codify that services/index.json is derived via refresh-index, not manually edited.
-- 2026-01-30T17:11:29.289Z Reinforced Loom ticket hygiene: prefer long-body flags and safe heredoc quoting for markdown-heavy ticket updates.
-- 2026-01-30T16:51:37.541Z Strengthen Loom-ticket long-body and quoting instincts; refine autolearn guidance for ticket-only diffs.
-- 2026-01-30T16:42:51.348Z Add autolearn-specific guidance: keep CompoundSpec proposals within memory/docs scope and output JSON-only.
-- 2026-01-30T16:30:32.753Z Add an instinct to honor JSON-only CompoundSpec prompts; tighten compound-apply-spec guidance for strict JSON-only and scope/constraint compliance.
-- 2026-01-30T16:27:27.778Z Added an instinct to strictly honor Plan mode read-only constraints when the system reminder is present.
-- 2026-01-30T16:23:57.836Z Autolearn run had no new evidence (no repo changes/tool activity), so no memory updates proposed.
-- 2026-01-30T16:17:05.527Z Idle session; no new tool activity or concrete learnings to encode.
-- 2026-01-30T16:09:04.331Z Add instinct to strictly obey Plan mode read-only constraint when system reminder is present.
-- 2026-01-30T15:57:25.912Z Add instinct to strictly enforce read-only behavior when Plan Mode system reminder is present.
-- 2026-01-30T01:09:12.773Z Add instinct to treat src/vibe_piper.egg-info diffs as generated noise; slightly increase confidence in full-body skills.update requirement.
-- 2026-01-30T00:47:21.209Z Add memory about treating `src/*.egg-info/**` diffs as generated metadata and avoiding accidental commits; introduce a small hygiene skill for handling egg-info churn in uv-driven Python repos.
 <!-- END:compound:roadmap-ai-notes -->

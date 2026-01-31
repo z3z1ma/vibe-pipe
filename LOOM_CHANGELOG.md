@@ -4,6 +4,9 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-01-31T18:56:44.083Z Implemented snapshot testing framework with 17 tests, 3 example snapshot tests, and --update-snapshots pytest flag support
+- 2026-01-31T18:44:00.918Z Refine autolearn guidance to better handle Plan Mode and low-signal ticket/doc-heavy diffs; strengthen related workflow instincts.
+- 2026-01-31T18:36:35.799Z Refined autolearn guidance for ticket/process-heavy diffs and reinforced read-only/Plan Mode and ticket-churn heuristics.
 - 2026-01-31T16:46:48.605Z Refine autolearn procedure: when diffstat is empty, emit a justified no-op spec instead of inventing learnings.
 - 2026-01-31T16:25:46.611Z Strengthen heuristics for treating ticket/roadmap-only diffs as low-signal and for documenting investigation/scoping work directly in tickets.
 - 2026-01-31T16:02:57.529Z Slightly strengthened the heuristic that src/*.egg-info diffs (e.g., SOURCES.txt) are usually generated noise from uv/editable installs and should not drive product inferences.

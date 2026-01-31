@@ -10,7 +10,7 @@
       "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T03:38:36.670Z",
-      "updated_at": "2026-01-31T06:29:29.007Z",
+      "updated_at": "2026-01-31T18:43:59.434Z",
       "evidence": [
         {
           "ts": "2026-01-31T03:38:36.670Z",
@@ -55,6 +55,11 @@
           "ts": "2026-01-31T06:29:29.007Z",
           "sessionID": "ses_3ed443c3bffebpv9pEDdT7r5pf",
           "note": "Recent diffstat is dominated by .opencode/memory/instincts.json (+90) and .opencode/memory/INSTINCTS.md (+27) alongside ticket/docs edits; reinforces treating memory-store churn as low-signal unless paired with product code changes."
+        },
+        {
+          "ts": "2026-01-31T18:43:59.434Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "Autolearn runs can coincide with instincts store edits; keep proposals focused and evidence-based when memory files churn."
         }
       ]
     },
@@ -64,10 +69,10 @@
       "trigger": "Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.",
       "action": "Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.",
       "tags": [],
-      "confidence": 0.9100000000000001,
+      "confidence": 0.9300000000000002,
       "status": "active",
       "created_at": "2026-01-31T04:03:28.880Z",
-      "updated_at": "2026-01-31T04:50:37.019Z",
+      "updated_at": "2026-01-31T18:43:59.434Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:03:28.880Z",
@@ -92,6 +97,11 @@
           "ts": "2026-01-31T04:50:37.019Z",
           "sessionID": "ses_3edcef0dbffeMx0BI7sy1E5umu",
           "note": "Same skill files changed under both .claude/skills/ and .opencode/skills/ (e.g., compound-apply-spec, compound-workflows), consistent with mirror/sync artifact rather than independent learnings."
+        },
+        {
+          "ts": "2026-01-31T18:43:59.434Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "compound-autolearn-compoundspec SKILL.md appears changed in duplicate paths (likely mirror); prefer targeting .opencode/skills only in proposals."
         }
       ]
     },
@@ -101,10 +111,10 @@
       "trigger": "Git diffstat is dominated by .tickets/*.md and LOOM_*.md/AGENTS.md edits with no corresponding product code changes.",
       "action": "Avoid inventing new product behaviors; limit proposals to workflow hygiene (skills/instinct wording tweaks, docs.sync) and keep docs block edits minimal unless a stable always-on principle changed.",
       "tags": [],
-      "confidence": 0.9500000000000002,
+      "confidence": 0.9900000000000002,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-01-31T16:25:44.786Z",
+      "updated_at": "2026-01-31T18:43:59.434Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -144,6 +154,16 @@
           "ts": "2026-01-31T16:25:44.786Z",
           "sessionID": "ses_3eb663eefffeeJD0KTx1MC94hv",
           "note": "Recent diff is entirely process artifacts (.tickets/*.md and LOOM_ROADMAP.md) with no product code; reinforces treating ticket/docs churn as low-signal for behavior changes."
+        },
+        {
+          "ts": "2026-01-31T18:36:34.099Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "Git diffstat: large edits in .tickets/* with no product code changes; reinforces treating ticket/doc churn as low-signal and avoiding invented product behavior."
+        },
+        {
+          "ts": "2026-01-31T18:43:59.434Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "Recent diff is dominated by .tickets/*.md plus AGENTS.md/LOOM_ROADMAP.md/LOOM_CHANGELOG.md, with no product code; treat as workflow/doc churn and avoid inferring product behavior."
         }
       ]
     },
@@ -153,10 +173,10 @@
       "trigger": "Investigating a Phase 3 ticket (vp-cf95, vp-6cf1, vp-7d49, vp-f17e, vp-0429) that has empty body or unclear status",
       "action": "1. Check ROADMAP.md for the ticket's Phase 3 role (Orchestration, CLI, Scheduling, Monitoring, Testing) and component description. 2. Check all related Phase 3 tickets to see overall completion status. 3. For testing tickets, verify what infrastructure exists (tests/, tests/helpers/, fixtures, factories) vs. what's missing. 4. If a skill exists for the component (e.g., .opencode/skills/snapshot-testing/SKILL.md), check if implementation exists. 5. Provide clear recommendation with evidence: implement, defer, or close. 6. Document investigation in ticket notes and commit notes file.",
       "tags": [],
-      "confidence": 0.95,
+      "confidence": 0.97,
       "status": "active",
       "created_at": "2026-01-31T04:35:41.546Z",
-      "updated_at": "2026-01-31T05:41:34.211Z",
+      "updated_at": "2026-01-31T18:36:34.099Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:35:41.546Z",
@@ -171,6 +191,11 @@
           "ts": "2026-01-31T05:41:34.211Z",
           "sessionID": "ses_3edb231acffeTZeOPyhkZoaJ13",
           "note": "Successfully used in vp-0429 investigation: checked ROADMAP.md Phase 3 context, verified all Phase 3 tickets (vp-cf95, vp-6cf1, vp-7d49, vp-f17e), checked existing testing infrastructure (tests/, helpers/, fixtures), identified snapshot testing as only missing component, provided implement recommendation with evidence, documented findings in INVESTIGATION_NOTES.md, communicated to manager via loom team send."
+        },
+        {
+          "ts": "2026-01-31T18:36:34.099Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "Ticket vp-0429 received substantial investigation updates; strengthens the Phase 3 scoping workflow heuristic."
         }
       ]
     },
@@ -234,10 +259,10 @@
       "trigger": "Completing ticket investigation/scoping work",
       "action": "1. Document findings in ticket notes with clear status. 2. Create investigation notes file (INVESTIGATION_NOTES.md or similar). 3. Commit investigation documentation with clear message. 4. Notify manager via loom team send with summary and recommendation. 5. Add ticket note documenting manager communication. 6. Wait for manager scheduling decision (loom team wait). 7. Check inbox for manager response on interval.",
       "tags": [],
-      "confidence": 0.87,
+      "confidence": 0.89,
       "status": "active",
       "created_at": "2026-01-31T04:47:31.569Z",
-      "updated_at": "2026-01-31T16:25:44.786Z",
+      "updated_at": "2026-01-31T18:36:34.099Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:47:31.569Z",
@@ -252,6 +277,11 @@
           "ts": "2026-01-31T16:25:44.786Z",
           "sessionID": "ses_3eb663eefffeeJD0KTx1MC94hv",
           "note": "Multiple ticket edits in one session suggests ongoing investigation/scoping updates; reinforces capturing findings in ticket notes and keeping process changes explicit."
+        },
+        {
+          "ts": "2026-01-31T18:36:34.099Z",
+          "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
+          "note": "Session activity reflects investigation documentation changes concentrated in tickets; reinforces documenting findings and next steps in ticket notes."
         }
       ]
     },
