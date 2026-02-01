@@ -1,6 +1,6 @@
 ---
 "id": "vp-1d9b"
-"status": "open"
+"status": "in_progress"
 "deps":
 - "vp-07c3"
 - "vp-1a6a"
@@ -47,3 +47,38 @@ Risks and edge cases:
 - examples/README.md lists the active examples with uv run commands.
 - examples/sample_pipeline/ and examples/pipelines/ are removed.
 - README.md example list matches the curated set.
+
+## Notes
+
+**2026-02-01T19:31:03Z**
+
+Work completed:
+
+**Implementation completed:**
+1. ✅ Created examples/README.md as canonical index
+   - Lists all active examples with uv run commands
+   - Organized by categories: Production Pipelines, Data Quality, Simple Scripts, Standalone Examples, Configuration Examples
+   - Includes AssetGraph vs Pipeline comparison guide
+
+2. ✅ Removed outdated directories:
+   - examples/sample_pipeline/ (generated docs)
+   - examples/pipelines/ (placeholder configs)
+
+3. ✅ Updated README.md:
+   - Removed references to deleted directories
+   - Added reference to examples/README.md
+   - Updated examples list to match curated set (added asset_graph_etl, pipeline_simple, drift_detection)
+
+4. ✅ Added .gitignore files:
+   - examples/pipeline_simple/.gitignore
+   - examples/drift_detection/.gitignore
+   - Ensures output/ and __pycache__ are ignored
+
+5. ✅ Verification passed:
+   - uv run python -m compileall examples - succeeded
+
+**Git commits:**
+- b030d0a: Add examples catalog and remove outdated directories
+- 3965781: Remove outdated examples/pipelines and examples/sample_pipeline directories
+
+Ready for manager review.
