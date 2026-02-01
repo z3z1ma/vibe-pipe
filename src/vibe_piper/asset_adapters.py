@@ -26,7 +26,6 @@ from vibe_piper.types import (
     DataRecord,
     MaterializationStrategy,
     OperatorType,
-    PipelineContext,
     Schema,
 )
 
@@ -117,8 +116,25 @@ def source_asset(
         # No event loop running, safe to use asyncio.run()
         pass
 
-    def _fetch_data(data: Any, context: PipelineContext) -> Sequence[DataRecord] | Sequence[Any]:
-        """Operator function that fetches data from the async Source."""
+    def _fetch_data(*args: Any) -> Sequence[DataRecord] | Sequence[Any]:
+        """
+        Operator function that fetches data from the async Source.
+
+        Note: This function accepts variable arguments to handle both 1-arg
+        (context only) and 2-arg (data, context) calls from the
+        operator wrapper. SOURCE operators only use context; data is ignored.
+        """
+        # Extract arguments based on call pattern
+        if len(args) == 1:
+            # Called with just context (SOURCE operator invocation)
+            context = args[0]
+        elif len(args) >= 2:
+            # Called with (data, context) - data is ignored for SOURCE
+            context = args[1]
+        else:
+            msg = f"_fetch_data expected 1-2 arguments, got {len(args)}"
+            raise TypeError(msg)
+
         logger.debug(f"Fetching data from Source {source.__class__.__name__}")
 
         # Run the async fetch method
@@ -155,6 +171,12 @@ def source_asset(
                     msg = f"Source item {i} is not a dict or DataRecord: got {type(item).__name__}"
                     logger.error(msg)
                     raise ValueError(msg)
+
+            # Raise ValueError if there were any mapping errors
+            if errors:
+                error_msg = f"Schema mapping failed: {'; '.join(errors)}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
 
             return mapped_records
 
@@ -240,8 +262,27 @@ def sink_asset(
             )
     """
 
-    def _write_data(data: Any, context: PipelineContext) -> dict[str, Any]:
-        """Operator function that writes data to the sync Sink."""
+    def _write_data(*args: Any) -> dict[str, Any]:
+        """
+        Operator function that writes data to the sync Sink.
+
+        Note: This function accepts variable arguments to handle both 1-arg
+        (context only) and 2-arg (data, context) calls from the
+        operator wrapper. For SINK operators, data is processed and
+        context is used.
+        """
+        # Extract arguments based on call pattern
+        if len(args) == 1:
+            # Called with just context - shouldn't happen for SINK operators
+            msg = f"SINK operator '{name}' expected data argument, got only context"
+            raise TypeError(msg)
+        elif len(args) >= 2:
+            data = args[0]
+            context = args[1]
+        else:
+            msg = f"_write_data expected 1-2 arguments, got {len(args)}"
+            raise TypeError(msg)
+
         logger.debug(f"Writing data to Sink {sink.__class__.__name__}")
 
         # Coerce to DataRecords if schema is provided
@@ -253,7 +294,6 @@ def sink_asset(
 
             for i, item in enumerate(data):
                 # Handle both dict and DataRecord inputs
-                source_record: Mapping[str, Any]
                 if isinstance(item, DataRecord):
                     # Already a DataRecord, just validate against schema
                     try:
