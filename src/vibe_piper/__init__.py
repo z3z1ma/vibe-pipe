@@ -319,18 +319,17 @@ try:
         execute_sql_query,
         extract_asset_dependencies,
         render_sql_template,
+        sql_asset,
         validate_sql,
     )
-
-    sql_asset = None  # type: ignore  # TODO: Import sql_asset when available
 except ImportError:
     SQLOperator = None  # type: ignore
     SQLValidationResult = None  # type: ignore
     execute_sql_query = None  # type: ignore
     extract_asset_dependencies = None  # type: ignore
     render_sql_template = None  # type: ignore
-    validate_sql = None  # type: ignore
     sql_asset = None  # type: ignore
+    validate_sql = None  # type: ignore
 
 # Integration/API (optional, advanced use)
 try:

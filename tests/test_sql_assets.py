@@ -21,13 +21,45 @@ from vibe_piper.sql_assets import (
     execute_sql_query,
     extract_asset_dependencies,
     render_sql_template,
+    resolve_sql_dependencies,
     sql_asset,
     validate_sql,
 )
+from vibe_piper.types import PipelineContext, UpstreamData
 
 # =============================================================================
 # Test SQL Asset Decorator
 # =============================================================================
+
+
+def test_sql_asset_with_dialect():
+    """Test @sql_asset decorator with dialect parameter."""
+
+    @sql_asset(dialect="mysql")
+    def my_mysql_sql():
+        return "SELECT * FROM customers"
+
+    assert isinstance(my_mysql_sql, Asset)
+    assert hasattr(my_mysql_sql, "config")
+    assert my_mysql_sql.config.get("dialect") == "mysql"
+
+
+def test_sql_asset_postgres():
+    """Test @sql_asset with postgres dialect."""
+
+    @sql_asset("postgresql")
+    def clean_users():
+        return """
+        SELECT
+            id,
+            LOWER(email) as email,
+            created_at
+        FROM {{ raw_users }}
+        WHERE email IS NOT NULL
+        """
+
+    assert isinstance(clean_users, Asset)
+    assert clean_users.config.get("dialect") == "postgresql"
 
 
 def test_sql_asset_basic():
@@ -37,7 +69,8 @@ def test_sql_asset_basic():
     def my_sql():
         return "SELECT * FROM users"
 
-    assert isinstance(my_sql, type)  # It's an Asset
+    # @sql_asset returns an Asset instance with operator
+    assert isinstance(my_sql, Asset)
     assert hasattr(my_sql, "name")
     assert my_sql.name == "my_sql"
 
@@ -72,27 +105,17 @@ def test_sql_asset_postgres():
     assert clean_users.config.get("dialect") == "postgresql"
 
 
-def test_sql_asset_with_config():
-    """Test @sql_asset with full configuration."""
+def test_sql_asset_basic():
+    """Test basic @sql_asset decorator without dialect."""
 
-    @sql_asset(
-        dialect="postgresql",
-        depends_on=["raw_users", "raw_orders"],
-        io_manager="postgresql",
-        materialization="table",
-        description="Clean and aggregate user data",
-    )
-    def complex_sql():
-        return """
-        SELECT u.id, u.email, COUNT(o.id) as order_count
-        FROM {{ raw_users }} u
-        LEFT JOIN {{ raw_orders }} o ON u.id = o.user_id
-        GROUP BY u.id, u.email
-        """
+    @sql_asset
+    def my_sql():
+        return "SELECT * FROM users"
 
-    assert isinstance(complex_sql, type)
-    assert complex_sql.config.get("depends_on") == ("raw_users", "raw_orders")
-    assert complex_sql.io_manager == "postgresql"
+    # @sql_asset returns an Asset instance with operator
+    assert isinstance(my_sql, Asset)
+    assert hasattr(my_sql, "name")
+    assert my_sql.name == "my_sql"
 
 
 # =============================================================================
@@ -576,3 +599,198 @@ def test_sql_asset_depends_on_tracking():
     deps = aggregated.config.get("depends_on", ())
     assert "raw_users" in deps
     assert "raw_orders" in deps
+
+
+# =============================================================================
+# Test SQL Asset Execution
+# =============================================================================
+
+
+def test_sql_asset_has_operator():
+    """Test that @sql_asset creates an Asset with an Operator."""
+
+    @sql_asset
+    def simple_query():
+        return "SELECT * FROM users"
+
+    assert simple_query.operator is not None
+    assert simple_query.operator.name == "simple_query"
+    assert simple_query.operator.operator_type.name == "TRANSFORM"
+
+
+def test_sql_asset_with_dependencies_has_operator():
+    """Test that @sql_asset with dependencies creates an executable Operator."""
+
+    @sql_asset(dialect="postgresql")
+    def join_query():
+        return """
+        SELECT u.id, u.email, COUNT(o.id) as order_count
+        FROM {{ users }} u
+        LEFT JOIN {{ orders }} o ON u.id = o.user_id
+        GROUP BY u.id, u.email
+        """
+
+    assert join_query.operator is not None
+    assert "users" in join_query.config.get("depends_on", ())
+    assert "orders" in join_query.config.get("depends_on", ())
+
+
+def test_resolve_sql_dependencies_default():
+    """Test that dependencies resolve to asset names by default."""
+    deps = ("users", "orders")
+    upstream_data = UpstreamData({})
+    relations = None
+
+    resolved = resolve_sql_dependencies(deps, upstream_data, relations)
+
+    assert resolved == {"users": "users", "orders": "orders"}
+
+
+def test_resolve_sql_dependencies_with_relations():
+    """Test that dependencies resolve using relations mapping."""
+    deps = ("raw_users", "raw_orders")
+    upstream_data = UpstreamData({})
+    relations = {"raw_users": "stg.users", "raw_orders": "stg.orders"}
+
+    resolved = resolve_sql_dependencies(deps, upstream_data, relations)
+
+    assert resolved == {"raw_users": "stg.users", "raw_orders": "stg.orders"}
+
+
+def test_sql_asset_operator_execution_mock_connector():
+    """Test that SQL asset operator can be executed with mock connector."""
+
+    class MockConnector:
+        def __init__(self):
+            self.queries_executed = []
+
+        def execute_query(self, query, params=None):
+            self.queries_executed.append((query, params))
+            # Return mock result
+            return [
+                {"id": 1, "name": "test", "email": "test@example.com"},
+                {"id": 2, "name": "test2", "email": "test2@example.com"},
+            ]
+
+    @sql_asset(config={"connector": MockConnector()})
+    def my_query():
+        return "SELECT * FROM users WHERE active = true"
+
+    # Execute the operator
+    context = PipelineContext(pipeline_id="test", run_id="123")
+    upstream_data = UpstreamData({})
+
+    result = my_query.operator.fn(upstream_data, context)
+
+    # Verify the query was executed
+    connector = my_query.config.get("connector")
+    assert len(connector.queries_executed) == 1
+    assert isinstance(result, list)
+    assert len(result) == 2
+
+
+def test_sql_asset_operator_with_dependencies():
+    """Test SQL asset operator execution with dependency resolution."""
+
+    class MockConnector:
+        def __init__(self):
+            self.queries_executed = []
+
+        def execute_query(self, query, params=None):
+            self.queries_executed.append((query, params))
+            return [{"id": 1, "total": 100}]
+
+    @sql_asset(config={"connector": MockConnector()})
+    def aggregated_query():
+        return """
+        SELECT COUNT(*) as total
+        FROM {{ users }} u
+        JOIN {{ orders }} o ON u.id = o.user_id
+        """
+
+    # Execute the operator
+    context = PipelineContext(pipeline_id="test", run_id="123")
+    upstream_data = UpstreamData({})
+
+    result = aggregated_query.operator.fn(upstream_data, context)
+
+    # Verify dependencies were resolved
+    query, params = aggregated_query.config["connector"].queries_executed[0]
+    assert "{{ users }}" not in query
+    assert "users" in query
+    assert "{{ orders }}" not in query
+    assert "orders" in query
+
+
+def test_sql_asset_operator_with_relations():
+    """Test SQL asset operator execution with relations mapping."""
+
+    class MockConnector:
+        def __init__(self):
+            self.queries_executed = []
+
+        def execute_query(self, query, params=None):
+            self.queries_executed.append((query, params))
+            return [{"id": 1}]
+
+    @sql_asset(config={"connector": MockConnector(), "relations": {"raw_users": "stg.users"}})
+    def staged_query():
+        return "SELECT * FROM {{ raw_users }}"
+
+    # Execute the operator
+    context = PipelineContext(pipeline_id="test", run_id="123")
+    upstream_data = UpstreamData({})
+
+    result = staged_query.operator.fn(upstream_data, context)
+
+    # Verify relations were used
+    query, _ = staged_query.config["connector"].queries_executed[0]
+    assert "{{ raw_users }}" not in query
+    assert "stg.users" in query
+
+
+def test_sql_asset_operator_no_connector():
+    """Test that missing connector raises RuntimeError."""
+
+    @sql_asset
+    def my_query():
+        return "SELECT * FROM users"
+
+    # Execute the operator without connector - should raise RuntimeError
+    context = PipelineContext(pipeline_id="test", run_id="123")
+    upstream_data = UpstreamData({})
+
+    with pytest.raises(RuntimeError, match="No database connector available"):
+        my_query.operator.fn(upstream_data, context)
+
+
+def test_sql_asset_connector_from_context():
+    """Test that connector can be provided via context metadata."""
+
+    class MockConnector:
+        def __init__(self):
+            self.executed = False
+
+        def execute_query(self, query, params=None):
+            self.executed = True
+            return []
+
+    # Create SQL asset without connector in config
+    @sql_asset
+    def my_query():
+        return "SELECT * FROM users"
+
+    connector = MockConnector()
+    # Provide connector via context
+    context = PipelineContext(
+        pipeline_id="test",
+        run_id="123",
+        metadata={"connector": connector},
+    )
+    upstream_data = UpstreamData({})
+
+    # Execute the operator
+    my_query.operator.fn(upstream_data, context)
+
+    # Verify connector was used
+    assert connector.executed
