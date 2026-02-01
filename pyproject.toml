@@ -136,6 +136,7 @@ addopts = [
 ]
 markers = [
     "integration: marks tests as integration tests (requires database)",
+    "anyio: mark test as async test using anyio",
 ]
 
 [tool.coverage.run]

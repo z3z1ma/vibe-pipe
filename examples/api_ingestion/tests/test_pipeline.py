@@ -11,7 +11,7 @@ from examples.api_ingestion.schemas import QualityReport, UserResponse
 from .conftest import MockAPIServer
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pipeline_initialization(test_pipeline: APIIngestionPipeline) -> None:
     """Test that the pipeline can be initialized correctly."""
     await test_pipeline.initialize()
@@ -22,8 +22,8 @@ async def test_pipeline_initialization(test_pipeline: APIIngestionPipeline) -> N
     await test_pipeline.close()
 
 
-@pytest.mark.asyncio
-async def test_fetch_users_with_pagination(_mock_api_server: MockAPIServer) -> None:
+@pytest.mark.anyio
+async def test_fetch_users_with_pagination(mock_api_server: MockAPIServer) -> None:
     """Test fetching users with pagination."""
     pipeline = APIIngestionPipeline(
         api_base_url="http://testserver",
@@ -134,8 +134,8 @@ def test_quality_report_to_dict() -> None:
     assert report_dict["duration_seconds"] == 90.0
 
 
-@pytest.mark.asyncio
-async def test_pipeline_run_dry_run(_mock_api_server: MockAPIServer) -> None:
+@pytest.mark.anyio
+async def test_pipeline_run_dry_run(mock_api_server: MockAPIServer) -> None:
     """Test running the pipeline in dry run mode."""
     pipeline = APIIngestionPipeline(
         api_base_url="http://testserver",
@@ -156,7 +156,7 @@ async def test_pipeline_run_dry_run(_mock_api_server: MockAPIServer) -> None:
         await pipeline.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pipeline_handles_rate_limiting() -> None:
     """Test that the pipeline handles rate limiting."""
 
@@ -175,9 +175,7 @@ async def test_pipeline_handles_rate_limiting() -> None:
                         "headers": [[b"retry-after", b"1"]],
                     }
                 )
-                await send(
-                    {"type": "http.response.body", "body": b'{"error": "Rate limit"}'}
-                )
+                await send({"type": "http.response.body", "body": b'{"error": "Rate limit"}'})
             else:
                 await send(
                     {
@@ -208,7 +206,7 @@ async def test_pipeline_handles_rate_limiting() -> None:
         await pipeline.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_pipeline_with_empty_response() -> None:
     """Test pipeline with empty API response."""
 
@@ -221,9 +219,7 @@ async def test_pipeline_with_empty_response() -> None:
                     "headers": [[b"content-type", b"application/json"]],
                 }
             )
-            await send(
-                {"type": "http.response.body", "body": b'{"data": [], "total": 0}'}
-            )
+            await send({"type": "http.response.body", "body": b'{"data": [], "total": 0}'})
 
     pipeline = APIIngestionPipeline(
         api_base_url="http://testserver",
