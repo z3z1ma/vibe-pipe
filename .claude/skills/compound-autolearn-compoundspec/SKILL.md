@@ -41,6 +41,7 @@ Treat generated/derived artifacts as low-signal evidence:
 - If `.opencode/memory/instincts.json` / `.opencode/memory/INSTINCTS.md` show large rewrites or deletions, assume cleanup and avoid inventing new heuristics from it.
 - If changes appear duplicated under both `.claude/skills/` and `.opencode/skills/`, assume a mirror/sync artifact; prefer learning proposals that target `.opencode/skills/` only.
 - If the diff is primarily additions/deletions under `src/*.egg-info/`, assume packaging metadata cleanup/regeneration noise and avoid learning anything beyond "egg-info is generated" unless the prompt explicitly states an intentional packaging change.
+- If the diffstat shows changes only under `examples/` with no corresponding `src/` or `tests/` changes, treat it as low-signal for durable learnings; prefer emitting no memory updates.
 
 ## Ticket/process-heavy diffs
 

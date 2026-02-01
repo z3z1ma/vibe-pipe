@@ -60,6 +60,15 @@ The source of truth is `.opencode/memory/instincts.json`.
 - **examples-directory-low-signal-diff** (70%)
   - Trigger: Git diffstat shows changes confined to examples/ (especially examples/**/tests/ fixtures like conftest.py) with no src/ changes.
   - Action: Treat the diff as demo/test harness cleanup; avoid inferring product behavior changes. If reviewing, focus on whether example usage still runs and whether CI/test selection should include or exclude e…
+- **git-summary-mismatch-low-signal** (70%)
+  - Trigger: Autolearn git summary reports changed_files count that does not match the diffstat entries (or file list is missing/truncated).
+  - Action: Assume evidence is incomplete; do not infer product behavior. Prefer emitting no-op memory updates (or only workflow hygiene) unless additional diff evidence is available.
+- **git-summary-inconsistency-low-signal** (70%)
+  - Trigger: Autolearn context shows a mismatch between changed_files count and the diffstat/file list (or other internal inconsistencies).
+  - Action: Treat evidence as incomplete/low-signal; avoid inferring product behavior. Prefer no-op memory updates or only workflow hygiene learnings grounded in stable evidence.
+- **autolearn-inconsistent-git-summary-low-signal** (70%)
+  - Trigger: Autolearn context shows `changed_files` count that does not match the provided `diffstat` (missing files/paths or obviously incomplete summary).
+  - Action: Treat evidence as low-signal: avoid inferring product behavior; prefer emitting minimal/empty memory updates unless other stable evidence is present.
 - **execution-public-api-stability-sweep** (68%)
   - Trigger: Execution module grows substantially (large insertions) or introduces new entrypoints.
   - Action: Do a quick sweep for downstream breakage: search for imports/usages of the changed symbols, ensure exports stay stable (or rename via a project-wide rename), and add/adjust tests to pin the contract.

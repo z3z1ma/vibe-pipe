@@ -572,6 +572,57 @@
           "sessionID": "ses_3e64f9a80ffex3HNXzexL3S9bi"
         }
       ]
+    },
+    {
+      "id": "git-summary-mismatch-low-signal",
+      "title": "Git Summary Mismatch Is Low-Signal",
+      "trigger": "Autolearn git summary reports changed_files count that does not match the diffstat entries (or file list is missing/truncated).",
+      "action": "Assume evidence is incomplete; do not infer product behavior. Prefer emitting no-op memory updates (or only workflow hygiene) unless additional diff evidence is available.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-02-01T15:51:53.919Z",
+      "updated_at": "2026-02-01T15:51:53.919Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T15:51:53.919Z",
+          "sessionID": "ses_3e64fa109ffe1epKkAO2Rqenp8"
+        }
+      ]
+    },
+    {
+      "id": "git-summary-inconsistency-low-signal",
+      "title": "Inconsistent git summary is low-signal",
+      "trigger": "Autolearn context shows a mismatch between changed_files count and the diffstat/file list (or other internal inconsistencies).",
+      "action": "Treat evidence as incomplete/low-signal; avoid inferring product behavior. Prefer no-op memory updates or only workflow hygiene learnings grounded in stable evidence.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-02-01T15:56:23.627Z",
+      "updated_at": "2026-02-01T15:56:23.627Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T15:56:23.627Z",
+          "sessionID": "ses_3e64fa109ffe1epKkAO2Rqenp8"
+        }
+      ]
+    },
+    {
+      "id": "autolearn-inconsistent-git-summary-low-signal",
+      "title": "Autolearn: inconsistent git summary is low-signal",
+      "trigger": "Autolearn context shows `changed_files` count that does not match the provided `diffstat` (missing files/paths or obviously incomplete summary).",
+      "action": "Treat evidence as low-signal: avoid inferring product behavior; prefer emitting minimal/empty memory updates unless other stable evidence is present.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-02-01T16:57:54.821Z",
+      "updated_at": "2026-02-01T16:57:54.821Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T16:57:54.821Z",
+          "sessionID": "ses_3e64fa109ffe1epKkAO2Rqenp8"
+        }
+      ]
     }
   ]
 }
