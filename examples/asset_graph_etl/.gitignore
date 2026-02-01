@@ -1,0 +1,4 @@
+# Output directory (not tracked in git)
+*.csv
+*.parquet
+*.json
