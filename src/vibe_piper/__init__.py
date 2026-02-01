@@ -187,6 +187,16 @@ from vibe_piper.operators import (
     validate_schema,
 )
 
+# Asset adapters (optional feature)
+try:
+    from vibe_piper.asset_adapters import (
+        sink_asset,
+        source_asset,
+    )
+except ImportError:
+    sink_asset = None  # type: ignore
+    source_asset = None  # type: ignore
+
 # Orchestration (optional, advanced use)
 try:
     from vibe_piper.orchestration import (
