@@ -3,11 +3,10 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (12)
+- # Tickets (11)
 - - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-ef4a` P1 in_progress - Sprint prep: Phase 3: Core Abstractions & Cohesiveness
-- - `vp-12c4` P2 in_progress - Export infer_schema_from_file from vibe_piper
 - - `vp-28e9` P2 in_progress - Untitled
 - - `vp-3fcc` P2 in_progress - Explicit asset dependencies + build_asset_graph
 - - `vp-5bf1` P2 in_progress - Source/Sink asset adapters (async source + schema mapping) (deps:vp-3fcc)
