@@ -7,8 +7,7 @@ A canonical, fully runnable ETL pipeline example that showcases:
 - File-based I/O (CSV input/output)
 - Extract, transform, validate, load, and summarize steps
 
-This implementation uses a direct class-based approach similar to api_ingestion,
-avoiding AssetGraph framework complexities with parameter passing.
+This implementation uses the correct PipelineBuilder.asset() pattern:
 
 Usage:
     python pipeline.py [--once]
@@ -36,14 +35,13 @@ from vibe_piper.validation.checks import (
 from vibe_piper.validation.suite import ValidationSuite
 
 if TYPE_CHECKING:
-    pass
+    from vibe_piper.types import AssetGraph, PipelineContext
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
 
 # =============================================================================
 # Configuration
@@ -67,15 +65,18 @@ class ETLConfig:
         Path(self.output_dir).mkdir(parents=True, exist_ok=True)
 
 
+_pipeline_config: ETLConfig = ETLConfig()
+
+
 # =============================================================================
 # Asset Functions
 # =============================================================================
 
 
-def extract(config: ETLConfig) -> list[dict]:
+def extract(context: PipelineContext) -> list[dict]:
     """Read raw data from CSV."""
-    logger.info(f"Extracting data from {config.input_path}")
-    reader = CSVReader(config.input_path)
+    logger.info(f"Extracting data from {_pipeline_config.input_path}")
+    reader = CSVReader(_pipeline_config.input_path)
     records = reader.read()
     # Convert DataRecord objects to dicts for easier manipulation
     data = [record.data for record in records]
@@ -83,93 +84,124 @@ def extract(config: ETLConfig) -> list[dict]:
     return data
 
 
-def transform(extract: list[dict], config: ETLConfig) -> list[dict]:
+def transform(upstream_data, context: PipelineContext) -> list[dict]:
     """Clean and enrich user data."""
     logger.info("Transforming data...")
-    transformed = []
 
-    for row in extract:
-        # Clean and normalize data
-        cleaned = row.copy()
+    try:
+        # Get upstream data from extract asset
+        # When using depends_on explicitly, upstream_data.get() returns data directly
+        extract_data = upstream_data.get("extract")
+        if extract_data is None:
+            logger.warning("No data from extract")
+            return []
 
-        # Normalize email to lowercase and strip
-        if cleaned.get("email"):
-            cleaned["email"] = cleaned["email"].lower().strip()
+        logger.info(f"Got {len(extract_data)} records from extract")
 
-        # Clean phone: extract digits only, or None if missing
-        if cleaned.get("phone"):
-            phone = str(cleaned["phone"]).strip()
-            cleaned["phone_clean"] = "".join(c for c in phone if c.isdigit())
-        else:
-            cleaned["phone_clean"] = None
+        transformed = []
 
-        # Normalize status to lowercase
-        if cleaned.get("status"):
-            cleaned["status"] = cleaned["status"].lower().strip()
+        for row in extract_data:
+            # Clean and normalize data
+            cleaned = row.copy()
 
-        # Parse dates and add derived fields
-        signup_date = cleaned.get("signup_date")
-        if signup_date:
-            try:
-                dt = datetime.strptime(signup_date, "%Y-%m-%d")
-                cleaned["signup_year"] = dt.year
-                cleaned["signup_month"] = dt.month
-            except (ValueError, TypeError):
+            # Normalize email to lowercase and strip
+            if cleaned.get("email"):
+                cleaned["email"] = cleaned["email"].lower().strip()
+
+            # Clean phone: extract digits only, or None if missing
+            if cleaned.get("phone"):
+                phone = str(cleaned["phone"]).strip()
+                cleaned["phone_clean"] = "".join(c for c in phone if c.isdigit())
+            else:
+                cleaned["phone_clean"] = None
+
+            # Normalize status to lowercase
+            if cleaned.get("status"):
+                cleaned["status"] = cleaned["status"].lower().strip()
+
+            # Parse dates and add derived fields
+            signup_date = cleaned.get("signup_date")
+            if signup_date:
+                try:
+                    dt = datetime.strptime(signup_date, "%Y-%m-%d")
+                    cleaned["signup_year"] = dt.year
+                    cleaned["signup_month"] = dt.month
+                except (ValueError, TypeError):
+                    cleaned["signup_year"] = None
+                    cleaned["signup_month"] = None
+            else:
                 cleaned["signup_year"] = None
                 cleaned["signup_month"] = None
-        else:
-            cleaned["signup_year"] = None
-            cleaned["signup_month"] = None
 
-        # Calculate customer tier based on total spent
-        total_spent = float(cleaned.get("total_spent", 0))
-        if total_spent >= 500:
-            cleaned["customer_tier"] = "gold"
-        elif total_spent >= 200:
-            cleaned["customer_tier"] = "silver"
-        elif total_spent > 0:
-            cleaned["customer_tier"] = "bronze"
-        else:
-            cleaned["customer_tier"] = "inactive"
+            # Calculate customer tier based on total spent
+            total_spent = float(cleaned.get("total_spent", 0))
+            if total_spent >= 500:
+                cleaned["customer_tier"] = "gold"
+            elif total_spent >= 200:
+                cleaned["customer_tier"] = "silver"
+            elif total_spent > 0:
+                cleaned["customer_tier"] = "bronze"
+            else:
+                cleaned["customer_tier"] = "inactive"
 
-        # Calculate days since last login
-        last_login = cleaned.get("last_login")
-        if last_login:
-            try:
-                dt_login = datetime.strptime(last_login, "%Y-%m-%d")
-                days_since_login = (datetime.now() - dt_login).days
-                cleaned["days_since_login"] = days_since_login
-            except (ValueError, TypeError):
+            # Calculate days since last login
+            last_login = cleaned.get("last_login")
+            if last_login:
+                try:
+                    dt_login = datetime.strptime(last_login, "%Y-%m-%d")
+                    cleaned["days_since_login"] = (datetime.now() - dt_login).days
+                except (ValueError, TypeError):
+                    cleaned["days_since_login"] = None
+            else:
                 cleaned["days_since_login"] = None
-        else:
-            cleaned["days_since_login"] = None
 
-        transformed.append(cleaned)
+            transformed.append(cleaned)
 
-    logger.info(f"Transformed {len(transformed)} records")
-    return transformed
+        logger.info(f"Transformed {len(transformed)} records")
+        return transformed
+    except Exception as e:
+        logger.error(f"Transform failed: {e}", exc_info=True)
+        raise
 
 
-def validate(transform: list[dict], config: ETLConfig) -> dict:
+def validate(upstream_data, context: PipelineContext) -> dict[str, object]:
     """Run data quality validation checks."""
     logger.info("Validating data...")
 
-    if not transform:
-        logger.warning("No data to validate")
-        return {
-            "is_valid": True,
-            "checks_passed": 0,
-            "check_names": [],
-        }
+    # Get upstream data from transform asset
+    transform_data = upstream_data.get("transform")
+
+    # If no data, validation will still run (checks will fail)
+    # but we need to handle schema inference carefully
+    if not transform_data:
+        logger.warning("No data to validate - validation checks will fail")
+        # Create validation suite and let it fail on empty data
+        suite = ValidationSuite(name="etl_quality_checks")
+        suite.strategy = "fail_fast"
+        suite.add_check(
+            "min_row_count",
+            expect_table_row_count_to_be_between(
+                min_value=_pipeline_config.min_row_count,
+                max_value=_pipeline_config.max_row_count,
+            ),
+        )
+        # Validate empty list - this should fail
+        result = suite.validate([])
+        # Raise error to indicate validation failure
+        msg = f"Data validation failed: {result.errors[0] if result.errors else 'Empty data'}"
+        raise ValueError(msg)
 
     # Create validation suite
     suite = ValidationSuite(name="etl_quality_checks")
     suite.strategy = "fail_fast"
 
-    # Add validation checks
+    # Add validation checks using config thresholds
     suite.add_check(
         "min_row_count",
-        expect_table_row_count_to_be_between(min_row_count=5, max_row_count=1000),
+        expect_table_row_count_to_be_between(
+            min_value=_pipeline_config.min_row_count,
+            max_value=_pipeline_config.max_row_count,
+        ),
     )
     suite.add_check(
         "email_not_null",
@@ -194,15 +226,15 @@ def validate(transform: list[dict], config: ETLConfig) -> dict:
     # Infer schema from first record
     schema_fields = [
         SchemaField(name=key, data_type=DataType.STRING, nullable=True)
-        for key in transform[0].keys()
+        for key in transform_data[0].keys()
     ]
     schema = Schema(name="transformed_users", fields=tuple(schema_fields))
-    records = [DataRecord(data=row, schema=schema) for row in transform]
+    records = [DataRecord(data=row, schema=schema) for row in transform_data]
 
     # Run validation
     result = suite.validate(records)
 
-    if not result.is_valid:
+    if not result.success:
         logger.error("Data validation failed!")
         for error in result.errors:
             logger.error(f"  - {error}")
@@ -213,17 +245,19 @@ def validate(transform: list[dict], config: ETLConfig) -> dict:
     return {
         "is_valid": True,
         "checks_passed": len(result.warnings),
-        "check_names": [check.__name__ for check in suite.checks],
+        "check_names": [check_name for check_name in suite.list_checks()],
     }
 
 
-def load(transform: list[dict], config: ETLConfig, validation_result: dict) -> str:
+def load(upstream_data, context: PipelineContext) -> str:
     """Write transformed data to CSV."""
     logger.info("Loading data to output...")
 
-    if not transform:
+    # Get upstream data from transform asset
+    transform_data = upstream_data.get("transform")
+    if not transform_data:
         logger.warning("No data to load")
-        return str(Path("output") / "users_transformed.csv")
+        return str(Path(_pipeline_config.output_dir) / "users_transformed.csv")
 
     # Select and order columns for output
     output_columns = [
@@ -243,7 +277,7 @@ def load(transform: list[dict], config: ETLConfig, validation_result: dict) -> s
 
     # Filter and reorder data
     output_data = []
-    for row in transform:
+    for row in transform_data:
         filtered = {col: row.get(col) for col in output_columns if col in row}
         output_data.append(filtered)
 
@@ -255,7 +289,7 @@ def load(transform: list[dict], config: ETLConfig, validation_result: dict) -> s
 
     records = [DataRecord(data=filtered, schema=output_schema) for filtered in output_data]
 
-    output_path = Path("output") / "users_transformed.csv"
+    output_path = Path(_pipeline_config.output_dir) / "users_transformed.csv"
     writer = CSVWriter(output_path)
     count = writer.write(records, schema=output_schema)
 
@@ -263,11 +297,15 @@ def load(transform: list[dict], config: ETLConfig, validation_result: dict) -> s
     return str(output_path)
 
 
-def summarize(transform: list[dict], load: str, config: ETLConfig) -> dict:
+def summarize(upstream_data, context: PipelineContext) -> dict[str, object]:
     """Generate summary statistics."""
     logger.info("Generating summary...")
 
-    if not transform:
+    # Get upstream data
+    transform_data = upstream_data.get("transform")
+    load_path = upstream_data.get("load", "")
+
+    if not transform_data:
         logger.warning("No data to summarize")
         return {
             "total_users": 0,
@@ -276,18 +314,18 @@ def summarize(transform: list[dict], load: str, config: ETLConfig) -> dict:
             "total_revenue": 0.0,
             "total_orders": 0,
             "average_order_value": 0.0,
-            "output_file": load,
+            "output_file": load_path,
             "generated_at": datetime.now().isoformat(),
         }
 
     # Calculate statistics
-    total_users = len(transform)
+    total_users = len(transform_data)
     status_counts = {}
     tier_counts = {}
     total_revenue = 0.0
     total_orders = 0
 
-    for row in transform:
+    for row in transform_data:
         # Count by status
         status = row.get("status", "unknown")
         status_counts[status] = status_counts.get(status, 0) + 1
@@ -310,7 +348,7 @@ def summarize(transform: list[dict], load: str, config: ETLConfig) -> dict:
         "total_revenue": total_revenue,
         "total_orders": total_orders,
         "average_order_value": avg_order_value,
-        "output_file": load,
+        "output_file": load_path,
         "generated_at": datetime.now().isoformat(),
     }
 
@@ -323,13 +361,86 @@ def summarize(transform: list[dict], load: str, config: ETLConfig) -> dict:
     logger.info(f"  Average order value: ${avg_order_value:.2f}")
 
     # Write summary to file
-    summary_path = Path("output") / "summary.json"
+    summary_path = Path(_pipeline_config.output_dir) / "summary.json"
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
 
     logger.info(f"Summary written to {summary_path}")
 
     return summary
+
+
+# =============================================================================
+# Pipeline Builder Function
+# =============================================================================
+
+
+def build_pipeline(config: ETLConfig) -> AssetGraph:
+    """
+    Build the ETL pipeline AssetGraph.
+
+    This function creates and returns a fully configured AssetGraph
+    with all assets registered and dependencies set.
+
+    Args:
+        config: ETL configuration object
+
+    Returns:
+        Configured AssetGraph ready for execution
+    """
+    global _pipeline_config
+    _pipeline_config = config
+
+    # Create PipelineBuilder
+    builder = PipelineBuilder(
+        "asset_graph_etl",
+        description="Local ETL pipeline with CSV I/O and ValidationSuite",
+    )
+
+    # Register assets using builder.asset(name, fn=..., ...)
+    # Dependencies are inferred from function parameter names
+
+    # Asset 1: Extract raw data from CSV
+    builder.asset(
+        name="extract",
+        fn=extract,
+        description="Read raw user data from input CSV",
+    )
+
+    # Asset 2: Transform data
+    builder.asset(
+        name="transform",
+        fn=transform,
+        depends_on=["extract"],
+        description="Clean and enrich user data",
+    )
+
+    # Asset 3: Validate transformed data
+    builder.asset(
+        name="validate",
+        fn=validate,
+        depends_on=["transform"],
+        description="Run data quality validation checks",
+    )
+
+    # Asset 4: Load validated data to CSV
+    builder.asset(
+        name="load",
+        fn=load,
+        depends_on=["transform", "validate"],
+        description="Write transformed data to output CSV",
+    )
+
+    # Asset 5: Generate summary statistics
+    builder.asset(
+        name="summarize",
+        fn=summarize,
+        depends_on=["transform", "load"],
+        description="Generate pipeline summary statistics",
+    )
+
+    # Build and return the graph
+    return builder.build()
 
 
 # =============================================================================
@@ -341,8 +452,8 @@ class AssetGraphETLPipeline:
     """
     ETL Pipeline class for local data processing.
 
-    This class implements a simple, declarative pipeline using PipelineBuilder
-    and ExecutionEngine, avoiding AssetGraph framework parameter passing issues.
+    This class wraps the build_pipeline function for convenient
+    execution and result reporting.
 
     Pipeline Steps:
     1. extract - Read raw data from CSV
@@ -360,83 +471,18 @@ class AssetGraphETLPipeline:
     def __init__(self, config: ETLConfig) -> None:
         """Initialize pipeline with configuration."""
         self.config = config
-        self.extract_data: list[dict] | None = None
-        self.transformed_data: list[dict] | None = None
-        self.validation_result: dict | None = None
-
-        # Build pipeline using PipelineBuilder
-        self.builder = PipelineBuilder(
-            "asset_graph_etl",
-            description="Local ETL pipeline with CSV I/O and ValidationSuite",
-        )
-
-        # Register assets as simple functions
-        # Each asset is defined as a method and registered separately
-        self._register_assets()
-
-    def _register_assets(self) -> None:
-        """Register all pipeline assets."""
-
-        # Asset 1: Extract raw data from CSV
-        @self.builder.asset(
-            name="extract",
-            description="Read raw user data from input CSV",
-        )
-        def _extract():
-            return extract(self.config)
-
-        # Asset 2: Transform data
-        @self.builder.asset(
-            name="transform",
-            depends_on=["extract"],
-            description="Clean and enrich user data",
-        )
-        def _transform():
-            return transform(self.extract_data, self.config)
-
-        # Asset 3: Validate transformed data
-        @self.builder.asset(
-            name="validate",
-            depends_on=["transform"],
-            description="Run data quality validation checks",
-        )
-        def _validate():
-            return validate(self.transformed_data, self.config)
-
-        # Asset 4: Load validated data to CSV
-        @self.builder.asset(
-            name="load",
-            depends_on=["transform", "validate"],
-            description="Write transformed data to output CSV",
-        )
-        def _load():
-            return load(self.transformed_data, self.config, self.validation_result)
-
-        # Asset 5: Generate summary statistics
-        @self.builder.asset(
-            name="summarize",
-            depends_on=["transform", "load"],
-            description="Generate pipeline summary statistics",
-        )
-        def _summarize():
-            return summarize(
-                self.transformed_data,
-                self._load_data if self._load_data else "",
-                self.config,
-            )
+        self.graph = build_pipeline(config)
 
     def run_once(self) -> None:
-        """Run the pipeline once and print summary."""
+        """Run pipeline once and print summary."""
         logger.info("=" * 60)
         logger.info("Starting AssetGraph ETL Pipeline")
         logger.info("=" * 60)
 
-        # Build and execute pipeline
-        graph = self.builder.build()
-        logger.info(f"Built pipeline graph with {len(graph.assets)} assets")
+        logger.info(f"Built pipeline graph with {len(self.graph.assets)} assets")
 
         engine = ExecutionEngine()
-        result = engine.execute(graph)
+        result = engine.execute(self.graph)
 
         # Report results
         if result.success:
@@ -464,7 +510,8 @@ class AssetGraphETLPipeline:
             for asset_name in result.get_failed_assets():
                 logger.error(f"Failed asset: {asset_name}")
 
-            raise RuntimeError("Pipeline execution failed")
+            msg = "Pipeline execution failed"
+            raise RuntimeError(msg)
 
 
 # =============================================================================

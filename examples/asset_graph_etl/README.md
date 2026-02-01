@@ -5,11 +5,11 @@ A canonical, fully runnable AssetGraph example that demonstrates Vibe Piper's de
 ## Overview
 
 This example showcases a complete ETL pipeline using:
-- **PipelineDefinitionContext**: Declarative pipeline building with `@pipeline.asset()` decorators
+- **PipelineBuilder**: Explicit pipeline building with `builder.asset(name='...', fn=...)` registration
 - **ExecutionEngine**: Orchestration of asset execution respecting dependencies
 - **ValidationSuite**: Data quality checks with fail-fast behavior
 - **File-based I/O**: CSV input/output (no external services required)
-- **Asset dependencies**: Automatic dependency inference from function signatures
+- **Asset dependencies**: Explicit declaration via `depends_on` parameter
 
 ## Pipeline Steps
 
@@ -29,11 +29,38 @@ This example showcases a complete ETL pipeline using:
 ### Installation
 
 ```bash
-# From the examples/asset_graph_etl directory
+# From examples/asset_graph_etl directory
 cd examples/asset_graph_etl
 
 # Install dependencies with file I/O extras
 uv pip install -e ".[files]"
+```
+
+Or from the project root:
+
+```bash
+uv pip install -e ".[files]"
+```
+
+### Run the Pipeline
+
+```bash
+# Run pipeline once
+uv run python pipeline.py --once
+```
+
+Expected output:
+- `output/users_transformed.csv` - Cleaned and enriched user data
+- `output/summary.json` - Pipeline statistics
+
+### View Output
+
+```bash
+# Check transformed data
+cat output/users_transformed.csv
+
+# View summary
+cat output/summary.json
 ```
 
 Or from the project root:

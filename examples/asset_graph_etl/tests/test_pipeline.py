@@ -53,7 +53,12 @@ def tmp_path() -> Path:  # type: ignore[misc]
 @pytest.fixture
 def config(tmp_path: Path, sample_csv_data: Path) -> ETLConfig:
     """Create test configuration."""
-    return ETLConfig(input_path=str(sample_csv_data), output_dir=str(tmp_path / "output"))
+    return ETLConfig(
+        input_path=str(sample_csv_data),
+        output_dir=str(tmp_path / "output"),
+        min_row_count=1,  # Use 1 to allow small test datasets
+        max_row_count=1000,
+    )
 
 
 # =============================================================================
@@ -139,7 +144,7 @@ def test_email_normalization(config: ETLConfig, sample_csv_data: Path):
     assert result.success
 
     # Get transformed data
-    transformed_data = result.get_asset_output("transform")
+    transformed_data = result.get_asset_result("transform").data
 
     # Check email normalization
     for row in transformed_data:
@@ -158,7 +163,7 @@ def test_phone_cleaning(config: ETLConfig, sample_csv_data: Path):
 
     assert result.success
 
-    transformed_data = result.get_asset_output("transform")
+    transformed_data = result.get_asset_result("transform").data
 
     # Check phone cleaning
     assert transformed_data[0]["phone_clean"] == "15550101"
@@ -176,7 +181,7 @@ def test_status_normalization(config: ETLConfig, sample_csv_data: Path):
 
     assert result.success
 
-    transformed_data = result.get_asset_output("transform")
+    transformed_data = result.get_asset_result("transform").data
 
     # All statuses should be lowercase
     for row in transformed_data:
@@ -195,7 +200,7 @@ def test_customer_tier_calculation(config: ETLConfig, sample_csv_data: Path):
 
     assert result.success
 
-    transformed_data = result.get_asset_output("transform")
+    transformed_data = result.get_asset_result("transform").data
 
     # Check tier calculation
     # John: $529.95 -> gold
@@ -281,12 +286,12 @@ def test_summary_statistics(config: ETLConfig, sample_csv_data: Path):
 
     assert result.success
 
-    summary = result.get_asset_output("summarize")
+    summary = result.get_asset_result("summarize").data
 
     # Check statistics
     assert summary["total_users"] == 3
     assert summary["total_orders"] == 9  # 5 + 3 + 1
-    assert summary["total_revenue"] == 819.91  # 529.95 + 239.97 + 49.99
+    assert abs(summary["total_revenue"] - 819.91) < 0.01  # Float precision tolerance
     assert abs(summary["average_order_value"] - 91.10) < 0.01
 
     # Check status distribution
@@ -309,7 +314,7 @@ def test_summary_includes_key_fields(config: ETLConfig, sample_csv_data: Path):
 
     assert result.success
 
-    summary = result.get_asset_output("summarize")
+    summary = result.get_asset_result("summarize").data
 
     required_fields = [
         "total_users",
