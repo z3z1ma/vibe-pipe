@@ -79,10 +79,10 @@
       "trigger": "Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.",
       "action": "Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.",
       "tags": [],
-      "confidence": 0.9800000000000002,
+      "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T04:03:28.880Z",
-      "updated_at": "2026-02-01T04:20:08.325Z",
+      "updated_at": "2026-02-01T19:04:06.642Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:03:28.880Z",
@@ -122,6 +122,16 @@
           "ts": "2026-02-01T04:20:08.325Z",
           "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
           "note": "Diffstat shows the same skill edited under both .claude/skills/compound-apply-spec/SKILL.md and .opencode/skills/compound-apply-spec/SKILL.md, consistent with mirror/sync noise."
+        },
+        {
+          "ts": "2026-02-01T18:58:47.820Z",
+          "sessionID": "ses_3e65540d0ffeOnol8Dms3L3GC6",
+          "note": "Diffstat shows mirrored edits in both .claude/skills/ and .opencode/skills/ for the same skill; treat .claude as sync artifact and avoid targeting it in learning specs."
+        },
+        {
+          "ts": "2026-02-01T19:04:06.642Z",
+          "sessionID": "ses_3e65540d0ffeOnol8Dms3L3GC6",
+          "note": "Diffstat shows the same skill edited under both .claude/skills/ and .opencode/skills/ in the same session; treat .claude as a mirror/sync artifact and only target .opencode in proposals."
         }
       ]
     },
@@ -134,7 +144,7 @@
       "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-02-01T04:11:04.643Z",
+      "updated_at": "2026-02-01T19:04:06.642Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -199,6 +209,16 @@
           "ts": "2026-02-01T04:11:04.643Z",
           "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
           "note": "Git diffstat shows changes mainly in AGENTS.md, LOOM_ROADMAP.md, LOOM_CHANGELOG.md plus memory indexes; treat as process churn and avoid inferring product behavior."
+        },
+        {
+          "ts": "2026-02-01T18:58:47.820Z",
+          "sessionID": "ses_3e65540d0ffeOnol8Dms3L3GC6",
+          "note": "Recent changes are dominated by .tickets/*.md and LOOM_*.md with no product code; treat as process churn and avoid inventing product behavior learnings."
+        },
+        {
+          "ts": "2026-02-01T19:04:06.642Z",
+          "sessionID": "ses_3e65540d0ffeOnol8Dms3L3GC6",
+          "note": "Recent changes are dominated by .tickets/*.md and LOOM_*/AGENTS.md edits with no product-code evidence; default to workflow hygiene learnings and avoid inventing behavioral changes."
         }
       ]
     },

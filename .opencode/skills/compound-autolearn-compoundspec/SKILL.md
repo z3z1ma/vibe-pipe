@@ -39,9 +39,11 @@ Turn an autolearn prompt (recent activity + constraints) into a valid CompoundSp
 Treat generated/derived artifacts as low-signal evidence:
 - If `services/index.json` changes without corresponding `services/*.md` edits, assume it was refreshed and do not infer new dependency learnings.
 - If `.opencode/memory/instincts.json` / `.opencode/memory/INSTINCTS.md` show large rewrites or deletions, assume cleanup and avoid inventing new heuristics from it.
-- If changes appear duplicated under both `.claude/skills/` and `.opencode/skills/`, assume a mirror/sync artifact; prefer learning proposals that target `.opencode/skills/` only.
+- If changes appear duplicated under both `.claude/skills/` and `.opencode/skills/`, assume a mirror/sync artifact:
+  - Do not infer new behavior from the duplication.
+  - In CompoundSpec proposals, only target `.opencode/skills/**` (never propose changes to `.claude/skills/**`).
 - If the diff is primarily additions/deletions under `src/*.egg-info/`, assume packaging metadata cleanup/regeneration noise and avoid learning anything beyond "egg-info is generated" unless the prompt explicitly states an intentional packaging change.
-- If the diffstat shows changes only under `examples/` with no corresponding `src/` or `tests/` changes, treat it as low-signal for durable learnings; prefer emitting no memory updates.
+- If the diffstat shows changes only under `examples/` with no corresponding `src/` or `tests/` changes, treat it as low-signal for durable learnings; emit empty `skills`/`instincts`, set `docs.sync: false`, and use a changelog note explaining the skip.
 
 ## Ticket/process-heavy diffs
 
@@ -86,7 +88,7 @@ Prefer:
 # Suggested Minimal Template
 - `auto.reason` from prompt (often `session.idle`).
 - `auto.sessionID` from prompt.
-- `docs.sync: true` if you touched skills/instincts/docs.
+- `docs.sync: true` if you touched skills/instincts/docs; otherwise `docs.sync: false`.
 - `changelog.note` as a single sentence describing the memory delta.
 <!-- END:compound:skill-managed -->
 
