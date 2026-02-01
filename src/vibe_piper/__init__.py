@@ -13,33 +13,33 @@ This module exports three categories of APIs:
    Canonical abstractions for building production data pipelines:
    - Core types: Asset, AssetGraph, Pipeline, Operator, Schema, DataRecord
    - Execution: ExecutionEngine, ExecutionResult, AssetResult
-   - Builders: PipelineBuilder, build_pipeline, infer_dependencies_from_signature
-   - Decorators: @asset, @expect
-   - Quality: ExpectationSuite, QualityMetric, check_completeness, etc.
-   - Schema API: define_schema, String, Integer, Float, etc.
+    - Builders: PipelineBuilder, build_pipeline, infer_dependencies_from_signature
+    - Decorators: @asset, @expect
+    - Quality: ExpectationSuite, QualityMetric, check_completeness, etc.
+    - Schema API: define_schema, String, Integer, Float, etc.
 
-   These APIs are stable, well-documented, and will always be available.
+    These APIs are stable, well-documented, and will always be available.
 
 2. **POWER USER API** (Stable but Specialized)
-   Advanced APIs for specific use cases:
-   - Operators: map_transform, filter_operator, aggregate_*, custom_operator
-   - Built-in expectations: expect_column_to_exist, etc.
-   - Materialization strategies: TableStrategy, ViewStrategy, etc.
+    Advanced APIs for specific use cases:
+    - Operators: map_transform, filter_operator, aggregate_*, custom_operator
+    - Built-in expectations: expect_column_to_exist, etc.
+    - Materialization strategies: TableStrategy, ViewStrategy, etc.
 
-   These APIs are stable but intended for advanced users with specific needs.
+    These APIs are stable but intended for advanced users with specific needs.
 
 3. **OPTIONAL FEATURES** (May Be None)
-   APIs that depend on optional dependencies and may not be available:
-   - SQL assets: sql_asset, execute_sql_query, etc.
-   - Transformations: Join, GroupBy, Window, Pivot, etc.
-   - Schema evolution: schema_version, MigrationPlan, etc.
-   - Integration: RESTClient, GraphQLClient, etc.
-   - Database connectors: PostgreSQLConnector, MySQLConnector, etc.
-   - External quality tools: ge_asset, soda_asset, etc.
-   - Orchestration: Scheduler, BackfillManager, etc.
-   - Monitoring: MetricsCollector, Profiler, etc.
+    APIs that depend on optional dependencies and may not be available:
+    - SQL assets: sql_asset, execute_sql_query, etc.
+    - Transformations: Join, GroupBy, Window, Pivot, etc.
+    - Schema evolution: schema_version, MigrationPlan, etc.
+    - Integration: RESTClient, GraphQLClient, AuthStrategy, APIKeyAuth, etc.
+    - Database connectors: PostgreSQLConnector, MySQLConnector, SnowflakeConnector, BigQueryConnector, etc.
+    - External quality tools: ge_asset, soda_asset, etc.
+    - Orchestration: Scheduler, BackfillManager, etc.
+    - Monitoring: MetricsCollector, Profiler, etc.
 
-   Check availability with: `hasattr(vibe_piper, 'feature_name')`
+    Check availability with: `hasattr(vibe_piper, 'feature_name')`
 
 Stability Guarantees
 ====================
