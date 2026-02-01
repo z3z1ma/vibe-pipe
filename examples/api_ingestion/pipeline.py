@@ -11,7 +11,11 @@ from vibe_piper.integration.base import RateLimiter, RetryConfig
 from vibe_piper.integration.pagination import OffsetPagination, fetch_all_pages, paginate
 from vibe_piper.integration.rest import RESTClient
 
-from .schemas import QualityReport, UserResponse
+try:
+    from .schemas import QualityReport, UserResponse
+except ImportError:
+    # When running as a script, try absolute import
+    from examples.api_ingestion.schemas import QualityReport, UserResponse
 
 # Optional PostgreSQL import for database mode
 if TYPE_CHECKING:
