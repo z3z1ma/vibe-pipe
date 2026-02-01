@@ -158,25 +158,28 @@ def create_asset(
         # Determine operator type if not specified
         op_type = operator_type or OperatorType.SOURCE
 
-        # Wrap function to handle data and context parameters
-        # Store original function parameters for signature handling
-        original_params = tuple(inspect.signature(fn).parameters.keys())
+        def wrapped_fn(*args: Any) -> Any:
+            """
+            Wrapper that handles both 1-arg (context-only for SOURCE) and 2-arg calls.
 
-        def wrapped_fn(data: Any, context: Any) -> Any:
-            # If this is a source (operator_type == SOURCE), call with just context
+            SOURCE operators can be called with just context.
+            TRANSFORM/SINK operators are called with (data, context).
+            """
+            # Handle SOURCE operator with single argument (context only)
             if op_type == OperatorType.SOURCE:
-                try:
-                    return fn(context)  # type: ignore
-                except TypeError:
-                    # If function expects 2 args, call with both
-                    return fn(data, context)  # type: ignore
-            else:
-                # Transform functions: call based on signature
-                # If 1 param: pass only data; if 2+ params: pass data and context
-                if len(original_params) == 1:
-                    return fn(data)  # type: ignore
+                if len(args) == 1:
+                    # Called with context only
+                    return fn(args[0])  # type: ignore
+                elif len(args) == 2:
+                    # Called with (data, context) - pass context
+                    return fn(args[1])  # type: ignore
                 else:
-                    return fn(data, context)  # type: ignore
+                    msg = f"SOURCE operator '{name}' expects 1 or 2 arguments, got {len(args)}"
+                    raise TypeError(msg)
+            else:
+                # TRANSFORM/SINK operators: always unpack all args
+                # The original function handles variable args with *args signature
+                return fn(*args)  # type: ignore
 
         asset_operator = Operator(
             name=name,
