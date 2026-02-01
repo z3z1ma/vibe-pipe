@@ -103,9 +103,8 @@ Create a file `production_pipeline.py`:
 
 ```python
 from vibe_piper import (
-    asset,
-    build_pipeline,
-    UpstreamData,
+    PipelineDefinitionContext,
+    ExecutionEngine,
     PipelineContext,
     map_transform,
     add_field,
@@ -114,76 +113,69 @@ from vibe_piper import (
 )
 from pathlib import Path
 
-# Define data assets using @asset decorator
-@asset
-def extract_users(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Extract user data from CSV (source asset - no dependencies)."""
-    from vibe_piper.connectors import CSVReader
+# Define pipeline with assets
+with PipelineDefinitionContext("user_pipeline") as pipeline:
 
-    reader = CSVReader(Path("data/users.csv"))
-    records = reader.read()
-    return [record.data for record in records]
+    @pipeline.asset()
+    def extract_users(ctx: PipelineContext) -> list[dict]:
+        """Extract user data from CSV (source asset - no dependencies)."""
+        from vibe_piper.connectors import CSVReader
 
-@asset
-def transform_users(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Transform and filter users."""
-    # Access upstream data by asset name
-    source_data = upstream["extract_users"]
+        reader = CSVReader(Path("data/users.csv"))
+        records = reader.read()
+        return [record.data for record in records]
 
-    # Add computed field
-    with_category = map_transform(
-        source_data,
-        add_field("category", lambda x: "premium" if x.get("age", 0) > 30 else "standard")
-    )
-
-    # Filter only active users
-    active_users = filter_field_equals(with_category, "status", "active")
-
-    return list(active_users)
-
-@asset
-def aggregate_by_category(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Aggregate users by category."""
-    source_data = upstream["transform_users"]
-
-    return aggregate_group_by(
-        source_data,
-        group_by="category",
-        aggregations={"count": "count", "avg_age": "avg"}
-    )
-
-@asset
-def load_results(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Load results to output CSV."""
-    from vibe_piper.connectors import CSVWriter
-    from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
-
-    source_data = upstream["aggregate_by_category"]
-
-    output_path = Path("output/summary.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    schema = Schema(
-        name="summary",
-        fields=(
-            SchemaField(name="category", data_type=DataType.STRING),
-            SchemaField(name="count", data_type=DataType.INTEGER),
-            SchemaField(name="avg_age", data_type=DataType.FLOAT),
+    @pipeline.asset(depends_on=["extract_users"])
+    def transform_users(extract_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Transform and filter users."""
+        # Add computed field
+        with_category = map_transform(
+            extract_users,
+            add_field("category", lambda x: "premium" if x.get("age", 0) > 30 else "standard")
         )
-    )
 
-    records = [DataRecord(data=row, schema=schema) for row in source_data]
-    writer = CSVWriter(output_path)
-    writer.write(records)
+        # Filter only active users
+        active_users = filter_field_equals(with_category, "status", "active")
 
-    return str(output_path)
+        return list(active_users)
+
+    @pipeline.asset(depends_on=["transform_users"])
+    def aggregate_by_category(transform_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Aggregate users by category."""
+        return aggregate_group_by(
+            transform_users,
+            group_by="category",
+            aggregations={"count": "count", "avg_age": "avg"}
+        )
+
+    @pipeline.asset(depends_on=["aggregate_by_category"])
+    def load_results(aggregate_by_category: list[dict], ctx: PipelineContext) -> str:
+        """Load results to output CSV."""
+        from vibe_piper.connectors import CSVWriter
+        from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
+
+        output_path = Path("output/summary.csv")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        schema = Schema(
+            name="summary",
+            fields=(
+                SchemaField(name="category", data_type=DataType.STRING),
+                SchemaField(name="count", data_type=DataType.INTEGER),
+                SchemaField(name="avg_age", data_type=DataType.FLOAT),
+            )
+        )
+
+        records = [DataRecord(data=row, schema=schema) for row in aggregate_by_category]
+        writer = CSVWriter(output_path)
+        writer.write(records)
+
+        return str(output_path)
 
 # Execute the pipeline
 if __name__ == "__main__":
-    from vibe_piper import ExecutionEngine, PipelineContext
-
     # Build asset graph
-    asset_graph = build_pipeline(load_results)
+    asset_graph = pipeline.build()
 
     # Execute with production-grade engine
     context = PipelineContext(
@@ -195,8 +187,7 @@ if __name__ == "__main__":
     engine = ExecutionEngine()
     result = engine.execute(asset_graph, context)
 
-    print(f"✅ Pipeline completed! Output: {result.results[load_results.name].data}")
-    print(f"   Assets executed: {len(result.results)}")
+    print(f"✅ Pipeline completed! Assets executed: {len(result.results)}")
     print(f"   Execution time: {result.execution_time:.2f}s")
 ```
 
@@ -762,56 +753,51 @@ AssetGraph is the canonical production model for Vibe Piper. Use it for all prod
 - **Quality Monitoring**: Built-in data validation, drift detection, and quality reports
 - **Parallel Execution**: Thread-based parallel processing for independent assets
 - **State Management**: Checkpointing, recovery, and incremental runs
-- **Explicit Data Contract**: `UpstreamData` provides structured access to upstream results
+- **Explicit Data Contract**: Function parameters provide structured access to upstream results
 
 ### Building Asset Graphs
 
 ```python
-from vibe_piper import asset, build_pipeline, UpstreamData, PipelineContext, ExecutionEngine
+from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
+from vibe_piper.connectors import PostgreSQLConnector, CSVWriter
 
-# Define assets with @asset decorator
-@asset
-def extract_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Extract data from source (no dependencies)."""
-    # Source asset - receives empty upstream
-    assert upstream.keys == ()
+# Define pipeline with assets
+with PipelineDefinitionContext("my_pipeline") as pipeline:
 
-    from vibe_piper.connectors import PostgreSQLConnector
+    @pipeline.asset()
+    def extract_data(ctx: PipelineContext) -> list[dict]:
+        """Extract data from source (no dependencies)."""
+        connector = PostgreSQLConnector({"host": "localhost", "database": "mydb"})
+        with connector:
+            return connector.query("SELECT * FROM users")
 
-    connector = PostgreSQLConnector({"host": "localhost", "database": "mydb"})
-    with connector:
-        return connector.query("SELECT * FROM users")
+    @pipeline.asset(depends_on=["extract_data"])
+    def transform_data(extract_data: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Transform data (single dependency)."""
+        return [{"id": row["id"], "name": row["name"].upper()} for row in extract_data]
 
-@asset
-def transform_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Transform data (single dependency)."""
-    # Access upstream data by asset name
-    source_data = upstream["extract_data"]
+    @pipeline.asset(depends_on=["transform_data"])
+    def extract_orders(ctx: PipelineContext) -> list[dict]:
+        """Extract orders (independent asset for multi-upstream)."""
+        return [{"order_id": 1, "user_id": 1, "total": 100}]
 
-    return [{"id": row["id"], "name": row["name"].upper()} for row in source_data]
+    @pipeline.asset(depends_on=["transform_data", "extract_orders"])
+    def join_data(transform_data: list[dict], extract_orders: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Join multiple data sources (multiple dependencies)."""
+        # Join logic here...
+        return joined_data
 
-@asset
-def join_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Join multiple data sources (multiple dependencies)."""
-    # Access all upstream data
-    users = upstream["transform_data"]
-    orders = upstream["extract_orders"]
+    @pipeline.asset(depends_on=["join_data"])
+    def load_data(join_data: list[dict], ctx: PipelineContext) -> str:
+        """Load data to target (materialization)."""
+        from pathlib import Path
 
-    # Join logic here...
-    return joined_data
-
-@asset
-def load_data(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Load data to target (materialization)."""
-    from vibe_piper.connectors import CSVWriter
-
-    data = upstream["join_data"]
-    writer = CSVWriter(Path("output/result.csv"))
-    writer.write(data)
-    return str(writer.path)
+        writer = CSVWriter(Path("output/result.csv"))
+        writer.write(join_data)
+        return str(writer.path)
 
 # Build and execute
-graph = build_pipeline(load_data)  # Builds DAG from load_data downstreams
+graph = pipeline.build()
 context = PipelineContext(pipeline_id="my_pipeline", run_id="run_001")
 engine = ExecutionEngine()
 result = engine.execute(graph, context)
@@ -819,32 +805,35 @@ result = engine.execute(graph, context)
 
 ### Dependency Inference
 
-AssetGraph automatically infers dependencies from function parameter names:
+Dependencies can be specified explicitly using `depends_on` or automatically inferred from function parameter names:
 
 ```python
-@asset
-def asset_a(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Source asset."""
-    return [{"id": 1, "value": 100}]
+with PipelineDefinitionContext("my_pipeline") as pipeline:
 
-@asset
-def asset_b(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Depends on asset_a (parameter name)."""
-    data = upstream["asset_a"]  # Automatically infers dependency
-    return [{"id": row["id"], "doubled": row["value"] * 2} for row in data]
+    @pipeline.asset()
+    def asset_a(ctx: PipelineContext) -> list[dict]:
+        """Source asset (no dependencies)."""
+        return [{"id": 1, "value": 100}]
 
-@asset
-def asset_c(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Depends on asset_a AND asset_b."""
-    data_a = upstream["asset_a"]
-    data_b = upstream["asset_b"]
-    # Join or combine data...
+    @pipeline.asset(depends_on=["asset_a"])
+    def asset_b(asset_a: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Explicitly depends on asset_a."""
+        return [{"id": row["id"], "doubled": row["value"] * 2} for row in asset_a]
+
+    @pipeline.asset()
+    def asset_c(asset_a: list[dict], asset_b: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Automatically infers dependencies from parameter names."""
+        # Parameters asset_a and asset_b match upstream asset names
+        # Join or combine data...
+        return combined_data
 ```
 
 **Rules:**
-- Parameter names must match upstream asset names
-- Multiple parameters = multiple dependencies
-- No parameters = source asset
+- **Explicit deps**: Use `depends_on=["asset_name"]` for clarity
+- **Automatic inference**: Function parameters matching asset names create dependencies
+- **Multiple parameters = multiple dependencies**
+- **No parameters = source asset**
+- **Recommendation**: Use explicit `depends_on` for production code clarity
 
 ### Materialization Strategies
 
@@ -1235,19 +1224,32 @@ export VIBE_PIPER_LOG_LEVEL=INFO
 ### Programmatic Configuration
 
 ```python
-from vibe_piper import PipelineContext
+from vibe_piper import PipelineDefinitionContext, PipelineContext
 
 # Create custom context
 context = PipelineContext(
+    pipeline_id="my_pipeline",
+    run_id="run_001",
     config={
         "checkpoint_dir": "./my_checkpoints",
         "log_level": "DEBUG",
-        "max_workers": 4,
+        "max_workers":4,
     }
 )
 
-# Use context in pipeline
-pipeline = build_pipeline(my_asset, context=context)
+# Build pipeline with context
+with PipelineDefinitionContext("my_pipeline") as pipeline:
+    @pipeline.asset()
+    def my_asset(ctx: PipelineContext):
+        # Use context configuration
+        return []
+
+# Build graph
+graph = pipeline.build()
+# Execute with context
+from vibe_piper import ExecutionEngine
+engine = ExecutionEngine()
+result = engine.execute(graph, context=context)
 ```
 
 ---
@@ -1329,7 +1331,7 @@ Vibe Piper is built with a modular, composable architecture. The canonical produ
 - **Expectations**: Declarative data quality and validation rules
 - **Error Handling**: Retry logic, checkpointing, and recovery mechanisms
 
-**Canonical Pattern:** Use `@asset` decorators → `build_pipeline()` → `ExecutionEngine` for production.
+**Canonical Pattern:** Use `PipelineDefinitionContext` with `@pipeline.asset()` decorators → `pipeline.build()` → `ExecutionEngine` for production.
 
 ---
 
@@ -1533,41 +1535,44 @@ result = pipeline.execute(users_data, context=context)
 **After (AssetGraph - Production Pipeline):**
 
 ```python
-from vibe_piper import asset, build_pipeline, UpstreamData, PipelineContext, ExecutionEngine
+from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
+from vibe_piper.connectors import CSVWriter
+from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
+from pathlib import Path
 
-@asset
-def clean_users(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Extract and clean user data."""
-    source_data = upstream["extract_users"]
-    return [{"name": row["name"].strip().lower()} for row in source_data]
+with PipelineDefinitionContext("users") as pipeline:
 
-@asset
-def filter_active_users(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Filter active users."""
-    source_data = upstream["clean_users"]
-    return [row for row in source_data if row.get("status") == "active"]
+    @pipeline.asset()
+    def extract_users(ctx: PipelineContext) -> list[dict]:
+        """Extract user data."""
+        return [{"name": "  Alice  ", "status": "active"}, {"name": "Bob", "status": "inactive"}]
 
-@asset
-def load_results(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Load to output file."""
-    from vibe_piper.connectors import CSVWriter
-    from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
+    @pipeline.asset(depends_on=["extract_users"])
+    def clean_users(extract_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Extract and clean user data."""
+        return [{"name": row["name"].strip().lower()} for row in extract_users]
 
-    source_data = upstream["filter_active_users"]
+    @pipeline.asset(depends_on=["clean_users"])
+    def filter_active_users(clean_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Filter active users."""
+        return [row for row in clean_users if row.get("status") == "active"]
 
-    schema = Schema(
-        name="users",
-        fields=(SchemaField(name="name", data_type=DataType.STRING),)
-    )
+    @pipeline.asset(depends_on=["filter_active_users"])
+    def load_results(filter_active_users: list[dict], ctx: PipelineContext) -> str:
+        """Load to output file."""
+        schema = Schema(
+            name="users",
+            fields=(SchemaField(name="name", data_type=DataType.STRING),)
+        )
 
-    records = [DataRecord(data=row, schema=schema) for row in source_data]
-    writer = CSVWriter(Path("output/users.csv"))
-    writer.write(records)
+        records = [DataRecord(data=row, schema=schema) for row in filter_active_users]
+        writer = CSVWriter(Path("output/users.csv"))
+        writer.write(records)
 
-    return str(writer.path)
+        return str(writer.path)
 
 # Execute with production engine
-graph = build_pipeline(load_results)
+graph = pipeline.build()
 context = PipelineContext(pipeline_id="users", run_id="run_001")
 engine = ExecutionEngine()
 result = engine.execute(graph, context)
@@ -1577,12 +1582,12 @@ result = engine.execute(graph, context)
 
 | Pipeline (Simple) | AssetGraph (Production) | Why Change? |
 |-------------------|------------------------|--------------|
-| `def fn(data, ctx)` | `def fn(upstream, ctx)` | Structured access to upstreams |
-| `Operator` objects | `@asset` decorator | Declarative definition |
+| `def fn(data, ctx)` | `def fn(param, ctx)` | Structured access to upstreams |
+| `Operator` objects | `@pipeline.asset()` decorator | Declarative definition |
 | `pipeline.execute(data)` | `ExecutionEngine.execute(graph, ctx)` | Production execution engine |
 | Linear operators only | DAG with dependencies | Complex workflows |
 | No materialization | Tables/files/views | Persistence and caching |
-| Raw data access | `upstream["asset_name"]` | Explicit data flow |
+| Raw data access | `param` (function parameter) | Explicit data flow |
 
 ---
 
@@ -1667,11 +1672,13 @@ Vibe Piper provides a layered execution architecture with three execution levels
 
 ### Migration Tips
 
-1. Replace `Pipeline` with `build_pipeline()` or `PipelineDefinitionContext`
-2. Replace `Stage` with `@asset` decorator
-    - **Important**: `@asset` decorator alone creates an Asset object
-    - Use `PipelineBuilder.asset()` or `@pipeline.asset()` within a context to register assets
-3. Dependencies are now inferred from parameter names (e.g., `def process(source_data:` depends on `source_data` asset)
+1. Replace `Pipeline` with `PipelineDefinitionContext` or `PipelineBuilder`
+2. Replace `Operator` objects with `@pipeline.asset()` decorator within a context
+    - **Important**: Use `PipelineDefinitionContext("name") as pipeline:` to register assets
+    - Decorate functions with `@pipeline.asset()` or `@pipeline.asset(depends_on=[...])`
+3. Dependencies are specified via `depends_on` or inferred from parameter names
+    - Explicit: `@pipeline.asset(depends_on=["source_data"])`
+    - Inferred: `def process(source_data:)` automatically depends on `source_data` asset
 4. Use `ExecutionEngine.execute()` to run pipelines instead of `pipeline.run()`
 
 ---

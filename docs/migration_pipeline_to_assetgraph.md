@@ -409,7 +409,7 @@ pipeline = Pipeline(
 
 **After (fluent PipelineBuilder):**
 ```python
-from vibe_piper import build_pipeline
+from vibe_piper import build_pipeline, ExecutionEngine, PipelineContext
 
 def extract():
     return [1, 2, 3]
@@ -423,23 +423,23 @@ def square(data):
 # Fluent builder with automatic dependency inference
 pipeline = (
     build_pipeline("math_pipeline")
-    .asset("extract", fn=extract)
-    .asset("double", fn=double, depends_on=["extract"])
-    .asset("square", fn=square, depends_on=["double"])
+    .asset("extract", fn=lambda ctx: extract())
+    .asset("double", fn=lambda extract, ctx: [x * 2 for x in extract()])
+    .asset("square", fn=lambda double, ctx: [x ** 2 for x in double()])
 )
 
 graph = pipeline.build()
 
 # Execute
-from vibe_piper import ExecutionEngine
 engine = ExecutionEngine()
-result = engine.execute(graph)
+result = engine.execute(graph, context=PipelineContext(pipeline_id="math_pipeline", run_id="run1"))
 ```
 
 **Key Changes:**
 1. Use `build_pipeline()` for fluent interface
 2. Chain `.asset()` calls
-3. Explicit `depends_on` (or let parameter names infer it)
+3. Function signatures match asset pattern `fn(ctx) -> ...`
+4. Explicit `depends_on` (or let parameter names infer it)
 
 ---
 

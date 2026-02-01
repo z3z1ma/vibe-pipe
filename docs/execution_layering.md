@@ -304,48 +304,50 @@ print(result)
 
 ### AssetGraph Model API
 
-The canonical production model uses `@asset` decorators and `AssetGraph`:
+The canonical production model uses `PipelineDefinitionContext` with `@pipeline.asset()` decorators:
 
 ```python
-from vibe_piper import asset, build_pipeline, ExecutionEngine, PipelineContext
+from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
 from vibe_piper.operators import map_transform, add_field
 
-# Define assets with @asset decorator
-@asset
-def extract_users() -> list[dict]:
-    """Source asset: Extract user data."""
-    return [
-        {"id": 1, "name": "Alice", "status": "active", "age": 30},
-        {"id": 2, "name": "Bob", "status": "inactive", "age": 25},
-        {"id": 3, "name": "Charlie", "status": "active", "age": 35},
-    ]
+# Define assets within pipeline context
+with PipelineDefinitionContext("user_pipeline") as pipeline:
 
-@asset
-def transform_users(extract_users: list[dict]) -> list[dict]:
-    """Transform: Add computed fields."""
-    return list(map_transform(
-        extract_users,
-        add_field("is_adult", lambda x: x["age"] >= 18)
-    ))
+    @pipeline.asset()
+    def extract_users(ctx: PipelineContext) -> list[dict]:
+        """Source asset: Extract user data."""
+        return [
+            {"id": 1, "name": "Alice", "status": "active", "age": 30},
+            {"id": 2, "name": "Bob", "status": "inactive", "age": 25},
+            {"id": 3, "name": "Charlie", "status": "active", "age": 35},
+        ]
 
-@asset
-def filter_active_users(transform_users: list[dict]) -> list[dict]:
-    """Filter: Only active users."""
-    return [u for u in transform_users if u["status"] == "active"]
+    @pipeline.asset(depends_on=["extract_users"])
+    def transform_users(extract_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Transform: Add computed fields."""
+        return list(map_transform(
+            extract_users,
+            add_field("is_adult", lambda x: x["age"] >= 18)
+        ))
 
-@asset
-def aggregate_age(filter_active_users: list[dict]) -> dict:
-    """Aggregate: Calculate age statistics."""
-    ages = [u["age"] for u in filter_active_users]
-    return {
-        "count": len(ages),
-        "avg_age": sum(ages) / len(ages),
-        "min_age": min(ages),
-        "max_age": max(ages),
-    }
+    @pipeline.asset(depends_on=["transform_users"])
+    def filter_active_users(transform_users: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Filter: Only active users."""
+        return [u for u in transform_users if u["status"] == "active"]
+
+    @pipeline.asset(depends_on=["filter_active_users"])
+    def aggregate_age(filter_active_users: list[dict], ctx: PipelineContext) -> dict:
+        """Aggregate: Calculate age statistics."""
+        ages = [u["age"] for u in filter_active_users]
+        return {
+            "count": len(ages),
+            "avg_age": sum(ages) / len(ages),
+            "min_age": min(ages),
+            "max_age": max(ages),
+        }
 
 # Build asset graph
-graph = build_pipeline(aggregate_age)
+graph = pipeline.build()
 
 # Execute with ExecutionEngine
 engine = ExecutionEngine()
@@ -364,61 +366,60 @@ print(f"Execution result: {result}")
 Assets can depend on multiple upstream assets:
 
 ```python
-from vibe_piper import asset, build_pipeline, ExecutionEngine, UpstreamData
+from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
 
-@asset
-def users_data() -> list[dict]:
-    """Source: User data."""
-    return [
-        {"user_id": 1, "name": "Alice"},
-        {"user_id": 2, "name": "Bob"},
-    ]
+with PipelineDefinitionContext("join_example") as pipeline:
 
-@asset
-def orders_data() -> list[dict]:
-    """Source: Order data."""
-    return [
-        {"order_id": 101, "user_id": 1, "amount": 100},
-        {"order_id": 102, "user_id": 1, "amount": 50},
-        {"order_id": 103, "user_id": 2, "amount": 75},
-    ]
+    @pipeline.asset()
+    def users_data(ctx: PipelineContext) -> list[dict]:
+        """Source: User data."""
+        return [
+            {"user_id": 1, "name": "Alice"},
+            {"user_id": 2, "name": "Bob"},
+        ]
 
-@asset
-def join_user_orders(
-    users_data: list[dict],
-    orders_data: list[dict]
-) -> list[dict]:
-    """Join: Merge users with their orders."""
-    # Access multiple upstreams via UpstreamData
-    users_by_id = {u["user_id"]: u for u in users_data}
+    @pipeline.asset()
+    def orders_data(ctx: PipelineContext) -> list[dict]:
+        """Source: Order data."""
+        return [
+            {"order_id": 101, "user_id":1, "amount": 100},
+            {"order_id": 102, "user_id":1, "amount": 50},
+            {"order_id": 103, "user_id":2, "amount": 75},
+        ]
 
-    result = []
-    for order in orders_data:
-        user = users_by_id.get(order["user_id"])
-        if user:
-            result.append({
-                "user_name": user["name"],
-                "order_amount": order["amount"],
-            })
+    @pipeline.asset(depends_on=["users_data", "orders_data"])
+    def join_user_orders(users_data: list[dict], orders_data: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Join: Merge users with their orders."""
+        # Parameters match upstream asset names
+        users_by_id = {u["user_id"]: u for u in users_data}
 
-    return result
+        result = []
+        for order in orders_data:
+            user = users_by_id.get(order["user_id"])
+            if user:
+                result.append({
+                    "user_name": user["name"],
+                    "order_amount": order["amount"],
+                })
 
-@asset
-def total_by_user(join_user_orders: list[dict]) -> list[dict]:
-    """Aggregate: Total spending per user."""
-    # Simple aggregation
-    from collections import defaultdict
-    totals = defaultdict(float)
+        return result
 
-    for record in join_user_orders:
-        name = record["user_name"]
-        amount = record["order_amount"]
-        totals[name] += amount
+    @pipeline.asset(depends_on=["join_user_orders"])
+    def total_by_user(join_user_orders: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Aggregate: Total spending per user."""
+        # Simple aggregation
+        from collections import defaultdict
+        totals = defaultdict(float)
 
-    return [{"user": name, "total": amount} for name, amount in totals.items()]
+        for record in join_user_orders:
+            name = record["user_name"]
+            amount = record["order_amount"]
+            totals[name] += amount
+
+        return [{"user": name, "total": amount} for name, amount in totals.items()]
 
 # Build and execute
-graph = build_pipeline(total_by_user)
+graph = pipeline.build()
 engine = ExecutionEngine()
 result = engine.execute(graph, context=PipelineContext(pipeline_id="join_example", run_id="run1"))
 ```
@@ -428,7 +429,7 @@ result = engine.execute(graph, context=PipelineContext(pipeline_id="join_example
 For more control, use `PipelineBuilder`:
 
 ```python
-from vibe_piper import PipelineBuilder, build_pipeline
+from vibe_piper import PipelineBuilder, ExecutionEngine, PipelineContext
 
 # Create builder
 pipeline = PipelineBuilder("my_pipeline")
@@ -436,18 +437,18 @@ pipeline = PipelineBuilder("my_pipeline")
 # Add assets explicitly
 pipeline.asset(
     name="extract_data",
-    fn=lambda: [1, 2, 3, 4, 5],
+    fn=lambda ctx: [1, 2, 3, 4, 5],
 )
 
 pipeline.asset(
     name="transform_data",
-    fn=lambda data: [x * 2 for x in data],
+    fn=lambda extract_data, ctx: [x * 2 for x in extract_data],
     depends_on=["extract_data"],
 )
 
 pipeline.asset(
     name="sum_data",
-    fn=sum,
+    fn=lambda transform_data, ctx: sum(transform_data),
     depends_on=["transform_data"],
 )
 
@@ -472,7 +473,7 @@ result = engine.execute(graph, context=PipelineContext(pipeline_id="builder_exam
 
 ```python
 from vibe_piper import (
-    asset, build_pipeline, ExecutionEngine, PipelineContext,
+    PipelineDefinitionContext, ExecutionEngine, PipelineContext,
     CSVReader, CSVWriter
 )
 from vibe_piper.operators import (
@@ -486,81 +487,84 @@ from vibe_piper.expectations import (
 )
 from pathlib import Path
 
-# 1. Extract from CSV
-@asset
-def extract_raw_sales() -> list[dict]:
-    """Extract raw sales data from CSV."""
-    reader = CSVReader(Path("data/sales.csv"))
-    records = reader.read()
-    return [r.data for r in records]
+# Define pipeline with assets
+with PipelineDefinitionContext("sales_etl") as pipeline:
 
-# 2. Validate schema
-@asset
-def validate_sales(extract_raw_sales: list[dict]) -> list[dict]:
-    """Validate sales data against schema."""
-    suite = ExpectationSuite(name="sales_validation")
-    suite.add_expectation(expect_column_to_exist("product_id"))
-    suite.add_expectation(expect_column_to_be_non_nullable("product_id"))
+    # 1. Extract from CSV
+    @pipeline.asset()
+    def extract_raw_sales(ctx: PipelineContext) -> list[dict]:
+        """Extract raw sales data from CSV."""
+        reader = CSVReader(Path("data/sales.csv"))
+        records = reader.read()
+        return [r.data for r in records]
 
-    return validate_expectation(extract_raw_sales, suite)
+    # 2. Validate schema
+    @pipeline.asset(depends_on=["extract_raw_sales"])
+    def validate_sales(extract_raw_sales: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Validate sales data against schema."""
+        suite = ExpectationSuite(name="sales_validation")
+        suite.add_expectation(expect_column_to_exist("product_id"))
+        suite.add_expectation(expect_column_to_be_non_nullable("product_id"))
 
-# 3. Transform data
-@asset
-def transform_sales(validate_sales: list[dict]) -> list[dict]:
-    """Add computed fields and normalize."""
-    return list(map_transform(
-        validate_sales,
-        add_field("revenue_category", lambda x: "high" if x.get("amount", 0) > 100 else "low")
-    ))
+        return validate_expectation(extract_raw_sales, suite)
 
-# 4. Filter valid records
-@asset
-def filter_valid(transform_sales: list[dict]) -> list[dict]:
-    """Filter only valid, high-value transactions."""
-    return filter_field_equals(transform_sales, "status", "completed")
+    # 3. Transform data
+    @pipeline.asset(depends_on=["validate_sales"])
+    def transform_sales(validate_sales: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Add computed fields and normalize."""
+        return list(map_transform(
+            validate_sales,
+            add_field("revenue_category", lambda x: "high" if x.get("amount", 0) > 100 else "low")
+        ))
 
-# 5. Aggregate metrics
-@asset
-def aggregate_metrics(filter_valid: list[dict]) -> list[dict]:
-    """Aggregate sales metrics by product."""
-    return aggregate_group_by(
-        filter_valid,
-        group_by="product_id",
-        aggregations={
-            "total_revenue": "sum",
-            "transaction_count": "count",
-            "avg_amount": "avg",
-        }
-    )
+    # 4. Filter valid records
+    @pipeline.asset(depends_on=["transform_sales"])
+    def filter_valid(transform_sales: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Filter only valid, high-value transactions."""
+        return filter_field_equals(transform_sales, "status", "completed")
 
-# 6. Load to output
-@asset
-def load_output(aggregate_metrics: list[dict]) -> str:
-    """Load aggregated data to output CSV."""
-    output_path = Path("output/sales_summary.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write output
-    from vibe_piper.types import Schema, SchemaField, DataType, DataRecord
-
-    schema = Schema(
-        name="sales_summary",
-        fields=(
-            SchemaField(name="product_id", data_type=DataType.INTEGER),
-            SchemaField(name="total_revenue", data_type=DataType.FLOAT),
-            SchemaField(name="transaction_count", data_type=DataType.INTEGER),
-            SchemaField(name="avg_amount", data_type=DataType.FLOAT),
+    # 5. Aggregate metrics
+    @pipeline.asset(depends_on=["filter_valid"])
+    def aggregate_metrics(filter_valid: list[dict], ctx: PipelineContext) -> list[dict]:
+        """Aggregate sales metrics by product."""
+        return aggregate_group_by(
+            filter_valid,
+            group_by="product_id",
+            aggregations={
+                "total_revenue": "sum",
+                "transaction_count": "count",
+                "avg_amount": "avg",
+            }
         )
-    )
 
-    records = [DataRecord(data=row, schema=schema) for row in aggregate_metrics]
-    writer = CSVWriter(output_path)
-    writer.write(records)
+    # 6. Load to output
+    @pipeline.asset(depends_on=["aggregate_metrics"])
+    def load_output(aggregate_metrics: list[dict], ctx: PipelineContext) -> str:
+        """Load aggregated data to output CSV."""
+        output_path = Path("output/sales_summary.csv")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    return str(output_path)
+        # Write output
+        from vibe_piper.types import Schema, SchemaField, DataType, DataRecord
+
+        schema = Schema(
+            name="sales_summary",
+            fields=(
+                SchemaField(name="product_id", data_type=DataType.INTEGER),
+                SchemaField(name="total_revenue", data_type=DataType.FLOAT),
+                SchemaField(name="transaction_count", data_type=DataType.INTEGER),
+                SchemaField(name="avg_amount", data_type=DataType.FLOAT),
+            )
+        )
+
+        records = [DataRecord(data=row, schema=schema) for row in aggregate_metrics]
+        writer = CSVWriter(output_path)
+        writer.write(records)
+
+        return str(output_path)
 
 # Build and execute production pipeline
-graph = build_pipeline(load_output)
+graph = pipeline.build()
 engine = ExecutionEngine()
 context = PipelineContext(
     pipeline_id="sales_etl",
@@ -639,17 +643,19 @@ result = pipeline.execute(["  alice  ", "  bob  ", None])
 ### After (AssetGraph Model)
 
 ```python
-from vibe_piper import asset, build_pipeline, ExecutionEngine
+from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
 
-@asset
-def clean_data():
-    return ["  alice  ", "  bob  ", None]
+with PipelineDefinitionContext("simple") as pipeline:
 
-@asset
-def filter_data(clean_data: list[str]) -> list[str]:
-    return [x.strip() for x in clean_data if x]
+    @pipeline.asset()
+    def clean_data(ctx: PipelineContext):
+        return ["  alice  ", "  bob  ", None]
 
-graph = build_pipeline(filter_data)
+    @pipeline.asset(depends_on=["clean_data"])
+    def filter_data(clean_data: list[str], ctx: PipelineContext):
+        return [x.strip() for x in clean_data if x]
+
+graph = pipeline.build()
 engine = ExecutionEngine()
 result = engine.execute(graph, context=PipelineContext(pipeline_id="simple", run_id="run1"))
 ```

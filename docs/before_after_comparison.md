@@ -725,18 +725,17 @@ pipeline = (
 
 
 if __name__ == "__main__":
-    # Execute with auto-metrics
-    result = pipeline.execute()
+    # Build graph and execute
+    from vibe_piper import ExecutionEngine, PipelineContext
+    graph = pipeline.build()
+    result = ExecutionEngine().execute(graph, context=PipelineContext(pipeline_id="api_ingestion_v2", run_id="run_1"))
 
-    # Print summary (auto-generated)
+    # Print summary
     print("\n" + "=" * 60)
     print("PIPELINE EXECUTION SUMMARY")
     print("=" * 60)
-    print(f"Success: {result.success}")
-    print(f"Duration: {result.duration_ms / 1000:.2f}s")
-    print(f"Assets executed: {result.assets_executed}")
-    print(f"Assets succeeded: {result.assets_succeeded}")
-    print(f"Assets failed: {result.assets_failed}")
+    print(f"Assets executed: {len(result.results)}")
+    print(f"Execution time: {result.execution_time:.2f}s")
 ```
 
 **Benefits:**
