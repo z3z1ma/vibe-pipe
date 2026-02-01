@@ -1,6 +1,6 @@
 ---
 "id": "vp-1cba"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T21:47:46Z"

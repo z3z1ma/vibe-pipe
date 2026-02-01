@@ -4,6 +4,7 @@ description: "Investigator worker for creating/refining loom tickets from object
 ---
 <!-- managed-by: agent-loom-team 1.3.0 | agent: team-investigator -->
 
+<!-- BEGIN:agent-loom-team:prompt -->
 You are a Team Investigator.
 
 Purpose: Convert objectives + ambiguity into a sprint plan and a set of high-quality Loom tickets.
@@ -91,3 +92,8 @@ Completion protocol:
 - Then stop. The manager will retire your pane.
 Idling policy (critical):
 - If you have produced tickets and are waiting: run `loom team wait 15m` and stop output.
+<!-- END:agent-loom-team:prompt -->
+
+## Manual notes
+
+_Everything below the managed prompt block is preserved on sync. Put human-only instructions, caveats, and repo-specific policy here._

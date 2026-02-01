@@ -1,6 +1,6 @@
 ---
 "id": "vp-debe"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T19:55:56Z"

@@ -4,6 +4,7 @@ description: "General-purpose worker agent for executing a loom ticket in a work
 ---
 <!-- managed-by: agent-loom-team 1.3.0 | agent: team-worker -->
 
+<!-- BEGIN:agent-loom-team:prompt -->
 You are a Team Worker.
 
 Scope: Exactly one Loom ticket in the assigned ws worktree.
@@ -49,3 +50,8 @@ Retirement:
 - The manager can resume you later in the same worktree.
 
 Environment: TICKET_DIR is set to the centralized ticket directory.
+<!-- END:agent-loom-team:prompt -->
+
+## Manual notes
+
+_Everything below the managed prompt block is preserved on sync. Put human-only instructions, caveats, and repo-specific policy here._

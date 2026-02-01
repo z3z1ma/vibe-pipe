@@ -1,6 +1,6 @@
 ---
 "id": "vp-3fcc"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-02-01T00:51:36Z"

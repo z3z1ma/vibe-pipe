@@ -1,6 +1,6 @@
 ---
 "id": "vp-ef4a"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-02-01T00:40:38Z"

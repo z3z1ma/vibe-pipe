@@ -1,6 +1,6 @@
 ---
 "id": "vp-5bf1"
-"status": "in_progress"
+"status": "closed"
 "deps":
 - "vp-3fcc"
 "links": []
