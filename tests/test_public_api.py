@@ -357,6 +357,94 @@ class TestPowerUserAPI:
         assert value is not None, f"'{name}' is None (should always be available)"
 
 
+class TestAdditionalOptionalFeatures:
+    """Test additional optional feature items that may be None."""
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            # SQL Assets (additional)
+            "execute_sql_query",
+            "extract_asset_dependencies",
+            "render_sql_template",
+            "validate_sql",
+            # Transformations (additional)
+            "JoinType",
+            "window_function",
+            # Integration/API (additional)
+            "APIError",
+            "GraphQLResponse",
+            "RESTResponse",
+            "WebhookRequest",
+            "CursorPagination",
+            "OffsetPagination",
+            "LinkHeaderPagination",
+            "validate_and_parse",
+            "validate_response",
+            # Database Connectors (additional)
+            "DatabaseConnector",
+            "QueryBuilder",
+            # External Quality Tools (additional)
+            "QualityToolResult",
+            "ToolType",
+            # Schema Evolution (additional)
+            "ChangeType",
+            "BreakingChangeSeverity",
+            "BreakingChangeDetector",
+            "MigrationStep",
+            "SchemaHistory",
+            "SchemaHistoryEntry",
+            "VersionedSchema",
+        ],
+    )
+    def test_additional_optional_features_in_all(self, name: str) -> None:
+        """Additional optional features must be in __all__."""
+        assert name in vibe_piper.__all__, f"'{name}' not in __all__"
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            # SQL Assets (additional)
+            "execute_sql_query",
+            "extract_asset_dependencies",
+            "render_sql_template",
+            "validate_sql",
+            # Transformations (additional)
+            "JoinType",
+            "window_function",
+            # Integration/API (additional)
+            "APIError",
+            "GraphQLResponse",
+            "RESTResponse",
+            "WebhookRequest",
+            "CursorPagination",
+            "OffsetPagination",
+            "LinkHeaderPagination",
+            "validate_and_parse",
+            "validate_response",
+            # Database Connectors (additional)
+            "DatabaseConnector",
+            "QueryBuilder",
+            # External Quality Tools (additional)
+            "QualityToolResult",
+            "ToolType",
+            # Schema Evolution (additional)
+            "ChangeType",
+            "BreakingChangeSeverity",
+            "BreakingChangeDetector",
+            "MigrationStep",
+            "SchemaHistory",
+            "SchemaHistoryEntry",
+            "VersionedSchema",
+        ],
+    )
+    def test_additional_optional_features_may_be_none(self, name: str) -> None:
+        """Additional optional features may be None."""
+        assert name in vibe_piper.__all__, f"'{name}' not in __all__"
+        # Just check it's in __all__ - actual value may be None
+        # which is acceptable for optional features
+
+
 class TestAPIDocumentation:
     """Test that public API is documented."""
 
