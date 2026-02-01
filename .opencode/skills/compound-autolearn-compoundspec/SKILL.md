@@ -23,6 +23,11 @@ Turn an autolearn prompt (recent activity + constraints) into a valid CompoundSp
   - Keep proposals strictly within skills/instincts/docs/changelog.
   - Do not propose actions that imply file modifications outside the allowed set.
 - Use the git summary (changed_files + diffstat) as evidence for what to learn.
+- If the git summary indicates an in-progress merge/conflict state (e.g., diffstat lines labeled "Unmerged <path>"):
+  - Treat the diff as incomplete/low-signal.
+  - Avoid inferring product behavior changes.
+  - Prefer a small instinct/skill update about conflict-state hygiene.
+  - If there is no other stable evidence, emit empty skill/instinct changes and set `docs.sync: false`.
 - If the diffstat is empty (or there are no meaningful file changes):
   - Do not invent learnings.
   - Emit empty `instincts.create/update` and `skills.create/update`.

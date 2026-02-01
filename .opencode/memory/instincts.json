@@ -379,6 +379,40 @@
           "sessionID": "ses_3ea2c11f8ffeEysiVqgyKsrvO8"
         }
       ]
+    },
+    {
+      "id": "git-unmerged-state-blocker",
+      "title": "Stop On Unmerged Git State",
+      "trigger": "Git summary/status shows unmerged paths (e.g., diffstat lines labeled 'Unmerged <path>') or merge conflict state.",
+      "action": "Treat the diff as incomplete/low-signal; do not infer product behavior from it. Resolve conflicts first, then re-run format/lint/tests before making further changes or drafting release notes/PR summaries.",
+      "tags": [],
+      "confidence": 0.75,
+      "status": "active",
+      "created_at": "2026-02-01T01:31:22.631Z",
+      "updated_at": "2026-02-01T01:31:22.631Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T01:31:22.631Z",
+          "sessionID": "ses_3e93a21e3ffeuEY0TTmJjcBRRE"
+        }
+      ]
+    },
+    {
+      "id": "sql-assets-docs-tests-lockstep",
+      "title": "SQL Assets: Keep Code, Docs, Tests In Lockstep",
+      "trigger": "A change touches src/vibe_piper/sql_assets.py and tests/test_sql_assets.py and also rewrites docs/sql_assets.md.",
+      "action": "Treat docs/sql_assets.md as the public contract: update it alongside code changes, and add/adjust tests/test_sql_assets.py to cover the documented behavior; if a symbol becomes public, ensure it's exported from src/vibe_piper/__init__.py.",
+      "tags": [],
+      "confidence": 0.74,
+      "status": "active",
+      "created_at": "2026-02-01T01:43:21.769Z",
+      "updated_at": "2026-02-01T01:43:21.769Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T01:43:21.769Z",
+          "sessionID": "ses_3e93a1b8bffet49PoWRKiMzypO"
+        }
+      ]
     }
   ]
 }

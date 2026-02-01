@@ -4,6 +4,8 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-02-01T01:43:22.724Z Add a SQL assets development skill and an instinct to keep src/vibe_piper/sql_assets.py, docs/sql_assets.md, tests/test_sql_assets.py, and src/vibe_piper/__init__.py aligned.
+- 2026-02-01T01:31:23.684Z Teach autolearn to treat unmerged git diffs as low-signal and stop to resolve conflicts before inferring behavior.
 - 2026-01-31T22:09:02.574Z Add an instinct for handling Ruff F401 unused-import lint errors (remove dead imports or justify with explicit usage/ignore).
 - 2026-01-31T20:34:55.139Z Add instincts for safe large-module removals and treating pipeline execution parity tests as a contract during refactors.
 - 2026-01-31T19:34:41.806Z No learning - git summary showed only build artifact changes (uv.lock, egg-info)

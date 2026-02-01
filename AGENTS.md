@@ -192,9 +192,15 @@ This block is maintained by the compound plugin.
 - **inst-egg-info-deletions-are-cleanup** (76%)
   - Trigger: git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)
   - Action: Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather…
+- **git-unmerged-state-blocker** (75%)
+  - Trigger: Git summary/status shows unmerged paths (e.g., diffstat lines labeled 'Unmerged <path>') or merge conflict state.
+  - Action: Treat the diff as incomplete/low-signal; do not infer product behavior from it. Resolve conflicts first, then re-run format/lint/tests before making further changes or drafting release notes/PR summar…
 - **large-module-deletion-safety-sweep** (74%)
   - Trigger: Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.
   - Action: Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.
+- **sql-assets-docs-tests-lockstep** (74%)
+  - Trigger: A change touches src/vibe_piper/sql_assets.py and tests/test_sql_assets.py and also rewrites docs/sql_assets.md.
+  - Action: Treat docs/sql_assets.md as the public contract: update it alongside code changes, and add/adjust tests/test_sql_assets.py to cover the documented behavior; if a symbol becomes public, ensure it's exp…
 - **pipeline-execution-parity-as-contract** (70%)
   - Trigger: Changes touch pipeline execution and a parity-focused test file (e.g., tests/*parity*.py).
   - Action: Treat parity tests as the contract: keep them explicit about user-facing vs agent-facing execution paths, and prefer simplifying the contract rather than expanding mocking complexity when refactoring …
