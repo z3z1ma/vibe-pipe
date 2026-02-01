@@ -216,9 +216,15 @@ This block is maintained by the compound plugin.
 - **asset-adapters-factory-refactor-safety-sweep** (70%)
   - Trigger: Git diffstat shows a large deletion-heavy refactor in src/vibe_piper/asset_adapters.py alongside changes in src/vibe_piper/asset_factory.py.
   - Action: Assume API shape churn risk: search for imports/usages of adapter and factory symbols, update call sites to match, and run uv-driven checks (ruff format, ruff check, mypy, pytest -m "not integration")…
+- **examples-directory-low-signal-diff** (70%)
+  - Trigger: Git diffstat shows changes confined to examples/ (especially examples/**/tests/ fixtures like conftest.py) with no src/ changes.
+  - Action: Treat the diff as demo/test harness cleanup; avoid inferring product behavior changes. If reviewing, focus on whether example usage still runs and whether CI/test selection should include or exclude e…
 - **execution-public-api-stability-sweep** (68%)
   - Trigger: Execution module grows substantially (large insertions) or introduces new entrypoints.
   - Action: Do a quick sweep for downstream breakage: search for imports/usages of the changed symbols, ensure exports stay stable (or rename via a project-wide rename), and add/adjust tests to pin the contract.
+- **examples-diff-low-signal** (65%)
+  - Trigger: Git diffstat shows changes only under examples/** with no corresponding src/** or tests/** edits.
+  - Action: Assume reference/example churn; do not infer product behavior changes or create skills from it. Prefer emitting no memory updates unless repeated evidence suggests a durable workflow principle.
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->

@@ -521,6 +521,57 @@
           "sessionID": "ses_3e873aff3ffefTIhR37i0M0Ori"
         }
       ]
+    },
+    {
+      "id": "examples-diff-low-signal",
+      "title": "Treat examples-only diffs as low-signal",
+      "trigger": "Git diffstat shows changes only under examples/** with no corresponding src/** or tests/** edits.",
+      "action": "Assume reference/example churn; do not infer product behavior changes or create skills from it. Prefer emitting no memory updates unless repeated evidence suggests a durable workflow principle.",
+      "tags": [],
+      "confidence": 0.65,
+      "status": "active",
+      "created_at": "2026-02-01T15:31:05.704Z",
+      "updated_at": "2026-02-01T15:31:05.704Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T15:31:05.704Z",
+          "sessionID": "ses_3e64f9a80ffex3HNXzexL3S9bi"
+        }
+      ]
+    },
+    {
+      "id": "examples-directory-low-signal-diff",
+      "title": "Examples-Only Diffs Are Low Signal",
+      "trigger": "Git diffstat shows changes confined to examples/ (especially examples/**/tests/ fixtures like conftest.py) with no src/ changes.",
+      "action": "Treat the diff as demo/test harness cleanup; avoid inferring product behavior changes. If reviewing, focus on whether example usage still runs and whether CI/test selection should include or exclude examples explicitly.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-02-01T15:32:51.139Z",
+      "updated_at": "2026-02-01T15:32:51.139Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T15:32:51.139Z",
+          "sessionID": "ses_3e64f8801ffecrxU3PFO1BkWsw"
+        }
+      ]
+    },
+    {
+      "id": "examples-only-diff-low-signal",
+      "title": "Examples-Only Diffs Are Low-Signal",
+      "trigger": "Git diffstat shows changes only under examples/** (and no src/** or tests/** changes).",
+      "action": "Treat as low-signal for product behavior; avoid proposing new skills/docs changes unless the change repeats across sessions or is explicitly about docs/workflows.",
+      "tags": [],
+      "confidence": 0.65,
+      "status": "active",
+      "created_at": "2026-02-01T15:43:32.780Z",
+      "updated_at": "2026-02-01T15:43:32.780Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T15:43:32.780Z",
+          "sessionID": "ses_3e64f9a80ffex3HNXzexL3S9bi"
+        }
+      ]
     }
   ]
 }

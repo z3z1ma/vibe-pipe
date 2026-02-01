@@ -4,6 +4,9 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-02-01T15:43:33.831Z Add heuristic to treat examples-only diffs as low-signal for product behavior.
+- 2026-02-01T15:32:52.324Z Add an instinct to treat examples/-only diffs (including deleted example test conftest) as low-signal evidence for product behavior.
+- 2026-02-01T15:31:06.768Z Add an instinct to treat examples-only diffs as low-signal evidence during autolearn.
 - 2026-02-01T05:11:30.318Z Add a safety-sweep instinct for large refactors across asset adapters and the asset factory to prevent import/call-site fallout and contract breaks.
 - 2026-02-01T04:33:06.202Z Capture a lockstep heuristic to keep execution changes aligned with stable public types and avoid circular imports.
 - 2026-02-01T04:20:09.391Z Reinforced CompoundSpec application hygiene: treat .claude skill diffs as mirror noise and always re-emit full skill bodies with JSON-only output.
