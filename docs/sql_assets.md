@@ -11,6 +11,8 @@ SQL validation, and support for multiple database dialects.
 - **Multi-Dialect Support**: PostgreSQL, MySQL, Snowflake, BigQuery
 - **Dependency Tracking**: Automatic extraction of `{{ asset }}` references
 - **CTE & Subquery Support**: Full SQL feature support
+- **Executable Assets**: SQL assets return Assets with executable operators
+- **Dependency Mapping**: Support `config["relations"]` for custom table names
 
 ## Installation
 
@@ -58,7 +60,7 @@ def postgres_query():
 @sql_asset(dialect="mysql")
 def mysql_query():
     return '''
-    SELECT * FROM users
+    SELECT * FROM customers
     WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
     '''
 ```
@@ -68,7 +70,7 @@ def mysql_query():
 ```python
 @sql_asset(
     dialect="postgresql",
-    depends_on=["raw_users", "raw_orders"]
+    depends_on=["raw_users", "raw_orders"],
 )
 def aggregated_sales():
     return '''
@@ -78,25 +80,65 @@ def aggregated_sales():
         COUNT(o.id) as order_count,
         SUM(o.amount) as total_amount
     FROM {{ raw_users }} u
-    LEFT JOIN {{ raw_orders }} o ON u.id = o.user_id
-    GROUP BY u.id, u.email
+        LEFT JOIN {{ raw_orders }} o ON u.id = o.user_id
+        GROUP BY u.id, u.email
     '''
 ```
 
-### With Parameters
+### Dependency Mapping (Relations)
+
+SQL assets support custom mapping of asset names to database relation names via `config["relations"]`:
 
 ```python
-@sql_asset(dialect="postgresql")
-def filtered_sales(start_date, end_date):
+@sql_asset(
+    dialect="postgresql",
+    config={"relations": {"raw_users": "staging.users", "raw_orders": "staging.orders"}},
+)
+def staged_query():
     return '''
-    SELECT
-        date,
-        SUM(amount) as total_sales
-    FROM sales
-    WHERE created_at >= {{ start_date }}
-      AND created_at <= {{ end_date }}
-    GROUP BY date
+    SELECT * FROM {{ raw_users }}
     '''
+```
+
+## Execution Contract
+
+SQL assets now include an **executable operator** that:
+1. **Renders SQL template** with resolved dependencies (replaces `{{ asset }}` with relation names)
+2. **Validates SQL** using sqlglot for the configured dialect
+3. **Executes the query** via a database connector
+4. **Returns query results** from the database
+
+### Connector Requirement
+
+SQL assets require a database connector with an `execute_query(query, params)` method. The connector can be provided in two ways:
+
+**Option 1: Via Asset Config**
+```python
+class DatabaseConnector:
+    def execute_query(self, query, params=None):
+        # Execute query and return results
+        return [{"id": 1, "name": "test"}]
+
+@sql_asset(config={"connector": DatabaseConnector()})
+def my_query():
+    return "SELECT * FROM users"
+```
+
+**Option 2: Via Context Metadata**
+```python
+from vibe_piper import sql_asset, PipelineContext
+
+@sql_asset()
+def my_query():
+    return "SELECT * FROM users"
+
+# In execution pipeline:
+context = PipelineContext(
+    pipeline_id="my_pipeline",
+    run_id="123",
+    metadata={"connector": DatabaseConnector()}
+)
+# The operator will use connector from metadata when executing
 ```
 
 ## Advanced Features
@@ -137,100 +179,9 @@ def running_totals():
     '''
 ```
 
-### Multiple Dialects
-
-```python
-# PostgreSQL
-@sql_asset("postgresql")
-def pg_query():
-    return '''
-    SELECT * FROM users
-    WHERE created_at > NOW() - INTERVAL '{{ days }} days'
-    '''
-
-# Snowflake
-@sql_asset("snowflake")
-def snow_query():
-    return '''
-    SELECT * FROM users
-    WHERE created_at > DATEADD(DAY, {{ days }}, CURRENT_DATE())
-    '''
-
-# BigQuery
-@sql_asset("bigquery")
-def bq_query():
-    return '''
-    SELECT * FROM `project.dataset.users`
-    WHERE created_at > TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL {{ days }} DAY)
-    '''
-```
-
-## Asset Configuration
-
-```python
-@sql_asset(
-    dialect="postgresql",
-    depends_on=("raw_data",),
-    io_manager="postgresql",
-    materialization="table",
-    description="Clean and aggregate user data",
-)
-def complex_asset():
-    return '''
-    SELECT
-        id,
-        email,
-        created_at
-    FROM {{ raw_data }}
-    WHERE status = 'active'
-    '''
-```
-
-## Integration with Database Connectors
-
-SQL assets work seamlessly with database connectors:
-
-```python
-from vibe_piper.connectors import PostgreSQLConnector
-from vibe_piper import sql_asset, AssetGraph, ExecutionEngine
-
-# Create SQL asset
-@sql_asset(dialect="postgresql", io_manager="postgresql")
-def active_users():
-    return '''
-    SELECT id, email, created_at
-    FROM users
-    WHERE status = 'active'
-    '''
-
-# Set up database connector
-config = PostgreSQLConfig(
-    host="localhost",
-    port=5432,
-    database="mydb",
-    user="user",
-    password="password"
-)
-connector = PostgreSQLConnector(config)
-connector.connect()
-
-# Execute asset (via AssetGraph and ExecutionEngine)
-graph = AssetGraph(
-    name="my_pipeline",
-    assets=(active_users,),
-    dependencies={}
-)
-
-engine = ExecutionEngine()
-result = engine.execute(graph)
-
-connector.disconnect()
-```
-
 ## SQL Validation
 
 SQL validation automatically:
-
 - **Syntax checking**: Validates SQL syntax before execution
 - **Dangerous pattern detection**: Warns about DROP, TRUNCATE, etc.
 - **Dialect-specific validation**: Ensures SQL matches selected dialect
@@ -239,7 +190,7 @@ SQL validation automatically:
 from vibe_piper.sql_assets import validate_sql
 
 result = validate_sql(
-    "SELECT * FROM users WHERE id = 1",
+    "SELECT id, name FROM users WHERE active = true",
     dialect="postgresql"
 )
 
@@ -252,56 +203,51 @@ else:
 
 ## Parameter Binding for SQL Injection Prevention
 
-The framework supports safe parameter binding:
+The framework supports safe parameter binding to prevent SQL injection:
 
 ```python
-from vibe_piper.sql_assets import execute_sql_query
+@sql_asset()
+def my_query(user_id: int):
+    return '''
+        SELECT * FROM users
+        WHERE id = {{ user_id }}
+    '''
 
-connector = PostgreSQLConnector(config)
-connector.connect()
-
-# Parameters are bound safely
-sql = "SELECT * FROM users WHERE id = {{ user_id }}"
-result = execute_sql_query(
-    sql,
-    connector=connector,
-    params={"user_id": 123},
-    dialect="postgresql"
-)
+# Parameters are passed to the render context and handled safely
 ```
-
-**Note**: Always use `{{ variable }}` for user-supplied values. Never concatenate strings directly.
 
 ## Dependency Tracking
 
 Dependencies are automatically tracked from `{{ asset }}` references:
 
 ```python
-@sql_asset
-def my_asset():
+@sql_asset()
+def my_query():
     return '''
-    SELECT u.*, o.*
-    FROM {{ users }} u
-    JOIN {{ orders }} o ON u.id = o.user_id
+        SELECT * FROM {{ users }} u
+        JOIN {{ orders }} o ON u.id = o.user_id
     '''
-
-# Dependencies ("users", "orders") are automatically extracted
 ```
+
+Dependencies are extracted and stored in:
+- `asset.config["depends_on"]` - list of upstream asset names
+- Used during execution to resolve `{{ asset }}` to actual relation names
 
 ## Error Handling
 
 ```python
-from vibe_piper.sql_assets import validate_sql, SQLValidationResult
+from vibe_piper.sql_assets import SQLAssetDecorator
 
-# Handle invalid SQL
-result = validate_sql("SELECT FORM users", dialect="postgresql")
-if not result.is_valid:
-    print(f"Validation failed: {result.errors}")
+# Option 1: Catch during asset creation
+try:
+    @sql_asset(dialect="invalid")  # Will fail validation
+except ValueError as e:
+    print(f"Invalid dialect: {e}")
 
-# Handle dangerous patterns
-result = validate_sql("DROP TABLE users", dialect="postgresql")
-for warning in result.warnings:
-    print(f"Warning: {warning}")
+# Option 2: Validate during execution
+@sql_asset(config={"connector": DatabaseConnector()})
+def my_query():
+    return "SELECT * FROM users"  # Will be validated before execution
 ```
 
 ## Best Practices
@@ -311,6 +257,7 @@ for warning in result.warnings:
 3. **Specify dialect** explicitly for dialect-specific features
 4. **Use dependency tracking** for pipeline lineage
 5. **Validate SQL** before execution in production
+6. **Provide connector** via config or context metadata
 
 ## Supported Dialects
 

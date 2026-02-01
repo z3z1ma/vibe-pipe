@@ -15,7 +15,11 @@ from vibe_piper.types import (
     Asset,
     AssetType,
     MaterializationStrategy,
+    Operator,
+    OperatorType,
+    PipelineContext,
     Schema,
+    UpstreamData,
 )
 
 # =============================================================================
@@ -180,35 +184,6 @@ def validate_sql(sql: str, dialect: str = "postgresql") -> SQLValidationResult:
             warnings=tuple(warnings),
         )
 
-        # Additional validation checks
-        sql_upper = sql.upper()
-
-        # Check for common dangerous patterns
-        dangerous_patterns = [
-            r"\bDROP\s+TABLE\b",
-            r"\bTRUNCATE\b",
-            r"\bDELETE\s+FROM\b",
-            r"\bGRANT\s+.*\bTO\b",
-            r"\bREVOKE\b",
-        ]
-
-        for pattern in dangerous_patterns:
-            if re.search(pattern, sql_upper):
-                warnings.append(f"Potentially dangerous SQL pattern detected: {pattern}")
-
-        return SQLValidationResult(
-            is_valid=len(errors) == 0,
-            errors=tuple(errors),
-            warnings=tuple(warnings),
-        )
-
-    except Exception as e:
-        return SQLValidationResult(
-            is_valid=False,
-            errors=(f"Unexpected error validating SQL: {e}",),
-            warnings=tuple(warnings),
-        )
-
 
 # =============================================================================
 # SQL Template Engine
@@ -260,10 +235,11 @@ def render_sql_template(
         # We'll track variables that look like asset references
         asset_deps: set[str] = set()
 
-        # Get all variables from template
-        from jinja2 import meta
+        # Get all variables from template using jinja2.meta
+        from jinja2 import Environment, meta
 
-        ast = meta.parse(sql_template)
+        env = Environment()
+        ast = env.parse(sql_template)
         variables = meta.find_undeclared_variables(ast)
 
         # Variables that look like asset references (no parameters passed)
@@ -310,6 +286,42 @@ def extract_asset_dependencies(sql: str) -> tuple[str, ...]:
 
     matches = re.findall(pattern, sql)
     return tuple(sorted(set(matches)))
+
+
+# =============================================================================
+# SQL Dependency Resolution
+# =============================================================================
+
+
+def resolve_sql_dependencies(
+    asset_dependencies: tuple[str, ...],
+    upstream_data: UpstreamData,
+    relations: dict[str, str] | None,
+) -> dict[str, str]:
+    """
+    Resolve asset dependencies to relation names for SQL rendering.
+
+    Args:
+        asset_dependencies: Names of upstream assets this SQL depends on
+        upstream_data: UpstreamData containing results from upstream assets
+        relations: Optional mapping of asset name -> table name (from config["relations"])
+
+    Returns:
+        Dictionary mapping asset names to relation names
+
+    Examples:
+        If relations={"raw_users": "stg.users"}, then
+        {{ raw_users }} in SQL becomes "stg.users"
+    """
+    relation_mapping = relations or {}
+
+    # Default mapping: each asset maps to itself unless overridden
+    resolved: dict[str, str] = {}
+    for dep in asset_dependencies:
+        # Use relations mapping if provided, otherwise default to asset name
+        resolved[dep] = relation_mapping.get(dep, dep)
+
+    return resolved
 
 
 # =============================================================================
@@ -473,7 +485,7 @@ def _create_asset_from_sql_operator(
     config: dict[str, Any] | None,
 ) -> Asset:
     """
-    Create an Asset from a SQLOperator.
+    Create an Asset from a SQLOperator with an executable Operator.
 
     Args:
         sql_operator: The SQL operator
@@ -487,7 +499,7 @@ def _create_asset_from_sql_operator(
         config: Asset config
 
     Returns:
-        Asset instance
+        Asset instance with executable operator
     """
     asset_name = name or sql_operator.sql_asset_name
 
@@ -498,6 +510,9 @@ def _create_asset_from_sql_operator(
     asset_config = dict(asset_config)
     asset_config["dialect"] = sql_operator.dialect
     asset_config["sql_template"] = sql_operator.sql_template
+
+    # Get relations mapping for dependency resolution
+    relations = asset_config.get("relations")
 
     # Normalize depends_on
     if depends_on is None:
@@ -525,12 +540,83 @@ def _create_asset_from_sql_operator(
     # Generate URI based on dialect and asset type
     uri = f"{sql_operator.dialect}://{asset_name}"
 
-    # Create the Asset
+    # Create the executable operator function
+    def _execute_sql_operator(upstream_data: UpstreamData, context: PipelineContext) -> Any:
+        """
+        Execute the SQL asset operator.
+
+        Args:
+            upstream_data: Results from upstream assets
+            context: Pipeline execution context
+
+        Returns:
+            Query results from the database connector
+
+        Raises:
+            ValueError: If SQL validation fails
+            RuntimeError: If connector is not available
+        """
+        # Resolve SQL dependencies to relation names
+        resolved_deps = resolve_sql_dependencies(
+            asset_dependencies=sql_operator.asset_dependencies,
+            upstream_data=upstream_data,
+            relations=relations,
+        )
+
+        # Render SQL template with resolved dependencies
+        template_result = render_sql_template(
+            sql_template=sql_operator.sql_template,
+            context=resolved_deps,
+        )
+
+        # Validate SQL before execution
+        validation_result = validate_sql(
+            template_result.rendered_sql,
+            dialect=sql_operator.dialect,
+        )
+
+        if not validation_result.is_valid:
+            msg = f"SQL validation failed: {validation_result.errors}"
+            raise ValueError(msg)
+
+        if validation_result.warnings:
+            for warning in validation_result.warnings:
+                logger.warning(warning)
+
+        # Get connector from config or context
+        connector = asset_config.get("connector")
+        if connector is None:
+            # Try to get from context metadata
+            connector = context.metadata.get("connector")
+
+        if connector is None:
+            msg = (
+                "No database connector available. Provide connector via "
+                "config['connector'] or context.metadata['connector']"
+            )
+            raise RuntimeError(msg)
+
+        # Execute the query using the connector
+        # Note: Parameter binding is handled by the connector's execute_query method
+        return connector.execute_query(
+            template_result.rendered_sql, params=template_result.extracted_params
+        )
+
+    # Create the Operator instance
+    asset_operator = Operator(
+        name=asset_name,
+        operator_type=OperatorType.TRANSFORM,
+        fn=_execute_sql_operator,
+        description=description or f"SQL asset: {asset_name}",
+    )
+
+    # Create the Asset with the operator
     return Asset(
         name=asset_name,
         asset_type=AssetType.VIEW,
         uri=uri,
         schema=schema,
+        operator=asset_operator,
         description=description,
         metadata=metadata or {},
         config=asset_config,
