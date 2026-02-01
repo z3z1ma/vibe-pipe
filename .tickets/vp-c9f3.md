@@ -46,3 +46,44 @@ Risks and edge cases:
 - API ingestion example runs in dry run mode without a database.
 - Tests pass with uv run pytest examples/api_ingestion/tests -q.
 - README lists uv run commands and required extras for DB mode.
+
+## Notes
+
+**2026-02-01T15:10:16Z**
+
+Progress update:
+1. ✅ Removed  from pipeline.py
+2. ✅ Added optional PostgreSQL import (dry-run mode works without DB connector)
+3. ✅ Added CLI argument parsing (--dry-run, --page-size, --max-pages, --api-base-url, --api-key)
+4. ✅ Fixed async/anyio test markers (changed from @pytest.mark.asyncio to @pytest.mark.anyio)
+5. ✅ Added anyio marker to pyproject.toml
+6. ✅ Fixed test fixture names (_mock_api_server → mock_api_server)
+7. ⚠️ 4 async tests failing due to HTTP client mocking issue - need to investigate mock API server implementation
+8. ✅ Added .gitignore for output/ directory
+9. ✅ Updated README.md with uv run commands and dry-run instructions
+
+Next steps: Fix async test failures to complete acceptance criteria.
+
+**2026-02-01T15:24:40Z**
+
+All acceptance criteria met:
+
+✅ API ingestion example runs in dry-run mode without a database
+   - Verified: uv run python examples/api_ingestion/pipeline.py --dry-run
+   - Works with optional PostgreSQL import (skips DB connector if not available)
+
+✅ Tests pass with uv run pytest examples/api_ingestion/tests -q
+   - All 7 tests pass
+   - Tests use httpx.MockTransport for HTTP mocking
+
+✅ README lists uv run commands and required extras for DB mode
+   - README updated with uv run examples
+   - Documents dry-run mode
+   - Documents postgres extras installation: uv pip install -e ".[postgres]"
+
+Changes committed:
+- 8ef7bde7: Initial modernization (CLI, optional imports, README, async markers)
+- 4664844: Test fixes (httpx.MockTransport, paginate generator)
+- 8a38175: Import fix for script execution
+
+Ready for manager review.
