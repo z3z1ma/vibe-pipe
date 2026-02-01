@@ -18,11 +18,22 @@ from typing import Any, Literal
 import pandas as pd
 
 from vibe_piper.connectors.base import DatabaseConnector, QueryBuilder
-from vibe_piper.connectors.mysql import MySQLConfig, MySQLConnector
-from vibe_piper.connectors.postgres import PostgreSQLConfig, PostgreSQLConnector
 from vibe_piper.connectors.utils.inference import infer_schema_from_pandas
 from vibe_piper.sources.base import Source
 from vibe_piper.types import DataRecord, PipelineContext, Schema
+
+# Optional database connector imports
+try:
+    from vibe_piper.connectors.mysql import MySQLConfig, MySQLConnector
+except ImportError:
+    MySQLConfig = None  # type: ignore
+    MySQLConnector = None  # type: ignore
+
+try:
+    from vibe_piper.connectors.postgres import PostgreSQLConfig, PostgreSQLConnector
+except ImportError:
+    PostgreSQLConfig = None  # type: ignore
+    PostgreSQLConnector = None  # type: ignore
 
 # =============================================================================
 # Configuration Classes
