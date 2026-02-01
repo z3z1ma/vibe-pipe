@@ -8,17 +8,14 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from vibe_piper.integration.base import RateLimiter, RetryConfig
-from vibe_piper.integration.pagination import OffsetPagination, fetch_all_pages
+from vibe_piper.integration.pagination import OffsetPagination, fetch_all_pages, paginate
 from vibe_piper.integration.rest import RESTClient
 
 from .schemas import QualityReport, UserResponse
 
 # Optional PostgreSQL import for database mode
 if TYPE_CHECKING:
-    from vibe_piper.connectors.postgres import (
-        PostgreSQLConfig,
-        PostgreSQLConnector,
-    )
+    pass
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,6 +77,8 @@ class APIIngestionPipeline:
             try:
                 from vibe_piper.connectors.postgres import (
                     PostgreSQLConfig as _PostgreSQLConfig,
+                )
+                from vibe_piper.connectors.postgres import (
                     PostgreSQLConnector as _PostgreSQLConnector,
                 )
 
@@ -170,17 +169,27 @@ class APIIngestionPipeline:
         self._pages_fetched = 0
 
         try:
-            # fetch_all_pages is an async function that returns a list
-            raw_users = await fetch_all_pages(
+            # Use paginate to get async generator for tracking per-page calls
+            raw_users = []
+            page_count = 0
+
+            async for user_data in paginate(
                 client=self.rest_client,
                 path="/users",
                 strategy=pagination_strategy,
                 method="GET",
                 initial_params=initial_params,
-            )
+            ):
+                raw_users.append(user_data)
+                self._api_calls += 1
 
-            self._api_calls = len(raw_users) if raw_users else 0
-            self._pages_fetched = len(raw_users) // self.page_size if raw_users else 0
+                if len(raw_users) % self.page_size == 0:
+                    self._pages_fetched += 1
+
+                page_count += 1
+                if max_pages and page_count >= max_pages:
+                    logger.info("Reached maximum page limit: %d", max_pages)
+                    break
 
             users = [UserResponse.from_dict(user) for user in raw_users]
 
