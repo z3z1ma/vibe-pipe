@@ -1,6 +1,6 @@
 ---
 name: compound-apply-spec
-description: Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
+description: Write a CompoundSpec v1 JSON payload and apply it via compound_apply to create/update skills and docs.
 license: MIT
 compatibility: opencode,claude
 metadata:
@@ -9,6 +9,7 @@ metadata:
   version: "1"
   tags: "skills,compounding,schema"
 ---
+
 <!-- BEGIN:compound:skill-managed -->
 ## Why this exists
 
@@ -18,51 +19,46 @@ So we separate:
 - **Agent**: decides what to learn (writes the spec).
 - **Tool** (`compound_apply`): validates and applies changes safely.
 
-## CompoundSpec v2
+## CompoundSpec v1
 
-Top-level shape:
+Top-level keys (all optional except `version`):
 
-- `schema_version`: must be `2`
-- `auto`: `{ reason, sessionID }`
-- `instincts`: `{ create[], update[] }`
-- `skills`: `{ create[], update[] }`
-- `docs`: `{ sync, blocks? }`
-- `changelog`: `{ note }`
-
-### `instincts`
-
-- `create[]`: `{ id, title, trigger, action, confidence }`
-- `update[]`: `{ id, confidence_delta, evidence_note }`
+- `version`: must be `1`
+- `sessionID`: session identifier (string)
+- `summary`: 1-2 sentences
 
 ### `skills`
 
-- `create[]`: `{ name, description, body }`
-- `update[]`: `{ name, description?, body }`
+- `create[]`: `{ name, description, body, tags?, metadata?, compatibility? }`
+- `update[]`: `{ name, description?, body, tags?, metadata?, compatibility?, bumpVersion? }`
+- `deprecate[]`: `{ name, reason, replacement? }`
 
 Notes:
-- `name` should match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
-- `body` is markdown without frontmatter.
-- For `skills.update[]`, `body` must be the entire final managed body (no snippets/diffs).
+- `name` must match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
+- `body` is markdown **without** frontmatter.
+- The plugin wraps `body` into a SKILL.md with managed markers + preserved manual notes.
 
 ### `docs`
 
-- Prefer `docs.sync: true` when changing skills/instincts so derived indexes refresh.
-- Optionally upsert AI-managed blocks:
-  - `docs.blocks.upsert[]`: `{ file, id, content }`
+These update AI-managed blocks (human-owned text is left alone):
 
-Use repo-root-relative paths when referencing files (e.g., `AGENTS.md`, `LOOM_ROADMAP.md`).
+- `agents_ai_behavior`: bullet list text that gets merged/deduped
+- `project_ai_constitution`: bullet list text that gets merged/deduped
+- `roadmap_ai_notes`: markdown appended with a date heading
 
-## Output hygiene
+### `memos`
 
-- Output exactly one JSON object.
-- Do not wrap in code fences.
-- Do not include commentary.
+Array of:
+
+- `{ title, body, tags?, scopes?, visibility? }`
+
+Scopes are passed through to `loom memory add`.
 
 ## Apply
 
 Call:
 
-- `compound_apply()`
+- `compound_apply(spec_json="<JSON string>")`
 <!-- END:compound:skill-managed -->
 
 ## Manual notes
