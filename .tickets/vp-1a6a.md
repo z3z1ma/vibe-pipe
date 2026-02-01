@@ -139,3 +139,15 @@ Current situation:
 - loom team interface commands not working from this environment
 
 Need: Expert guidance on AssetGraph parameter passing patterns from existing examples (etl_pipeline, api_ingestion) or a framework review.
+
+**2026-02-01T18:26:26Z**
+
+Pivot to PipelineBuilder approach. The @asset decorator (from PipelineDefinitionContext) has wrapper function signature issues with parameter naming. Manager advises switching to PipelineBuilder + @asset decorator like sample_pipeline, which works correctly.
+
+**2026-02-01T18:37:35Z**
+
+Implementing PipelineBuilder + @asset decorator pattern from sample_pipeline. Functions defined separately, then decorated with @asset.
+
+**2026-02-01T19:16:32Z**
+
+Completed implementation. All 13 tests pass. Pipeline runs end-to-end successfully. Output files created correctly. Fixed to use PipelineBuilder.asset pattern. Ready for review.
