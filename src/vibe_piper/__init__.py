@@ -451,6 +451,9 @@ except ImportError:
     QueryBuilder = None  # type: ignore
     SnowflakeConnector = None  # type: ignore
 
+# Schema inference from files
+from vibe_piper.connectors.utils.inference import infer_schema_from_file
+
 # Monitoring & Observability (optional, advanced use)
 try:
     from vibe_piper.benchmarks import (
