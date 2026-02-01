@@ -22,6 +22,7 @@ Flags:
 """
 
 import argparse
+import shutil
 from pathlib import Path
 
 from vibe_piper.types import DataRecord, DataType, Schema, SchemaField
@@ -63,10 +64,12 @@ def clean_output():
     """Remove all files from output directory."""
     if OUTPUT_DIR.exists():
         print(f"Cleaning output directory: {OUTPUT_DIR}")
-        for file in OUTPUT_DIR.iterdir():
-            if file.is_file():
-                file.unlink()
-        print(f"  Removed {len(list(OUTPUT_DIR.iterdir()))} files")
+        for item in OUTPUT_DIR.iterdir():
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                shutil.rmtree(item)
+        print("  Removed all files and directories")
 
 
 # =============================================================================
