@@ -3,18 +3,13 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (11)
-- - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
-- - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
-- - `vp-ef4a` P1 in_progress - Sprint prep: Phase 3: Core Abstractions & Cohesiveness
-- - `vp-28e9` P2 in_progress - Untitled
-- - `vp-3fcc` P2 in_progress - Explicit asset dependencies + build_asset_graph
-- - `vp-4a00` P2 in_progress - Fix merge conflicts in asset_adapters.py and test file
-- - `vp-5bf1` P2 in_progress - Source/Sink asset adapters (async source + schema mapping) (deps:vp-3fcc)
-- - `vp-e990` P2 in_progress - Update README with canonical pipeline model guidance
-- - `vp-6d4f` P3 in_progress - Create migration guide for Pipeline -> AssetGraph
-- - `vp-7ae9` P3 in_progress - Update API documentation with execution layering examples
-- - `vp-f498` P4 in_progress - Add AssetGraph.from_pipeline() adapter method
+- # Tickets (6)
+- - `vp-875f` P1 in_progress - Sprint prep: Examples Revitalization
+- - `vp-07c3` P2 in_progress - Example: Pipeline simple script
+- - `vp-1a6a` P2 in_progress - Example: AssetGraph local ETL
+- - `vp-1d9b` P2 open - Examples catalog and cleanup (deps:vp-07c3,vp-1a6a,vp-ac5f,vp-c9f3)
+- - `vp-ac5f` P2 in_progress - Example: Drift detection refresh
+- - `vp-c9f3` P2 in_progress - Example: API ingestion modernization
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
