@@ -1,0 +1,3 @@
+# Ignore drift detection output files
+*.json
+*.jsonl
