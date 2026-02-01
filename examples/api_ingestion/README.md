@@ -55,9 +55,28 @@ examples/api_ingestion/
 
 ## Quick Start
 
-### 1. Start a PostgreSQL Database
+### 1. Install Dependencies
 
-Using Docker:
+```bash
+# Install base dependencies
+uv sync --dev
+uv pip install -e .
+
+# For database mode (optional, for dry-run skip this)
+uv pip install -e ".[postgres]"
+```
+
+### 2. Run in Dry-Run Mode (No Database Required)
+
+The dry-run mode exercises the full ingestion path without writing to a database:
+
+```bash
+uv run python examples/api_ingestion/pipeline.py --dry-run
+```
+
+### 3. Run with Database (Optional)
+
+If you want to write to PostgreSQL, start a database first:
 
 ```bash
 docker run -d \
@@ -68,31 +87,17 @@ docker run -d \
   postgres:15
 ```
 
-### 2. Configure the Pipeline
-
-Edit `vibepiper.toml`:
-
-```toml
-[api]
-base_url = "https://your-api.com/v1"
-api_key = "${API_KEY}"
-
-[database]
-host = "localhost"
-port = 5432
-database = "vibe_piper_demo"
-user = "postgres"
-password = "${DB_PASSWORD}"
-
-[rate_limiting]
-requests_per_second = 10
-```
-
-### 3. Run the Pipeline
+Then run with database:
 
 ```bash
-cd examples/api_ingestion
-python pipeline.py
+# Using environment variables
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=vibe_piper_demo
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+
+uv run python examples/api_ingestion/pipeline.py
 ```
 
 ### 4. Check the Results
@@ -147,10 +152,22 @@ asyncio.run(main())
 report = await pipeline.run(dry_run=True)
 ```
 
+Or via command line:
+
+```bash
+uv run python examples/api_ingestion/pipeline.py --dry-run
+```
+
 ### Limit Pages
 
 ```python
 report = await pipeline.run(max_pages=5)
+```
+
+Or via command line:
+
+```bash
+uv run python examples/api_ingestion/pipeline.py --max-pages 5
 ```
 
 ## Configuration

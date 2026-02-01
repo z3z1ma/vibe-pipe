@@ -1,17 +1,25 @@
-# type: ignore
 """API Ingestion Pipeline."""
 
+import argparse
 import asyncio
 import logging
+import os
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from vibe_piper.connectors.postgres import PostgreSQLConfig, PostgreSQLConnector
 from vibe_piper.integration.base import RateLimiter, RetryConfig
-from vibe_piper.integration.pagination import OffsetPagination, fetch_all_pages
+from vibe_piper.integration.pagination import OffsetPagination, fetch_all_pages, paginate
 from vibe_piper.integration.rest import RESTClient
 
-from .schemas import QualityReport, UserResponse
+try:
+    from .schemas import QualityReport, UserResponse
+except ImportError:
+    # When running as a script, try absolute import
+    from examples.api_ingestion.schemas import QualityReport, UserResponse
+
+# Optional PostgreSQL import for database mode
+if TYPE_CHECKING:
+    pass
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,7 +35,7 @@ class APIIngestionPipeline:
         self,
         api_base_url: str,
         api_key: str | None = None,
-        db_config: PostgreSQLConfig | None = None,
+        db_config: Any = None,  # PostgreSQLConfig | None when available
         rate_limit_per_second: int = 10,
         max_retries: int = 3,
         page_size: int = 100,
@@ -68,9 +76,23 @@ class APIIngestionPipeline:
             timeout=30.0,
         )
 
-        self.db_connector: PostgreSQLConnector | None = None
+        self.db_connector: Any = None
         if db_config:
-            self.db_connector = PostgreSQLConnector(db_config)
+            try:
+                from vibe_piper.connectors.postgres import (
+                    PostgreSQLConfig as _PostgreSQLConfig,
+                )
+                from vibe_piper.connectors.postgres import (
+                    PostgreSQLConnector as _PostgreSQLConnector,
+                )
+
+                if isinstance(db_config, _PostgreSQLConfig):
+                    self.db_connector = _PostgreSQLConnector(db_config)
+            except ImportError:
+                logger.warning(
+                    "PostgreSQL connector not available. "
+                    "Install with: uv pip install -e '.[postgres]'"
+                )
 
     async def initialize(self) -> None:
         """Initialize the pipeline (HTTP client, database connection)."""
@@ -151,10 +173,11 @@ class APIIngestionPipeline:
         self._pages_fetched = 0
 
         try:
+            # Use paginate to get async generator for tracking per-page calls
             raw_users = []
             page_count = 0
 
-            async for user_data in fetch_all_pages(
+            async for user_data in paginate(
                 client=self.rest_client,
                 path="/users",
                 strategy=pagination_strategy,
@@ -267,9 +290,7 @@ class APIIngestionPipeline:
                     "error": f"Database error: {str(e)}",
                 }
                 self._validation_errors.append(error)
-                logger.error(
-                    "Failed to insert user %d: %s", user_dict.get("user_id"), e
-                )
+                logger.error("Failed to insert user %d: %s", user_dict.get("user_id"), e)
 
         logger.info("Load complete: %d successful, %d failed", successful, failed)
 
@@ -292,11 +313,11 @@ class APIIngestionPipeline:
             users = await self.fetch_users(start_page, max_pages, filters)
 
             logger.info("Transforming and validating %d users...", len(users))
-            transformed_users = [
-                self.transform_user(user)
-                for user in users
-                if self.transform_user(user) is not None
-            ]
+            transformed_users = []
+            for user in users:
+                result = self.transform_user(user)
+                if result is not None:
+                    transformed_users.append(result)
 
             load_results = {"successful": 0, "failed": 0}
             if not dry_run and transformed_users:
@@ -329,32 +350,84 @@ class APIIngestionPipeline:
             logger.info("=" * 60)
 
 
-async def main() -> None:
-    """Main entry point for running the API ingestion pipeline."""
-    api_base_url = "https://api.example.com/v1"
-    api_key = "your-api-key-here"
-
-    db_config = PostgreSQLConfig(
-        host="localhost",
-        port=5432,
-        database="vibe_piper_demo",
-        user="postgres",
-        password="postgres",
-        pool_size=5,
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="API Ingestion Pipeline - Fetch data from REST API to PostgreSQL"
     )
 
+    parser.add_argument(
+        "--api-base-url",
+        default=os.getenv("API_BASE_URL", "https://jsonplaceholder.typicode.com"),
+        help="API base URL (default: from env or https://jsonplaceholder.typicode.com)",
+    )
+
+    parser.add_argument(
+        "--api-key",
+        default=os.getenv("API_KEY"),
+        help="API authentication key (default: from env)",
+    )
+
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Run in dry-run mode (skip database writes)",
+    )
+
+    parser.add_argument(
+        "--page-size",
+        type=int,
+        default=int(os.getenv("PAGE_SIZE", "100")),
+        help="Items per page (default: from env or 100)",
+    )
+
+    parser.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Maximum pages to fetch (default: fetch all)",
+    )
+
+    return parser.parse_args()
+
+
+async def main() -> None:
+    """Main entry point for running the API ingestion pipeline."""
+    args = parse_args()
+
+    # Try to configure database if not in dry-run mode
+    db_config = None
+    if not args.dry_run:
+        try:
+            from vibe_piper.connectors.postgres import (
+                PostgreSQLConfig as _PostgreSQLConfig,
+            )
+
+            db_config = _PostgreSQLConfig(
+                host=os.getenv("DB_HOST", "localhost"),
+                port=int(os.getenv("DB_PORT", "5432")),
+                database=os.getenv("DB_NAME", "vibe_piper_demo"),
+                user=os.getenv("DB_USER", "postgres"),
+                password=os.getenv("DB_PASSWORD", "postgres"),
+                pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
+            )
+        except ImportError:
+            logger.warning(
+                "PostgreSQL connector not available. Install with: uv pip install -e '.[postgres]'"
+            )
+
     pipeline = APIIngestionPipeline(
-        api_base_url=api_base_url,
-        api_key=api_key,
+        api_base_url=args.api_base_url,
+        api_key=args.api_key,
         db_config=db_config,
-        rate_limit_per_second=10,
-        max_retries=3,
-        page_size=100,
+        rate_limit_per_second=int(os.getenv("RATE_LIMIT", "10")),
+        max_retries=int(os.getenv("MAX_RETRIES", "3")),
+        page_size=args.page_size,
     )
 
     try:
         await pipeline.initialize()
-        report = await pipeline.run(dry_run=False)
+        report = await pipeline.run(dry_run=args.dry_run, max_pages=args.max_pages)
         report.print_summary()
     finally:
         await pipeline.close()
