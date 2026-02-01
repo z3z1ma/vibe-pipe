@@ -61,3 +61,15 @@ Sources and sinks exist but are not first-class in AssetGraph execution. Adapter
 ## Acceptance Criteria
 
 Source and Sink classes can be wrapped as Assets and executed in AssetGraph
+
+## Notes
+
+**2026-02-01T02:42:58Z**
+
+Ruff F842 error fixed (removed unused source_record variable). Current state:
+- asset_adapters.py: complete implementation
+- test_source_sink_adapters.py: test suite with stub Source/Sink
+- Exports added to __init__.py
+- Commit 6b36420
+
+Next: Run tests to validate implementation. Environment issue (symbolic links) may affect test execution.
