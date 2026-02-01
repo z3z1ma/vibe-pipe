@@ -7,11 +7,11 @@ High-level direction and priorities.
 - - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-ef4a` P1 in_progress - Sprint prep: Phase 3: Core Abstractions & Cohesiveness
-- - `vp-12c4` P2 open - Export infer_schema_from_file from vibe_piper
+- - `vp-12c4` P2 in_progress - Export infer_schema_from_file from vibe_piper
 - - `vp-28e9` P2 in_progress - Untitled
 - - `vp-3fcc` P2 in_progress - Explicit asset dependencies + build_asset_graph
 - - `vp-5bf1` P2 in_progress - Source/Sink asset adapters (async source + schema mapping) (deps:vp-3fcc)
-- - `vp-d016` P2 open - Docs + README alignment for canonical APIs (deps:vp-3fcc,vp-5bf1,vp-92d4)
+- - `vp-d016` P2 in_progress - Docs + README alignment for canonical APIs (deps:vp-3fcc,vp-5bf1,vp-92d4)
 - - `vp-e990` P2 in_progress - Update README with canonical pipeline model guidance
 - - `vp-6d4f` P3 in_progress - Create migration guide for Pipeline -> AssetGraph
 - - `vp-7ae9` P3 in_progress - Update API documentation with execution layering examples
