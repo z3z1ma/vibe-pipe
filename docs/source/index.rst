@@ -28,9 +28,9 @@ Core Concepts
 .. toctree::
    :maxdepth: 2
 
-   ../type_system.md
-   ../declarative_schema_design.md
-   ../migration_pipeline_to_assetgraph.md
+   type_system
+   declarative_schema_design
+   migration_pipeline_to_assetgraph
 
 Features
 ---------
@@ -38,11 +38,11 @@ Features
 .. toctree::
    :maxdepth: 2
 
-   ../scheduling.md
-   ../transformations.md
-   ../config_driven_pipelines.md
-   ../sql_assets.md
-   ../database_connectors.md
+   scheduling
+   transformations
+   config_driven_pipelines
+   sql_assets
+   database_connectors
 
 Data Quality
 ------------
@@ -50,10 +50,10 @@ Data Quality
 .. toctree::
    :maxdepth: 2
 
-   ../anomaly_detection.md
-   ../quality-scoring.md
-   ../external_quality_integration.md
-   ../validation_history.md
+   anomaly_detection
+   quality-scoring
+   external_quality_integration
+   validation_history
 
 Development
 -----------
@@ -61,7 +61,7 @@ Development
 .. toctree::
    :maxdepth: 2
 
-   ../testing_patterns.md
+   testing_patterns
    api/index
    contributing
    development
