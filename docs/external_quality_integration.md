@@ -469,17 +469,27 @@ def sales():
     return load_sales()
 
 # Create pipeline with unified quality reporting
-from vibe_piper import build_pipeline
+from vibe_piper import build_pipeline, ExecutionEngine, PipelineContext
 
 pipeline = build_pipeline("quality_pipeline")
 
-# Run with quality reporting
-unified_report = generate_unified_report(
-    asset_name="quality_pipeline",
-    tool_results=[ge_result, soda_result],
-)
+# Add quality asset
+@pipeline.asset()
+def run_quality_checks(ctx: PipelineContext):
+    # Run with quality reporting
+    unified_report = generate_unified_report(
+        asset_name="quality_pipeline",
+        tool_results=[ge_result, soda_result],
+    )
+    print(display_quality_dashboard(unified_report))
+    return unified_report
 
-print(display_quality_dashboard(unified_report))
+# Build graph
+graph = pipeline.build()
+
+# Run with execution engine
+engine = ExecutionEngine()
+result = engine.execute(graph, context=PipelineContext(pipeline_id="quality_pipeline", run_id="run_1"))
 ```
 
 ## Next Steps
