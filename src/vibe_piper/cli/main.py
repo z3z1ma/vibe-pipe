@@ -8,7 +8,6 @@ from rich.console import Console
 from vibe_piper.cli.commands import (
     config_cmd,
     config_run,
-    dashboard,
     docs,
     init,
     run,
@@ -80,7 +79,6 @@ app.command()(validate.validate)
 app.command()(run.run)
 app.command()(test.test)
 app.command()(docs.docs)
-app.command()(dashboard.dashboard)
 
 
 # Register pipeline commands via wrapper functions
