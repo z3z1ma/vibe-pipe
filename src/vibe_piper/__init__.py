@@ -13,33 +13,33 @@ This module exports three categories of APIs:
    Canonical abstractions for building production data pipelines:
    - Core types: Asset, AssetGraph, Pipeline, Operator, Schema, DataRecord
    - Execution: ExecutionEngine, ExecutionResult, AssetResult
-   - Builders: PipelineBuilder, build_pipeline, infer_dependencies_from_signature
-   - Decorators: @asset, @expect
-   - Quality: ExpectationSuite, QualityMetric, check_completeness, etc.
-   - Schema API: define_schema, String, Integer, Float, etc.
+    - Builders: PipelineBuilder, build_pipeline, infer_dependencies_from_signature
+    - Decorators: @asset, @expect
+    - Quality: ExpectationSuite, QualityMetric, check_completeness, etc.
+    - Schema API: define_schema, String, Integer, Float, etc.
 
-   These APIs are stable, well-documented, and will always be available.
+    These APIs are stable, well-documented, and will always be available.
 
 2. **POWER USER API** (Stable but Specialized)
-   Advanced APIs for specific use cases:
-   - Operators: map_transform, filter_operator, aggregate_*, custom_operator
-   - Built-in expectations: expect_column_to_exist, etc.
-   - Materialization strategies: TableStrategy, ViewStrategy, etc.
+    Advanced APIs for specific use cases:
+    - Operators: map_transform, filter_operator, aggregate_*, custom_operator
+    - Built-in expectations: expect_column_to_exist, etc.
+    - Materialization strategies: TableStrategy, ViewStrategy, etc.
 
-   These APIs are stable but intended for advanced users with specific needs.
+    These APIs are stable but intended for advanced users with specific needs.
 
 3. **OPTIONAL FEATURES** (May Be None)
-   APIs that depend on optional dependencies and may not be available:
-   - SQL assets: sql_asset, execute_sql_query, etc.
-   - Transformations: Join, GroupBy, Window, Pivot, etc.
-   - Schema evolution: schema_version, MigrationPlan, etc.
-   - Integration: RESTClient, GraphQLClient, etc.
-   - Database connectors: PostgreSQLConnector, MySQLConnector, etc.
-   - External quality tools: ge_asset, soda_asset, etc.
-   - Orchestration: Scheduler, BackfillManager, etc.
-   - Monitoring: MetricsCollector, Profiler, etc.
+    APIs that depend on optional dependencies and may not be available:
+    - SQL assets: sql_asset, execute_sql_query, etc.
+    - Transformations: Join, GroupBy, Window, Pivot, etc.
+    - Schema evolution: schema_version, MigrationPlan, etc.
+    - Integration: RESTClient, GraphQLClient, AuthStrategy, APIKeyAuth, etc.
+    - Database connectors: PostgreSQLConnector, MySQLConnector, SnowflakeConnector, BigQueryConnector, etc.
+    - External quality tools: ge_asset, soda_asset, etc.
+    - Orchestration: Scheduler, BackfillManager, etc.
+    - Monitoring: MetricsCollector, Profiler, etc.
 
-   Check availability with: `hasattr(vibe_piper, 'feature_name')`
+    Check availability with: `hasattr(vibe_piper, 'feature_name')`
 
 Stability Guarantees
 ====================
@@ -161,6 +161,7 @@ from vibe_piper.expectations import (
 from vibe_piper.materialization import (
     FileStrategy,
     IncrementalStrategy,
+    MaterializationStrategy,
     MaterializationStrategyBase,
     TableStrategy,
     ViewStrategy,
@@ -241,6 +242,7 @@ try:
         EventTrigger,
         IntervalSchedule,
         Schedule,
+        ScheduleDefinition,
         ScheduleEvent,
         Scheduler,
         SchedulerConfig,
@@ -259,6 +261,7 @@ except ImportError:
     EventTrigger = None  # type: ignore
     IntervalSchedule = None  # type: ignore
     Schedule = None  # type: ignore
+    ScheduleDefinition = None  # type: ignore
     ScheduleEvent = None  # type: ignore
     ScheduleStatus = None  # type: ignore
     ScheduleStore = None  # type: ignore
@@ -346,45 +349,52 @@ try:
     from vibe_piper.integration import (
         APIClient,
         APIError,
+        APIKeyAuth,
+        AuthenticationError,
+        AuthStrategy,
+        BasicAuth,
         BearerTokenAuth,
         CursorPagination,
         GraphQLClient,
         GraphQLResponse,
         LinkHeaderPagination,
+        OAuth2ClientCredentialsAuth,
         OffsetPagination,
+        PaginationStrategy,
         RateLimitError,
+        ResponseValidator,
         RESTClient,
         RESTResponse,
+        ValidationResult,
         WebhookHandler,
         WebhookRequest,
         validate_and_parse,
         validate_response,
     )
-    from vibe_piper.integration import (
-        ValidationResult as IntegrationValidationResult,
-    )
 except ImportError:
     APIClient = None  # type: ignore
     APIError = None  # type: ignore
+    AuthenticationError = None  # type: ignore
+    AuthStrategy = None  # type: ignore
+    APIKeyAuth = None  # type: ignore
+    BasicAuth = None  # type: ignore
+    OAuth2ClientCredentialsAuth = None  # type: ignore
     BearerTokenAuth = None  # type: ignore
     CursorPagination = None  # type: ignore
     GraphQLClient = None  # type: ignore
     GraphQLResponse = None  # type: ignore
     LinkHeaderPagination = None  # type: ignore
     OffsetPagination = None  # type: ignore
+    PaginationStrategy = None  # type: ignore
     RateLimitError = None  # type: ignore
     RESTClient = None  # type: ignore
     RESTResponse = None  # type: ignore
-    IntegrationValidationResult = None  # type: ignore
+    ResponseValidator = None  # type: ignore
+    ValidationResult = None  # type: ignore
     WebhookHandler = None  # type: ignore
     WebhookRequest = None  # type: ignore
     validate_and_parse = None  # type: ignore
     validate_response = None  # type: ignore
-
-try:
-    from vibe_piper.integration import AuthenticationError
-except ImportError:
-    AuthenticationError = None  # type: ignore
 
 # Type definitions
 from vibe_piper.types import (
@@ -398,7 +408,6 @@ from vibe_piper.types import (
     ErrorStrategy,
     ExecutionResult,
     Expectation,
-    MaterializationStrategy,
     Operator,
     OperatorFn,
     OperatorType,
@@ -416,6 +425,7 @@ from vibe_piper.types import (
 # Database connectors (optional, advanced use)
 try:
     from vibe_piper.connectors import (
+        BigQueryConfig,
         BigQueryConnector,
         CSVReader,
         CSVWriter,
@@ -426,15 +436,21 @@ try:
         FileWriter,
         JSONReader,
         JSONWriter,
+        MySQLConfig,
         MySQLConnector,
         ParquetReader,
         ParquetWriter,
+        PostgreSQLConfig,
         PostgreSQLConnector,
         QueryBuilder,
+        SnowflakeConfig,
         SnowflakeConnector,
+        map_type_from_vibepiper,
+        map_type_to_vibepiper,
     )
 except ImportError:
     BigQueryConnector = None  # type: ignore
+    BigQueryConfig = None  # type: ignore
     CSVReader = None  # type: ignore
     CSVWriter = None  # type: ignore
     DatabaseConnector = None  # type: ignore
@@ -444,12 +460,17 @@ except ImportError:
     FileWriter = None  # type: ignore
     JSONReader = None  # type: ignore
     JSONWriter = None  # type: ignore
+    map_type_from_vibepiper = None  # type: ignore
+    map_type_to_vibepiper = None  # type: ignore
     MySQLConnector = None  # type: ignore
+    MySQLConfig = None  # type: ignore
     ParquetReader = None  # type: ignore
     ParquetWriter = None  # type: ignore
     PostgreSQLConnector = None  # type: ignore
+    PostgreSQLConfig = None  # type: ignore
     QueryBuilder = None  # type: ignore
     SnowflakeConnector = None  # type: ignore
+    SnowflakeConfig = None  # type: ignore
 
 # Schema inference from files
 from vibe_piper.connectors.utils.inference import infer_schema_from_file
@@ -492,19 +513,23 @@ except ImportError:
     cached = None  # type: ignore
 
 try:
+    # Import classes and helper functions first, then the decorator function
     from vibe_piper.lazy import (
         LazyContext,
         LazySequence,
         LazyTransform,
         LazyValue,
         is_lazy,
-        lazy,
         lazy_filter,
         lazy_map,
         lazy_reduce,
         lazy_transform,
         materialize,
     )
+    from vibe_piper.lazy import lazy as lazy_decorator
+
+    # Export under standard name
+    lazy = lazy_decorator  # type: ignore
 except ImportError:
     LazyContext = None  # type: ignore
     LazySequence = None  # type: ignore
@@ -714,6 +739,7 @@ __all__ = [
     "ViewStrategy",
     "FileStrategy",
     "IncrementalStrategy",
+    "MaterializationStrategy",
     # Expectation Helpers
     "compose_expectations",
     "create_parameterized_expectation",
@@ -777,19 +803,28 @@ __all__ = [
     "GraphQLResponse",
     "WebhookHandler",
     "WebhookRequest",
+    "AuthStrategy",
+    "BearerTokenAuth",
+    "APIKeyAuth",
+    "BasicAuth",
+    "OAuth2ClientCredentialsAuth",
+    "PaginationStrategy",
     "CursorPagination",
     "OffsetPagination",
     "LinkHeaderPagination",
-    "RateLimitError",
-    "validate_and_parse",
-    "validate_response",
+    "ResponseValidator",
+    "ValidationResult",
     # Database Connectors
     "DatabaseConnector",
     "QueryBuilder",
     "PostgreSQLConnector",
+    "PostgreSQLConfig",
     "MySQLConnector",
+    "MySQLConfig",
     "SnowflakeConnector",
+    "SnowflakeConfig",
     "BigQueryConnector",
+    "BigQueryConfig",
     # External Quality Tools
     "QualityToolAdapter",
     "QualityToolResult",
@@ -813,6 +848,8 @@ __all__ = [
     "ExcelReader",
     "ExcelWriter",
     "infer_schema_from_file",
+    "map_type_to_vibepiper",
+    "map_type_from_vibepiper",
     # Orchestration
     "ExecutionState",
     "OrchestrationConfig",
@@ -820,22 +857,23 @@ __all__ = [
     "ParallelExecutor",
     "StateManager",
     # Scheduling
+    "Schedule",
+    "ScheduleType",
+    "ScheduleStatus",
+    "ScheduleEvent",
+    "TriggerType",
+    "TriggerEvent",
     "BackfillConfig",
-    "BackfillManager",
-    "BackfillStatus",
     "BackfillTask",
+    "BackfillStatus",
+    "ScheduleDefinition",
     "CronSchedule",
     "IntervalSchedule",
-    "Schedule",
     "EventTrigger",
-    "TriggerEvent",
-    "ScheduleEvent",
-    "ScheduleStatus",
-    "ScheduleStore",
-    "ScheduleType",
     "Scheduler",
     "SchedulerConfig",
-    "TriggerType",
+    "BackfillManager",
+    "ScheduleStore",
     # Monitoring
     "ErrorAggregator",
     "ErrorCategory",

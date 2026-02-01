@@ -11,7 +11,13 @@ Sources provide a high-level interface for:
 """
 
 from vibe_piper.sources.api import APIAuthConfig, APIConfig, APISource
-from vibe_piper.sources.database import DatabaseConfig, DatabaseSource
+
+try:
+    from vibe_piper.sources.database import DatabaseConfig, DatabaseSource
+except ImportError:
+    DatabaseConfig = None  # type: ignore
+    DatabaseSource = None  # type: ignore
+
 from vibe_piper.sources.file import FileConfig, FileSource
 
 __all__ = [
