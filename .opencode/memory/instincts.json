@@ -370,14 +370,19 @@
       "trigger": "Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.",
       "action": "Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.",
       "tags": [],
-      "confidence": 0.74,
+      "confidence": 0.79,
       "status": "active",
       "created_at": "2026-01-31T20:34:54.216Z",
-      "updated_at": "2026-01-31T20:34:54.216Z",
+      "updated_at": "2026-02-01T05:11:29.225Z",
       "evidence": [
         {
           "ts": "2026-01-31T20:34:54.216Z",
           "sessionID": "ses_3ea5780f7ffeL17r0v0S9Yer5y"
+        },
+        {
+          "ts": "2026-02-01T05:11:29.225Z",
+          "sessionID": "ses_3e873aff3ffefTIhR37i0M0Ori",
+          "note": "Session diffstat showed 208 deletions in src/vibe_piper/asset_adapters.py with related changes in src/vibe_piper/asset_factory.py, which matches the \"big deletion/refactor\" risk pattern even without full module removal."
         }
       ]
     },
@@ -497,6 +502,23 @@
         {
           "ts": "2026-02-01T04:33:04.958Z",
           "sessionID": "ses_3e8c4ec23ffeIgu877IWAR00As"
+        }
+      ]
+    },
+    {
+      "id": "asset-adapters-factory-refactor-safety-sweep",
+      "title": "Asset adapters/factory refactor safety sweep",
+      "trigger": "Git diffstat shows a large deletion-heavy refactor in src/vibe_piper/asset_adapters.py alongside changes in src/vibe_piper/asset_factory.py.",
+      "action": "Assume API shape churn risk: search for imports/usages of adapter and factory symbols, update call sites to match, and run uv-driven checks (ruff format, ruff check, mypy, pytest -m \"not integration\") to catch public contract breakage early.",
+      "tags": [],
+      "confidence": 0.7,
+      "status": "active",
+      "created_at": "2026-02-01T05:11:29.225Z",
+      "updated_at": "2026-02-01T05:11:29.225Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T05:11:29.225Z",
+          "sessionID": "ses_3e873aff3ffefTIhR37i0M0Ori"
         }
       ]
     }

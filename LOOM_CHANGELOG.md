@@ -4,6 +4,7 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-02-01T05:11:30.318Z Add a safety-sweep instinct for large refactors across asset adapters and the asset factory to prevent import/call-site fallout and contract breaks.
 - 2026-02-01T04:33:06.202Z Capture a lockstep heuristic to keep execution changes aligned with stable public types and avoid circular imports.
 - 2026-02-01T04:20:09.391Z Reinforced CompoundSpec application hygiene: treat .claude skill diffs as mirror noise and always re-emit full skill bodies with JSON-only output.
 - 2026-02-01T04:13:27.847Z Reinforced heuristics to treat mirrored skill diffs and memory-store churn as low-signal evidence during autolearn.

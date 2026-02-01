@@ -189,6 +189,9 @@ This block is maintained by the compound plugin.
 - **manager-acknowledgment-confirmation** (80%)
   - Trigger: Receiving manager message acknowledging investigation or providing scheduling decision
   - Action: 1. Acknowledge manager message (loom team inbox ack <id>). 2. Update ticket with note documenting manager's decision/acknowledgment. 3. Document next steps (await scheduling, ready for implementation,…
+- **large-module-deletion-safety-sweep** (79%)
+  - Trigger: Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.
+  - Action: Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.
 - **inst-egg-info-deletions-are-cleanup** (76%)
   - Trigger: git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)
   - Action: Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather…
@@ -198,9 +201,6 @@ This block is maintained by the compound plugin.
 - **git-unmerged-state-blocker** (75%)
   - Trigger: Git summary/status shows unmerged paths (e.g., diffstat lines labeled 'Unmerged <path>') or merge conflict state.
   - Action: Treat the diff as incomplete/low-signal; do not infer product behavior from it. Resolve conflicts first, then re-run format/lint/tests before making further changes or drafting release notes/PR summar…
-- **large-module-deletion-safety-sweep** (74%)
-  - Trigger: Git diffstat shows a large deletion of a core src module (hundreds of lines removed) with accompanying test churn.
-  - Action: Assume a refactor/removal and do a safety sweep: search for import/call-site fallout, remove/replace references, ensure tests cover the new path, and run targeted + full test suites before merging.
 - **sql-assets-docs-tests-lockstep** (74%)
   - Trigger: A change touches src/vibe_piper/sql_assets.py and tests/test_sql_assets.py and also rewrites docs/sql_assets.md.
   - Action: Treat docs/sql_assets.md as the public contract: update it alongside code changes, and add/adjust tests/test_sql_assets.py to cover the documented behavior; if a symbol becomes public, ensure it's exp…
@@ -213,6 +213,9 @@ This block is maintained by the compound plugin.
 - **ruff-f401-unused-import** (70%)
   - Trigger: Ruff/lint reports F401: imported but unused
   - Action: Remove the unused import; if intentionally kept for side effects, add an explicit usage or a narrowly-scoped ignore with a comment explaining why.
+- **asset-adapters-factory-refactor-safety-sweep** (70%)
+  - Trigger: Git diffstat shows a large deletion-heavy refactor in src/vibe_piper/asset_adapters.py alongside changes in src/vibe_piper/asset_factory.py.
+  - Action: Assume API shape churn risk: search for imports/usages of adapter and factory symbols, update call sites to match, and run uv-driven checks (ruff format, ruff check, mypy, pytest -m "not integration")…
 - **execution-public-api-stability-sweep** (68%)
   - Trigger: Execution module grows substantially (large insertions) or introduces new entrypoints.
   - Action: Do a quick sweep for downstream breakage: search for imports/usages of the changed symbols, ensure exports stay stable (or rename via a project-wide rename), and add/adjust tests to pin the contract.

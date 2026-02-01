@@ -3,21 +3,14 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (18)
+- # Tickets (11)
 - - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
-- - `vp-981a` P1 in_progress - Sprint prep: The Great Pruning
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-ef4a` P1 in_progress - Sprint prep: Phase 3: Core Abstractions & Cohesiveness
-- - `vp-07cd` P2 in_progress - Prune public API exports (deps:vp-4a00)
 - - `vp-28e9` P2 in_progress - Untitled
 - - `vp-3fcc` P2 in_progress - Explicit asset dependencies + build_asset_graph
-- - `vp-4631` P2 in_progress - Add public API guard tests (deps:vp-07cd)
-- - `vp-4a00` P2 open - Fix merge conflicts in asset_adapters.py and test file
+- - `vp-4a00` P2 in_progress - Fix merge conflicts in asset_adapters.py and test file
 - - `vp-5bf1` P2 in_progress - Source/Sink asset adapters (async source + schema mapping) (deps:vp-3fcc)
-- - `vp-6452` P2 in_progress - Docs pruning + reindex (deps:vp-07cd,vp-d800)
-- - `vp-8862` P2 in_progress - Examples cleanup to match core API (deps:vp-07cd,vp-d800)
-- - `vp-c9ca` P2 in_progress - Rewrite README for canonical core (deps:vp-07cd,vp-d800)
-- - `vp-d800` P2 in_progress - Remove web/dashboard/frontend stack
 - - `vp-e990` P2 in_progress - Update README with canonical pipeline model guidance
 - - `vp-6d4f` P3 in_progress - Create migration guide for Pipeline -> AssetGraph
 - - `vp-7ae9` P3 in_progress - Update API documentation with execution layering examples
