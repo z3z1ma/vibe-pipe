@@ -21,6 +21,47 @@ Getting Started
 
    getting_started
    execution_layering
+
+Core Concepts
+------------
+
+.. toctree::
+   :maxdepth: 2
+
+   ../type_system.md
+   ../declarative_schema_design.md
+   ../migration_pipeline_to_assetgraph.md
+
+Features
+---------
+
+.. toctree::
+   :maxdepth: 2
+
+   ../scheduling.md
+   ../transformations.md
+   ../config_driven_pipelines.md
+   ../sql_assets.md
+   ../database_connectors.md
+
+Data Quality
+------------
+
+.. toctree::
+   :maxdepth: 2
+
+   ../anomaly_detection.md
+   ../quality-scoring.md
+   ../external_quality_integration.md
+   ../validation_history.md
+
+Development
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   ../testing_patterns.md
    api/index
    contributing
    development
