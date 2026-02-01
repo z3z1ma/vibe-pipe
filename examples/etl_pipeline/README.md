@@ -111,7 +111,13 @@ This example showcases a complete ETL pipeline that:
 ### Python Dependencies
 
 ```bash
-pip install vibe-piper[postgres,files]
+uv pip install -e ".[postgres,files]"
+```
+
+Or for development with all extras:
+
+```bash
+uv pip install -e ".[postgres,files,dev]"
 ```
 
 Or install from the project root:
@@ -443,13 +449,13 @@ Use cron, systemd, or your orchestrator:
 
 ```bash
 # Run all tests
-pytest tests/
+uv run pytest tests/
 
 # Run with coverage
-pytest --cov=examples/etl_pipeline tests/
+uv run pytest --cov=examples/etl_pipeline tests/
 
 # Run specific test
-pytest tests/test_pipeline.py::test_extract_data
+uv run pytest tests/test_pipeline.py::test_extract_data
 ```
 
 ### Test Coverage

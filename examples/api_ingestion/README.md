@@ -169,10 +169,10 @@ The example includes comprehensive integration tests with a mock API server.
 
 ```bash
 # Run all tests
-pytest examples/api_ingestion/tests/
+uv run pytest examples/api_ingestion/tests/
 
 # Run with coverage
-pytest examples/api_ingestion/tests/ --cov=examples/api_ingestion --cov-report=html
+uv run pytest examples/api_ingestion/tests/ --cov=examples/api_ingestion --cov-report=html
 ```
 
 ### Test Features

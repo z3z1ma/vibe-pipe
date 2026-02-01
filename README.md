@@ -2,14 +2,13 @@
 
 <div align="center">
 
-**Declarative Data Pipeline, Integration, Quality, Transformation, and Activation Library**
+**Declarative Data Pipeline Library**
 
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Development Status](https://img.shields.io/badge/status-alpha-orange.svg)](https://github.com/your-org/vibe-piper)
 [![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
-[Features](#features) • [Quick Start](#quick-start) • [Installation](#installation) • [Examples](#usage-examples) • [Documentation](#documentation)
+[Features](#features) • [Quick Start](#quick-start) • [Installation](#installation) • [Documentation](#documentation)
 
 </div>
 
@@ -17,13 +16,33 @@
 
 ## Overview
 
-**Vibe Piper** is a robust Python-based declarative data pipeline library designed for simplicity, expressiveness, and composability. Build production-grade data pipelines with type safety, comprehensive error handling, and seamless integrations—all with an intuitive API.
+**Vibe Piper** is a Python-based declarative data pipeline library designed for simplicity, expressiveness, and composability. Build production-grade data pipelines with type safety, comprehensive error handling, and seamless integrations—all with an intuitive API.
 
 > **Status:** Early Development (Phase 0: Foundation)
 >
 > This project is in active development. APIs may evolve as we refine the architecture.
 
-## 🎯 Choosing the Right Pipeline Model
+---
+
+## Features
+
+### Core Capabilities
+
+- **Two Pipeline Models** - Choose AssetGraph for production or Pipeline for simple scripts
+- **Type Safety** - Full type hint support for better IDE integration and runtime reliability
+- **Declarative Definition** - Build pipelines with clean, declarative syntax using decorators
+- **Data Quality** - Built-in validation, quality metrics, and expectation suites
+- **Error Handling** - Retry logic, checkpointing, and graceful failure handling
+- **Multi-format Support** - CSV, JSON, Parquet, Excel with schema inference
+- **Database Integration** - PostgreSQL, MySQL, Snowflake, BigQuery (optional)
+
+---
+
+## Quick Start
+
+Get up and running in **5 minutes**.
+
+### Choosing the Right Pipeline Model
 
 Vibe Piper offers two pipeline models optimized for different use cases:
 
@@ -34,65 +53,26 @@ Vibe Piper offers two pipeline models optimized for different use cases:
 | **Data Access** | Structured `UpstreamData` for multiple upstreams | Raw data passed between operators |
 | **Materialization** | Tables, files, views with storage strategies | In-memory only |
 | **Features** | Caching, scheduling, quality checks, incremental | Simple, lightweight, composable |
-| **Examples** | ETL pipelines, data warehouses, ML workflows | Data munging, unit tests, tutorials |
 
 **Recommendation:** Start with **AssetGraph** for production workloads. Use **Pipeline** only for simple scripts and prototypes.
-
-See [Choosing Between Pipeline Models](#choosing-between-pipeline-models) for detailed guidance.
-
-NOTE: this entire codebase was created via the following command:
-
-```bash
-loom team start MiyagiDo \
-  --harness opencode \
-  --model zai-coding-plan/glm-4.7 \
-  --investigator-model openai/gpt-5.2-codex \
-  --worker-model zai-coding-plan/glm-4.7 \
-  --manager-model github-copilot/gemini-3-flash-preview \
-  --integrator-model zai-coding-plan/glm-4.7 \
-  --objective "Create the most robust python based declararive data pipeline, integration, quality, transformation, activation library ever created. Our zen is simplicity, expressiveness, composability, and maximizing function. The UX must be intuitive. Everything must work. Use TDD."
-```
-
----
-
-## Features
-
-### 🎯 Core Capabilities
-
-- **Declarative Pipeline Definition** - Build data pipelines using a clean, declarative syntax
-- **Type Safety** - Full type hint support for better IDE integration and runtime reliability
-- **Composable Stages** - Chain transformations in flexible, reusable ways
-- **Data Quality Checks** - Built-in validation, quality metrics, and expectation suites
-- **Error Handling & Recovery** - Retry logic, checkpointing, and graceful failure handling
-- **Multi-format Support** - CSV, JSON, Parquet, Excel, and database connectors out of the box
-
-### 🔌 Integrations
-
-- **Databases** - PostgreSQL, MySQL, Snowflake, BigQuery
-- **APIs** - REST clients with authentication, pagination, and GraphQL support
-- **File I/O** - CSV, JSON, Parquet, Excel with schema inference
-- **Webhooks** - Handle incoming webhooks with validation
-
----
-
-## Quick Start
-
-Get up and running in **5 minutes** with one of these quick start guides.
 
 ### Installation
 
 ```bash
-# Basic installation
+# Core installation
 pip install vibe-piper
 
-# Or with all optional dependencies
-pip install vibe-piper[all]
+# With file I/O support (CSV, JSON, Parquet, Excel)
+pip install vibe-piper[files]
 
-# For specific database support
-pip install vibe-piper[postgres]    # PostgreSQL
-pip install vibe-piper[mysql]       # MySQL
-pip install vibe-piper[snowflake]   # Snowflake
-pip install vibe-piper[bigquery]    # BigQuery
+# With database support
+pip install vibe-piper[postgres]     # PostgreSQL
+pip install vibe-piper[mysql]        # MySQL
+pip install vibe-piper[snowflake]    # Snowflake
+pip install vibe-piper[bigquery]     # BigQuery
+
+# All optional features
+pip install vibe-piper[all]
 ```
 
 ### Quick Start 1: Production Pipeline (AssetGraph)
@@ -119,7 +99,7 @@ with PipelineDefinitionContext("user_pipeline") as pipeline:
     @pipeline.asset()
     def extract_users(ctx: PipelineContext) -> list[dict]:
         """Extract user data from CSV (source asset - no dependencies)."""
-        from vibe_piper.connectors import CSVReader
+        from vibe_piper import CSVReader
 
         reader = CSVReader(Path("data/users.csv"))
         records = reader.read()
@@ -151,8 +131,7 @@ with PipelineDefinitionContext("user_pipeline") as pipeline:
     @pipeline.asset(depends_on=["aggregate_by_category"])
     def load_results(aggregate_by_category: list[dict], ctx: PipelineContext) -> str:
         """Load results to output CSV."""
-        from vibe_piper.connectors import CSVWriter
-        from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
+        from vibe_piper import CSVWriter, Schema, SchemaField, DataType, DataRecord
 
         output_path = Path("output/summary.csv")
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -192,16 +171,16 @@ if __name__ == "__main__":
 ```
 
 **Key AssetGraph features:**
-✅ DAG-based execution with automatic dependency resolution
-✅ Structured upstream data access via `UpstreamData`
-✅ Production-ready error handling and retry logic
-✅ Materialization strategies (tables, files, views)
-✅ Orchestration, scheduling, and caching support
+- ✅ DAG-based execution with automatic dependency resolution
+- ✅ Structured upstream data access via function parameters
+- ✅ Production-ready error handling and retry logic
+- ✅ Materialization strategies (tables, files, views)
+- ✅ Orchestration, scheduling, and caching support
 
-**More AssetGraph examples:**
-- [ETL Pipeline Example](examples/etl_pipeline/) - PostgreSQL → Parquet with quality checks
-- [API Ingestion Example](examples/api_ingestion/) - REST API with pagination
-- See [Production Pipeline Guide](#production-pipelines-with-assetgraph) for advanced features
+**More examples:**
+- See `examples/etl_pipeline/` - PostgreSQL → Parquet with quality checks
+- See `examples/api_ingestion/` - REST API with pagination
+- See `examples/pipelines/` - Production pipeline patterns
 
 ---
 
@@ -256,62 +235,10 @@ if __name__ == "__main__":
 ```
 
 **Key Pipeline features:**
-✅ Simple, linear execution model
-✅ Easy to test and reason about
-✅ Minimal boilerplate
-✅ Great for quick prototypes and scripts
-
-**More Pipeline examples:**
-- See [Simple Script Guide](#simple-scripts-with-pipeline) for advanced features
-
----
-
-## Choosing Between Pipeline Models
-
-### Use AssetGraph (Production) When:
-
-✅ **Production workloads** - Data pipelines that run regularly in production
-✅ **Complex dependencies** - Multi-stage DAGs with branching and merging
-✅ **Materialization needed** - Results need to be persisted (tables, files, views)
-✅ **Orchestration required** - Scheduling, caching, incremental loading
-✅ **Quality monitoring** - Data validation, drift detection, quality reports
-✅ **Team collaboration** - Shared infrastructure, versioned schemas
-✅ **Scalability** - Large datasets, parallel execution, resource management
-
-**Examples:**
-- ETL pipelines (Extract → Transform → Load)
-- Data warehouse pipelines
-- ML feature pipelines
-- Real-time data processing
-- Data quality monitoring
-
-### Use Pipeline (Simple) When:
-
-✅ **Quick scripts** - One-off data transformations
-✅ **Prototyping** - Exploratory data analysis and experiments
-✅ **Unit tests** - Testing individual operators or transformations
-✅ **Educational** - Teaching or learning the library
-✅ **Simple ETL** - Small datasets without persistence needs
-✅ **Tutorials** - Demonstrating specific operators or patterns
-
-**Examples:**
-- Data munging in notebooks
-- Quick CSV transformations
-- Testing operator logic
-- Prototype data flows
-- Simple data cleaning scripts
-
-### When to Migrate from Pipeline to AssetGraph
-
-Consider migrating when your pipeline grows beyond simple scripts:
-
-1. **You need persistence** - Add `@asset` decorators for materialization
-2. **Dependencies become complex** - AssetGraph handles DAGs automatically
-3. **Team sharing** - AssetGraph provides better structure for collaboration
-4. **Production deployment** - AssetGraph integrates with orchestration tools
-5. **Quality tracking** - AssetGraph has built-in quality monitoring
-
-**Migration path:** See [Migrating from Pipeline to AssetGraph](#migration-guide) for step-by-step guidance.
+- ✅ Simple, linear execution model
+- ✅ Easy to test and reason about
+- ✅ Minimal boilerplate
+- ✅ Great for quick prototypes and scripts
 
 ---
 
@@ -329,7 +256,7 @@ pip install vibe-piper
 # File I/O (CSV, JSON, Parquet, Excel)
 pip install vibe-piper[files]
 
-# All database connectors
+# Database connectors
 pip install vibe-piper[postgres,mysql,snowflake,bigquery]
 
 # Development tools
@@ -338,13 +265,16 @@ pip install vibe-piper[dev]
 
 ### Dependencies
 
-Core dependencies:
+**Core dependencies:**
 - `pandas>=3.0.0` - Data manipulation
 - `pyarrow>=23.0.0` - Parquet support
 - `openpyxl>=3.1.5` - Excel support
 - `python-snappy>=0.7.3` - Compression
+- `pydantic>=2.10.0` - Data validation
+- `httpx>=0.27.0` - HTTP client
+- `typer>=0.12.0` - CLI framework
 
-Optional database dependencies:
+**Optional database dependencies:**
 - `psycopg2-binary>=2.9.0` - PostgreSQL
 - `mysql-connector-python>=8.0.0` - MySQL
 - `snowflake-connector-python>=3.0.0` - Snowflake
@@ -352,847 +282,36 @@ Optional database dependencies:
 
 ---
 
-## Usage Examples
-
-### Example 1: Database Connectivity (PostgreSQL)
-
-Connect to PostgreSQL, query data, and transform it:
-
-```python
-from vibe_piper.connectors import PostgreSQLConnector, QueryBuilder
-from vibe_piper import asset
-
-# Configure connection
-config = {
-    "host": "localhost",
-    "port": 5432,
-    "database": "analytics",
-    "user": "user",
-    "password": "password",
-}
-
-connector = PostgreSQLConnector(config)
-
-@asset
-def fetch_active_users() -> list[dict]:
-    """Fetch active users from PostgreSQL."""
-    with connector:
-        # Use QueryBuilder for type-safe queries
-        builder = QueryBuilder("users")
-        query, params = (
-            builder
-            .select("id", "name", "email", "created_at")
-            .where("status = :status", status="active")
-            .where("created_at > :date", date="2024-01-01")
-            .order_by("created_at DESC")
-            .limit(1000)
-        ).build_select()
-
-        result = connector.query(query, params)
-
-        # Map to type-safe Pydantic models
-        from pydantic import BaseModel
-
-        class User(BaseModel):
-            id: int
-            name: str
-            email: str
-            created_at: str
-
-        return connector.map_to_schema(result, User)
-
-# Run the asset
-users = fetch_active_users()
-print(f"Found {len(users)} active users")
-```
-
-### Example 2: File I/O with Multiple Formats
-
-Read from CSV, transform, and write to Parquet:
-
-```python
-from vibe_piper import asset
-from vibe_piper.connectors import CSVReader, ParquetWriter
-from vibe_piper.operators import map_transform, add_field
-from pathlib import Path
-from datetime import datetime
-
-@asset
-def csv_to_parquet() -> str:
-    """Convert CSV to Parquet with schema validation."""
-    # Read CSV
-    csv_reader = CSVReader(Path("data/sales.csv"))
-    records = csv_reader.read()
-
-    # Infer schema from CSV
-    schema = csv_reader.infer_schema()
-    print(f"Inferred schema: {schema.name}")
-
-    # Transform data
-    transformed = map_transform(
-        [r.data for r in records],
-        add_field("processed_at", lambda x: datetime.now().isoformat())
-    )
-
-    # Write to Parquet with compression
-    output_path = Path("output/sales.parquet")
-    parquet_writer = ParquetWriter(output_path)
-
-    from vibe_piper.types import DataRecord
-    data_records = [DataRecord(data=row, schema=schema) for row in transformed]
-
-    parquet_writer.write(data_records, compression="snappy")
-    return str(output_path)
-```
-
-### Example 3: API Ingestion with Retry Logic
-
-Fetch data from a REST API with automatic retries:
-
-```python
-from vibe_piper.integration import RESTClient, BearerTokenAuth
-from vibe_piper.error_handling import retry_with_backoff, RetryConfig, BackoffStrategy
-from vibe_piper import asset
-import asyncio
-
-@asset
-def fetch_api_data() -> list[dict]:
-    """Fetch data from REST API with retry logic."""
-
-    @retry_with_backoff(
-        RetryConfig(
-            max_retries=3,
-            backoff_strategy=BackoffStrategy.EXPONENTIAL,
-            base_delay=1.0,
-            max_delay=10.0,
-        )
-    )
-    async def fetch_with_retry():
-        # Configure API client
-        auth = BearerTokenAuth("your-api-token")
-        async with RESTClient("https://api.example.com", auth=auth) as client:
-            # Fetch with pagination
-            all_data = []
-            page = 1
-
-            while True:
-                response = await client.get_json(
-                    "/v1/users",
-                    params={"page": page, "per_page": 100}
-                )
-
-                all_data.extend(response.get("data", []))
-
-                # Check if more pages exist
-                if len(response.get("data", [])) < 100:
-                    break
-
-                page += 1
-
-            return all_data
-
-    # Run async function
-    return asyncio.run(fetch_with_retry())
-
-# Use the fetched data
-@asset
-def process_api_data(fetch_api_data: list[dict]) -> int:
-    """Process data from API."""
-    # Filter valid records
-    valid_records = [
-        record for record in fetch_api_data
-        if record.get("email") and "@" in record["email"]
-    ]
-
-    print(f"Processed {len(valid_records)} valid records")
-    return len(valid_records)
-```
-
-### Example 4: Data Transformation with Joins and Aggregations
-
-Combine data from multiple sources:
-
-```python
-from vibe_piper import asset
-from vibe_piper.operators import (
-    map_transform,
-    filter_field_not_null,
-    aggregate_group_by,
-    custom_operator,
-)
-
-@asset
-def users_with_orders() -> list[dict]:
-    """Join users with their orders."""
-    # Simulated data sources
-    users = [
-        {"id": 1, "name": "Alice", "country": "US"},
-        {"id": 2, "name": "Bob", "country": "UK"},
-        {"id": 3, "name": "Charlie", "country": "US"},
-    ]
-
-    orders = [
-        {"user_id": 1, "total": 100.0},
-        {"user_id": 1, "total": 50.0},
-        {"user_id": 2, "total": 75.0},
-        {"user_id": 1, "total": 25.0},
-    ]
-
-    # Custom join operator
-    @custom_operator
-    def left_join(users_data: list[dict], orders_data: list[dict]) -> list[dict]:
-        """Left join users with orders."""
-        orders_by_user = {}
-
-        for order in orders_data:
-            user_id = order["user_id"]
-            if user_id not in orders_by_user:
-                orders_by_user[user_id] = []
-            orders_by_user[user_id].append(order)
-
-        result = []
-        for user in users_data:
-            user_orders = orders_by_user.get(user["id"], [])
-            total_spent = sum(o["total"] for o in user_orders)
-
-            result.append({
-                **user,
-                "order_count": len(user_orders),
-                "total_spent": total_spent,
-            })
-
-        return result
-
-    # Perform join
-    joined = left_join(users, orders)
-
-    # Filter users with orders
-    with_orders = filter_field_not_null(joined, "order_count")
-
-    return list(with_orders)
-
-@asset
-def aggregate_by_country(users_with_orders: list[dict]) -> list[dict]:
-    """Aggregate user spending by country."""
-    return aggregate_group_by(
-        users_with_orders,
-        group_by="country",
-        aggregations={
-            "user_count": "count",
-            "total_revenue": "sum",
-            "avg_spending": "avg",
-        }
-    )
-```
-
-### Example 5: Error Handling and Data Quality
-
-Implement comprehensive error handling and quality checks:
-
-```python
-from vibe_piper import asset, expect, ExpectationSuite
-from vibe_piper.expectations import (
-    expect_column_to_exist,
-    expect_column_to_be_non_nullable,
-    expect_table_column_count_to_equal,
-)
-from vibe_piper.quality import check_completeness, check_uniqueness
-from vibe_piper.error_handling import CheckpointManager, Checkpoint
-
-@asset
-def validated_data() -> tuple[list[dict], dict]:
-    """Extract and validate data with quality checks."""
-
-    # Create expectation suite
-    suite = ExpectationSuite(name="user_data_validation")
-
-    suite.add_expectation(expect_column_to_exist("email"))
-    suite.add_expectation(expect_column_to_be_non_nullable("id"))
-    suite.add_expectation(expect_table_column_count_to_equal(5))
-
-    # Sample data
-    data = [
-        {"id": 1, "name": "Alice", "email": "alice@example.com", "age": 30},
-        {"id": 2, "name": "Bob", "email": "bob@example.com", "age": 25},
-        {"id": 3, "name": "Charlie", "email": "charlie@example.com", "age": 35},
-    ]
-
-    # Validate against schema
-    from vibe_piper.operators import validate_schema
-    from vibe_piper.schema_definitions import define_schema, String, Integer
-
-    schema = define_schema("user", {
-        "id": Integer(required=True),
-        "name": String(required=True),
-        "email": String(required=True),
-        "age": Integer(required=True),
-    })
-
-    validated = validate_schema(data, schema)
-
-    # Run quality checks
-    completeness = check_completeness(validated)
-    uniqueness = check_uniqueness(validated, "id")
-
-    quality_report = {
-        "completeness": completeness.score,
-        "uniqueness": uniqueness.score,
-        "total_records": len(validated),
-    }
-
-    print(f"Quality Report: {quality_report}")
-
-    return validated, quality_report
-
-# Use checkpointing for recovery
-@asset
-def resilient_processing(validated_data: tuple[list[dict], dict]) -> int:
-    """Process data with checkpoint-based recovery."""
-
-    checkpoint_mgr = CheckpointManager(checkpoint_dir="checkpoints")
-
-    # Try to load from checkpoint
-    if checkpoint_mgr.has_checkpoint("processing"):
-        checkpoint = checkpoint_mgr.load_checkpoint("processing")
-        print(f"Resuming from checkpoint: {checkpoint.state}")
-        start_index = checkpoint.metadata.get("processed_count", 0)
-    else:
-        start_index = 0
-        checkpoint_mgr.create_checkpoint("processing", metadata={"processed_count": 0})
-
-    data, _ = validated_data
-
-    # Process with checkpointing
-    for i, record in enumerate(data[start_index:], start=start_index):
-        try:
-            # Process record
-            processed = {**record, "processed": True}
-
-            # Update checkpoint every 10 records
-            if (i + 1) % 10 == 0:
-                checkpoint_mgr.update_checkpoint(
-                    "processing",
-                    metadata={"processed_count": i + 1}
-                )
-
-        except Exception as e:
-            # Save error context
-            from vibe_piper.error_handling import capture_error_context
-            error_ctx = capture_error_context(e)
-            print(f"Error at record {i}: {error_ctx.error_message}")
-
-            # Checkpoint allows resuming from here
-            raise
-
-    # Clean up checkpoint on success
-    checkpoint_mgr.delete_checkpoint("processing")
-
-    return len(data)
-```
-
-### Example 6: GraphQL Integration
-
-Query GraphQL APIs:
-
-```python
-from vibe_piper.integration import GraphQLClient
-from vibe_piper import asset
-import asyncio
-
-@asset
-def fetch_graphql_data() -> list[dict]:
-    """Fetch data from GraphQL API."""
-
-    async def fetch_data():
-        client = GraphQLClient("https://api.github.com/graphql")
-
-        # Set authentication
-        client.set_auth("Bearer", "your-github-token")
-
-        # Execute query
-        query = """
-        query GetRepositories($owner: String!, $limit: Int!) {
-            repositoryOwner(login: $owner) {
-                repositories(first: $limit) {
-                    edges {
-                        node {
-                            name
-                            stargazerCount
-                            primaryLanguage {
-                                name
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        """
-
-        variables = {
-            "owner": "facebook",
-            "limit": 10
-        }
-
-        response = await client.execute(query, variables)
-        return response
-
-    return asyncio.run(fetch_data())
-```
-
----
-
-## Production Pipelines with AssetGraph
-
-AssetGraph is the canonical production model for Vibe Piper. Use it for all production data pipelines.
-
-### Key Features
-
-- **DAG-Based Execution**: Support complex dependency graphs, not just linear chains
-- **Materialization**: Different storage strategies (tables, views, files) with automatic management
-- **Orchestration**: Scheduling, caching, and incremental execution
-- **Quality Monitoring**: Built-in data validation, drift detection, and quality reports
-- **Parallel Execution**: Thread-based parallel processing for independent assets
-- **State Management**: Checkpointing, recovery, and incremental runs
-- **Explicit Data Contract**: Function parameters provide structured access to upstream results
-
-### Building Asset Graphs
-
-```python
-from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
-from vibe_piper.connectors import PostgreSQLConnector, CSVWriter
-
-# Define pipeline with assets
-with PipelineDefinitionContext("my_pipeline") as pipeline:
-
-    @pipeline.asset()
-    def extract_data(ctx: PipelineContext) -> list[dict]:
-        """Extract data from source (no dependencies)."""
-        connector = PostgreSQLConnector({"host": "localhost", "database": "mydb"})
-        with connector:
-            return connector.query("SELECT * FROM users")
-
-    @pipeline.asset(depends_on=["extract_data"])
-    def transform_data(extract_data: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Transform data (single dependency)."""
-        return [{"id": row["id"], "name": row["name"].upper()} for row in extract_data]
-
-    @pipeline.asset(depends_on=["transform_data"])
-    def extract_orders(ctx: PipelineContext) -> list[dict]:
-        """Extract orders (independent asset for multi-upstream)."""
-        return [{"order_id": 1, "user_id": 1, "total": 100}]
-
-    @pipeline.asset(depends_on=["transform_data", "extract_orders"])
-    def join_data(transform_data: list[dict], extract_orders: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Join multiple data sources (multiple dependencies)."""
-        # Join logic here...
-        return joined_data
-
-    @pipeline.asset(depends_on=["join_data"])
-    def load_data(join_data: list[dict], ctx: PipelineContext) -> str:
-        """Load data to target (materialization)."""
-        from pathlib import Path
-
-        writer = CSVWriter(Path("output/result.csv"))
-        writer.write(join_data)
-        return str(writer.path)
-
-# Build and execute
-graph = pipeline.build()
-context = PipelineContext(pipeline_id="my_pipeline", run_id="run_001")
-engine = ExecutionEngine()
-result = engine.execute(graph, context)
-```
-
-### Dependency Inference
-
-Dependencies can be specified explicitly using `depends_on` or automatically inferred from function parameter names:
-
-```python
-with PipelineDefinitionContext("my_pipeline") as pipeline:
-
-    @pipeline.asset()
-    def asset_a(ctx: PipelineContext) -> list[dict]:
-        """Source asset (no dependencies)."""
-        return [{"id": 1, "value": 100}]
-
-    @pipeline.asset(depends_on=["asset_a"])
-    def asset_b(asset_a: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Explicitly depends on asset_a."""
-        return [{"id": row["id"], "doubled": row["value"] * 2} for row in asset_a]
-
-    @pipeline.asset()
-    def asset_c(asset_a: list[dict], asset_b: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Automatically infers dependencies from parameter names."""
-        # Parameters asset_a and asset_b match upstream asset names
-        # Join or combine data...
-        return combined_data
-```
-
-**Rules:**
-- **Explicit deps**: Use `depends_on=["asset_name"]` for clarity
-- **Automatic inference**: Function parameters matching asset names create dependencies
-- **Multiple parameters = multiple dependencies**
-- **No parameters = source asset**
-- **Recommendation**: Use explicit `depends_on` for production code clarity
-
-### Materialization Strategies
-
-AssetGraph supports multiple materialization strategies:
-
-```python
-from vibe_piper.materialization import TableStrategy, ViewStrategy, FileStrategy, IncrementalStrategy
-
-@asset
-def materialized_table(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Materialize as database table."""
-    # Automatically handles table creation, schema management
-    return TableStrategy(
-        database="mydb",
-        table="results",
-        create_if_not_exists=True,
-        drop_if_exists=False,
-    )
-
-@asset
-def materialized_view(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Materialize as database view."""
-    return ViewStrategy(
-        database="mydb",
-        view="results_view",
-        refresh_on_query=False,
-    )
-
-@asset
-def materialized_file(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Materialize as Parquet file."""
-    from vibe_piper.connectors import ParquetWriter
-
-    data = upstream["source_data"]
-    writer = ParquetWriter(Path("output/results.parquet"))
-    writer.write(data, compression="snappy")
-    return str(writer.path)
-
-@asset
-def incremental_load(upstream: UpstreamData, context: PipelineContext) -> str:
-    """Incremental materialization with watermark."""
-    return IncrementalStrategy(
-        watermark_column="updated_at",
-        merge_keys=["id"],
-        merge_strategy="upsert",
-    )
-```
-
-### Orchestration and Scheduling
-
-```python
-from vibe_piper import OrchestrationEngine, OrchestrationConfig
-from vibe_piper.scheduling import IntervalSchedule, CronSchedule
-
-# Orchestration with parallel execution
-config = OrchestrationConfig(
-    max_workers=4,
-    enable_incremental=True,
-    enable_caching=True,
-    cache_ttl_seconds=3600,
-)
-
-orch_engine = OrchestrationEngine(config)
-result = orch_engine.execute(graph, context)
-
-# Schedule for regular execution
-schedule = IntervalSchedule(interval_minutes=60)
-# or
-schedule = CronSchedule(cron_expression="0 * * * *")  # Every hour
-
-scheduler = Scheduler(graph, schedule)
-scheduler.start()
-```
-
-### Data Quality and Monitoring
-
-```python
-from vibe_piper import expect, ExpectationSuite
-from vibe_piper.expectations import (
-    expect_column_to_exist,
-    expect_column_to_be_non_nullable,
-    expect_column_values_to_match_regex,
-)
-
-@asset
-@expect(ExpectationSuite([
-    expect_column_to_exist("email"),
-    expect_column_to_be_non_nullable("id"),
-    expect_column_values_to_match_regex("email", r"[^@]+@[^@]+\.[^@]+"),
-]))
-def validated_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Data with quality expectations."""
-    return upstream["transformed_data"]
-
-# Quality monitoring
-from vibe_piper import check_completeness, check_uniqueness
-
-@asset
-def quality_metrics(upstream: UpstreamData, context: PipelineContext) -> dict:
-    """Generate quality metrics."""
-    data = upstream["validated_data"]
-
-    completeness = check_completeness(data)
-    uniqueness = check_uniqueness(data, "id")
-
-    return {
-        "completeness_score": completeness.score,
-        "uniqueness_score": uniqueness.score,
-        "total_records": len(data),
-    }
-```
-
-### Advanced: Multi-Upstream Assets
-
-When an asset has multiple dependencies, `UpstreamData` provides structured access:
-
-```python
-@asset
-def merge_sources(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Merge data from multiple sources."""
-    # All upstream assets available via named access
-    source_a = upstream["source_a"]
-    source_b = upstream["source_b"]
-    source_c = upstream["source_c"]
-
-    # Check what's available
-    available_assets = upstream.keys  # ("source_a", "source_b", "source_c")
-
-    # Safe access with defaults
-    optional_data = upstream.get("optional_source", default=[])
-
-    # Merge logic...
-    return merged_data
-```
-
-### Production Checklist
-
-Before deploying an AssetGraph to production:
-
-- ✅ All assets have `@asset` decorator
-- ✅ Dependencies are correctly inferred (parameter names match asset names)
-- ✅ Materialization strategy defined for terminal assets
-- ✅ Quality expectations added where needed
-- ✅ Error handling and retry logic configured
-- ✅ Scheduling and orchestration configured
-- ✅ Monitoring and logging set up
-- ✅ Integration tests pass
-- ✅ Documentation updated
-
-**Examples:**
-- [ETL Pipeline Example](examples/etl_pipeline/) - Complete production ETL with PostgreSQL
-- [API Ingestion Example](examples/api_ingestion/) - REST API integration
-- See [CORE_ABSTRACTION_CONTRACT.md](CORE_ABSTRACTION_CONTRACT.md) for detailed contract specifications
-
----
-
-## Simple Scripts with Pipeline
-
-Use the Pipeline model for quick scripts, prototypes, and simple transformations where you don't need production features.
-
-### When to Use Pipeline
-
-- Quick data transformations in scripts
-- Unit testing individual operators
-- Simple data munging without persistence
-- Educational examples and tutorials
-- Exploratory data analysis
-
-### Building Simple Pipelines
-
-```python
-from vibe_piper import Pipeline, Operator, OperatorType, PipelineContext
-
-# Define transformation functions
-def clean_data(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Clean and normalize data."""
-    cleaned = []
-    for row in data:
-        cleaned.append({
-            "name": row.get("name", "").strip().lower(),
-            "age": int(row.get("age", 0)),
-        })
-    return cleaned
-
-def filter_adults(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Filter out minors."""
-    return [row for row in data if row["age"] >= 18]
-
-def enrich_data(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Add computed fields."""
-    for row in data:
-        row["is_senior"] = row["age"] >= 65
-        row["decade"] = (row["age"] // 10) * 10
-    return data
-
-# Build pipeline
-pipeline = Pipeline(
-    name="user_processing",
-    operators=(
-        Operator(name="clean", operator_type=OperatorType.TRANSFORM, fn=clean_data),
-        Operator(name="filter", operator_type=OperatorType.FILTER, fn=filter_adults),
-        Operator(name="enrich", operator_type=OperatorType.TRANSFORM, fn=enrich_data),
-    )
-)
-
-# Execute
-input_data = [
-    {"name": "  Alice  ", "age": "25"},
-    {"name": "Bob", "age": "15"},
-    {"name": "  Charlie  ", "age": "70"},
-]
-
-context = PipelineContext(pipeline_id="users", run_id="script_001")
-result = pipeline.execute(input_data, context=context)
-
-print(f"Input: {len(input_data)} rows")
-print(f"Output: {len(result)} rows")
-print(f"Results: {result}")
-```
-
-### Operator Types
-
-Pipeline supports different operator types:
-
-```python
-from vibe_piper import Operator, OperatorType
-
-# Transform: Apply function to data
-Operator(name="uppercase", operator_type=OperatorType.TRANSFORM, fn=lambda d, c: [x.upper() for x in d])
-
-# Filter: Filter data based on predicate
-Operator(name="keep_long", operator_type=OperatorType.FILTER, fn=lambda d, c: [x for x in d if len(x) > 5])
-
-# Aggregate: Aggregate data
-Operator(name="count", operator_type=OperatorType.AGGREGATE, fn=lambda d, c: len(d))
-
-# Validate: Validate data (raises if fails)
-Operator(name="validate", operator_type=OperatorType.VALIDATE, fn=lambda d, c: all(x is not None for x in d))
-```
-
-### Context and State
-
-Use `PipelineContext` for configuration and state:
-
-```python
-from vibe_piper import PipelineContext
-
-# Context with configuration
-context = PipelineContext(
-    pipeline_id="my_pipeline",
-    run_id="run_001",
-    config={
-        "min_age": 18,
-        "max_age": 120,
-    },
-    metadata={
-        "environment": "dev",
-        "version": "1.0",
-    },
-)
-
-# Access config in operators
-def filter_by_config(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Filter using context configuration."""
-    min_age = context.get_config("min_age", 0)
-    max_age = context.get_config("max_age", 200)
-
-    return [row for row in data if min_age <= row["age"] <= max_age]
-
-# Use state for cross-operator communication
-def add_count(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Add count to state."""
-    context.set_state("processed_count", len(data))
-    return data
-
-def print_stats(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Use state from previous operator."""
-    count = context.get_state("processed_count", 0)
-    print(f"Processed {count} records")
-    return data
-```
-
-### Testing Individual Operators
-
-Pipeline is great for testing operators in isolation:
-
-```python
-import pytest
-from vibe_piper import Pipeline, Operator, OperatorType, PipelineContext
-
-def test_clean_data_operator():
-    """Test clean_data operator in isolation."""
-    pipeline = Pipeline(
-        name="test",
-        operators=(
-            Operator(name="clean", operator_type=OperatorType.TRANSFORM, fn=clean_data),
-        )
-    )
-
-    input_data = [
-        {"name": "  Alice  ", "age": "25"},
-        {"name": "Bob", "age": "30"},
-    ]
-
-    context = PipelineContext(pipeline_id="test", run_id="test_001")
-    result = pipeline.execute(input_data, context=context)
-
-    assert len(result) == 2
-    assert result[0]["name"] == "alice"
-    assert result[0]["age"] == 25
-    assert result[1]["name"] == "bob"
-    assert result[1]["age"] == 30
-```
-
-### Custom Operators
-
-Create reusable custom operators:
-
-```python
-def uppercase_names(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Uppercase all name fields."""
-    for row in data:
-        if "name" in row:
-            row["name"] = row["name"].upper()
-    return data
-
-def normalize_phone(data: list[dict], context: PipelineContext) -> list[dict]:
-    """Normalize phone numbers."""
-    import re
-
-    for row in data:
-        if "phone" in row:
-            # Remove all non-digits
-            row["phone_clean"] = re.sub(r"[^\d]", "", row["phone"])
-    return data
-
-# Use in pipeline
-pipeline = Pipeline(
-    name="process_users",
-    operators=(
-        Operator(name="uppercase", operator_type=OperatorType.TRANSFORM, fn=uppercase_names),
-        Operator(name="normalize_phone", operator_type=OperatorType.TRANSFORM, fn=normalize_phone),
-    )
-)
-```
-
-### Limitations of Pipeline Model
-
-The Pipeline model is intentionally simple. Consider migrating to AssetGraph if you need:
-
-- ❌ Complex DAGs with branching/merging
-- ❌ Materialization to databases or files
-- ❌ Parallel execution
-- ❌ Caching and incremental runs
-- ❌ Scheduling and orchestration
-- ❌ Quality monitoring and validation suites
-- ❌ Multi-upstream dependencies with structured access
-
-**See Migration Guide** above for step-by-step migration to AssetGraph.
+## Choosing Between Pipeline Models
+
+### Use AssetGraph (Production) When:
+
+- ✅ **Production workloads** - Data pipelines that run regularly in production
+- ✅ **Complex dependencies** - Multi-stage DAGs with branching and merging
+- ✅ **Materialization needed** - Results need to be persisted (tables, files, views)
+- ✅ **Orchestration required** - Scheduling, caching, incremental loading
+- ✅ **Quality monitoring** - Data validation, drift detection, quality reports
+- ✅ **Team collaboration** - Shared infrastructure, versioned schemas
+- ✅ **Scalability** - Large datasets, parallel execution, resource management
+
+### Use Pipeline (Simple) When:
+
+- ✅ **Quick scripts** - One-off data transformations
+- ✅ **Prototyping** - Exploratory data analysis and experiments
+- ✅ **Unit tests** - Testing individual operators or transformations
+- ✅ **Educational** - Teaching or learning the library
+- ✅ **Simple ETL** - Small datasets without persistence needs
+- ✅ **Tutorials** - Demonstrating specific operators or patterns
+
+### When to Migrate from Pipeline to AssetGraph
+
+Consider migrating when your pipeline grows beyond simple scripts:
+
+1. **You need persistence** - Add `@pipeline.asset()` decorators for materialization
+2. **Dependencies become complex** - AssetGraph handles DAGs automatically
+3. **Team sharing** - AssetGraph provides better structure for collaboration
+4. **Production deployment** - AssetGraph integrates with orchestration tools
+5. **Quality tracking** - AssetGraph has built-in quality monitoring
 
 ---
 
@@ -1233,7 +352,7 @@ context = PipelineContext(
     config={
         "checkpoint_dir": "./my_checkpoints",
         "log_level": "DEBUG",
-        "max_workers":4,
+        "max_workers": 4,
     }
 )
 
@@ -1259,20 +378,35 @@ result = engine.execute(graph, context=context)
 Vibe Piper includes a CLI for common operations:
 
 ```bash
-# Run a pipeline
-vibe-piper run pipeline.py
+# Initialize a new project
+vibepiper init my-project
 
 # Validate a pipeline definition
-vibe-piper validate pipeline.py
+vibepiper validate
 
-# Visualize pipeline DAG
-vibe-piper visualize pipeline.py --output pipeline_graph.png
+# Execute a pipeline
+vibepiper run
 
 # Run tests
-vibe-piper test
+vibepiper test
 
-# Check data quality
-vibe-piper check-quality data.csv --schema schema.json
+# Generate documentation
+vibepiper docs
+
+# Show pipeline status
+vibepiper pipeline-status-cmd
+
+# Show pipeline history
+vibepiper pipeline-history-cmd
+
+# List all assets
+vibepiper asset-list-cmd
+
+# Show asset details
+vibepiper asset-show-cmd asset_name
+
+# Configuration-driven commands
+vibepiper config
 ```
 
 ---
@@ -1286,22 +420,22 @@ Vibe Piper is built with a modular, composable architecture. The canonical produ
 │          AssetGraph Layer (Production)             │
 │  (DAG-based, materialization, orchestration)      │
 └─────────────────────────────────────────────────────┘
-                          ↓
+                           ↓
 ┌─────────────────────────────────────────────────────┐
 │                  Asset Layer                        │
 │  (Declarative data assets with dependencies)       │
 └─────────────────────────────────────────────────────┘
-                          ↓
+                           ↓
 ┌─────────────────────────────────────────────────────┐
 │              Operator Layer                         │
 │  (Transform, filter, aggregate, validate)          │
 └─────────────────────────────────────────────────────┘
-                          ↓
+                           ↓
 ┌─────────────────────────────────────────────────────┐
 │           Integration Layer                         │
-│  (Databases, APIs, Files, Webhooks)                │
+│  (Databases, APIs, Files)                │
 └─────────────────────────────────────────────────────┘
-                          ↓
+                           ↓
 ┌─────────────────────────────────────────────────────┐
 │         Error Handling & Quality Layer              │
 │  (Retry, checkpointing, validation, metrics)       │
@@ -1314,7 +448,7 @@ Vibe Piper is built with a modular, composable architecture. The canonical produ
 │           Pipeline Layer (Simple)                  │
 │  (Linear execution, in-memory transformations)       │
 └─────────────────────────────────────────────────────┘
-                          ↓
+                           ↓
 ┌─────────────────────────────────────────────────────┐
 │              Operator Layer                         │
 │  (Transform, filter, aggregate, validate)          │
@@ -1327,7 +461,7 @@ Vibe Piper is built with a modular, composable architecture. The canonical produ
 - **Pipeline** (Simple): Linear operator composition for quick scripts
 - **Assets**: Declarative data definitions with automatic dependency resolution
 - **Operators**: Composable transformations (map, filter, aggregate, validate)
-- **Connectors**: Standardized interfaces for external systems
+- **Connectors**: Standardized interfaces for external systems (databases, files, APIs)
 - **Expectations**: Declarative data quality and validation rules
 - **Error Handling**: Retry logic, checkpointing, and recovery mechanisms
 
@@ -1335,123 +469,29 @@ Vibe Piper is built with a modular, composable architecture. The canonical produ
 
 ---
 
-## Operator Data Contract
-
-Vibe Piper uses two execution models with different operator contracts. When writing operators, it's important to understand which model you're using.
-
-### AssetGraph Model (Production - Recommended)
-
-For production pipelines with `@asset` decorators and `AssetGraph`, operators receive **`UpstreamData`** (structured upstream results):
-
-```python
-from vibe_piper import asset, UpstreamData, PipelineContext
-
-# Single upstream dependency
-@asset
-def transform_single(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Operator receives UpstreamData with one upstream."""
-    # Access upstream data by asset name
-    source_data = upstream["source_asset"]
-    return [{"processed": x} for x in source_data]
-
-# Multiple upstream dependencies
-@asset
-def join_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Operator receives UpstreamData with multiple upstreams."""
-    # Access all upstream data
-    left_data = upstream["left_asset"]
-    right_data = upstream["right_asset"]
-    return {**left_data, **right_data}
-
-# Source asset (no upstreams)
-@asset
-def extract_data(upstream: UpstreamData, context: PipelineContext) -> list[dict]:
-    """Source asset receives empty UpstreamData."""
-    assert upstream.keys == ()  # No upstreams
-    return [{"id": 1, "name": "Alice"}]
-```
-
-**UpstreamData API:**
-- `upstream["asset_name"]` - Get data from specific upstream asset
-- `upstream.get("asset_name", default)` - Safe access with default value
-- `upstream.keys` - Get tuple of all upstream asset names
-- `"asset_name" in upstream` - Check if upstream exists
-- `upstream.as_dict()` - Get all upstream data as dictionary
-
-### Pipeline Model (Simple - Scripts)
-
-For simple in-memory transformations using `Pipeline` class, operators receive **raw data** directly:
-
-```python
-from vibe_piper import Pipeline, Operator, OperatorType
-
-def simple_transform(data: Any, context: PipelineContext) -> Any:
-    """Operator receives raw data directly."""
-    # data is the output from previous operator or initial input
-    return [x * 2 for x in data]
-
-operator = Operator(
-    name="double_values",
-    operator_type=OperatorType.TRANSFORM,
-    fn=simple_transform,
-)
-
-pipeline = Pipeline(name="simple", operators=(operator,))
-result = pipeline.execute([1, 2, 3])
-```
-
-### Choosing the Right Model
-
-| Model | Use Case | Operator Signature |
-|--------|-----------|------------------|
-| **AssetGraph** | Production pipelines, materialization, DAGs | `fn(upstream: UpstreamData, context) -> Any` |
-| **Pipeline** | Quick scripts, simple transformations, in-memory | `fn(data: Any, context) -> Any` |
-
-**Recommendation:** Use AssetGraph with `@asset` decorators for production code. It provides structured access to upstreams, supports multi-upstream scenarios, and integrates with materialization and orchestration.
-
-**Learn more:** See the [Execution Layering Guide](docs/execution_layering.md) for comprehensive documentation on when to use each layer.
-
----
-
 ## Documentation
 
-Full documentation is available at: [https://your-org.github.io/vibe-piper](https://your-org.github.io/vibe-piper)
+Full documentation is available in the [docs/](docs/) directory and examples in the [examples/](examples/) directory.
 
 ### Core Topics
 
-- **[Getting Started](docs/source/getting_started.rst)** - Installation and basic usage
-- **[Execution Layering Guide](docs/execution_layering.md)** - Understanding the three execution layers (Operator, Pipeline, AssetGraph)
-- **[Pipeline Guide](docs/source/pipeline_guide.rst)** - Building and orchestrating pipelines
-- **[Migration Guide: Pipeline → AssetGraph](docs/migration_pipeline_to_assetgraph.md)** - Migrating from Pipeline to AssetGraph
-- **[Connectors](docs/source/connectors.rst)** - Database and file connectors
+- **[CORE_ABSTRACTION_CONTRACT.md](CORE_ABSTRACTION_CONTRACT.md)** - Canonical pipeline abstractions and API contracts
 - **[API Reference](docs/source/api_reference.rst)** - Complete API documentation
+- **[Execution Layering](docs/execution_layering.md)** - Understanding AssetGraph vs Pipeline models
+- **[Connectors](docs/source/connectors.rst)** - Database and file connectors
 - **[Error Handling](docs/source/error_handling.rst)** - Retry logic and recovery
 - **[Data Quality](docs/source/data_quality.rst)** - Validation and quality checks
-- **[Integration Guide](docs/source/integration_guide.rst)** - REST, GraphQL, and webhooks
+- **[Integration Guide](docs/source/integration_guide.rst)** - REST, GraphQL integration
 - **[Contributing](docs/source/contributing.rst)** - Contribution guidelines
 
-### Building Documentation Locally
+### Examples
 
-```bash
-# Install dependencies
-uv sync --dev
-
-# Build documentation
-cd docs
-uv run sphinx-build -b html source build/html
-
-# View documentation
-open build/html/index.html  # macOS
-# or
-xdg-open build/html/index.html  # Linux
-```
-
-For development with live reload:
-
-```bash
-cd docs
-uv run sphinx-autobuild source build/html
-```
+- `examples/etl_pipeline/` - Complete production ETL with PostgreSQL
+- `examples/api_ingestion/` - REST API integration with pagination
+- `examples/pipelines/` - Production pipeline patterns
+- `examples/sample_pipeline/` - Simple transformation examples
+- `examples/transformation_example.py` - Common transformation patterns
+- `examples/drift_detection_example.py` - Data drift detection
 
 ---
 
@@ -1464,11 +504,12 @@ uv run sphinx-autobuild source build/html
 git clone https://github.com/your-org/vibe-piper.git
 cd vibe-piper
 
-# Install development dependencies
+# Install with uv (recommended)
 uv sync --dev
+uv pip install -e .
 
-# Install pre-commit hooks
-pre-commit install
+# Or with pip
+pip install -e .[dev]
 ```
 
 ### Running Tests
@@ -1478,15 +519,16 @@ pre-commit install
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src --cov-report=html
+uv run pytest --cov=src --cov-report=term-missing
+
+# Run fast unit-only tests (skip integration)
+uv run pytest -m "not integration"
 
 # Run specific test file
-uv run pytest tests/test_decorators.py -v
+uv run pytest tests/test_pipeline.py -v
 
-# Run integration tests (requires Docker)
-docker-compose -f docker-compose.test.yml up -d
-uv run pytest -m integration
-docker-compose -f docker-compose.test.yml down
+# Run single test
+uv run pytest tests/test_pipeline.py::test_pipeline_execution -v
 ```
 
 ### Code Quality
@@ -1495,250 +537,30 @@ docker-compose -f docker-compose.test.yml down
 # Format code
 uv run ruff format src tests
 
-# Type checking
-uv run mypy src/
-
-# Linting
+# Lint
 uv run ruff check src tests
+
+# Lint + autofix
+uv run ruff check --fix src tests
+
+# Type checking
+uv run mypy src
 ```
 
----
+### Snapshot Testing
 
-## Migration Guide
+Snapshot testing is available for catching regressions:
 
-### Migrating from Pipeline to AssetGraph
+```bash
+# Create snapshots on first run
+uv run pytest
 
-If you've built a simple Pipeline script and need production features, here's how to migrate:
-
-**Before (Pipeline - Simple Script):**
-
-```python
-from vibe_piper import Pipeline, Operator, OperatorType, PipelineContext
-
-def clean(data: list[dict], context: PipelineContext) -> list[dict]:
-    return [{"name": row["name"].strip().lower()} for row in data]
-
-def filter_active(data: list[dict], context: PipelineContext) -> list[dict]:
-    return [row for row in data if row.get("status") == "active"]
-
-pipeline = Pipeline(
-    name="users",
-    operators=(
-        Operator(name="clean", operator_type=OperatorType.TRANSFORM, fn=clean),
-        Operator(name="filter", operator_type=OperatorType.FILTER, fn=filter_active),
-    )
-)
-
-result = pipeline.execute(users_data, context=context)
+# Update existing snapshots
+uv run pytest --update-snapshots
 ```
-
-**After (AssetGraph - Production Pipeline):**
-
-```python
-from vibe_piper import PipelineDefinitionContext, ExecutionEngine, PipelineContext
-from vibe_piper.connectors import CSVWriter
-from vibe_piper.types import DataRecord, Schema, SchemaField, DataType
-from pathlib import Path
-
-with PipelineDefinitionContext("users") as pipeline:
-
-    @pipeline.asset()
-    def extract_users(ctx: PipelineContext) -> list[dict]:
-        """Extract user data."""
-        return [{"name": "  Alice  ", "status": "active"}, {"name": "Bob", "status": "inactive"}]
-
-    @pipeline.asset(depends_on=["extract_users"])
-    def clean_users(extract_users: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Extract and clean user data."""
-        return [{"name": row["name"].strip().lower()} for row in extract_users]
-
-    @pipeline.asset(depends_on=["clean_users"])
-    def filter_active_users(clean_users: list[dict], ctx: PipelineContext) -> list[dict]:
-        """Filter active users."""
-        return [row for row in clean_users if row.get("status") == "active"]
-
-    @pipeline.asset(depends_on=["filter_active_users"])
-    def load_results(filter_active_users: list[dict], ctx: PipelineContext) -> str:
-        """Load to output file."""
-        schema = Schema(
-            name="users",
-            fields=(SchemaField(name="name", data_type=DataType.STRING),)
-        )
-
-        records = [DataRecord(data=row, schema=schema) for row in filter_active_users]
-        writer = CSVWriter(Path("output/users.csv"))
-        writer.write(records)
-
-        return str(writer.path)
-
-# Execute with production engine
-graph = pipeline.build()
-context = PipelineContext(pipeline_id="users", run_id="run_001")
-engine = ExecutionEngine()
-result = engine.execute(graph, context)
-```
-
-**Key Changes:**
-
-| Pipeline (Simple) | AssetGraph (Production) | Why Change? |
-|-------------------|------------------------|--------------|
-| `def fn(data, ctx)` | `def fn(param, ctx)` | Structured access to upstreams |
-| `Operator` objects | `@pipeline.asset()` decorator | Declarative definition |
-| `pipeline.execute(data)` | `ExecutionEngine.execute(graph, ctx)` | Production execution engine |
-| Linear operators only | DAG with dependencies | Complex workflows |
-| No materialization | Tables/files/views | Persistence and caching |
-| Raw data access | `param` (function parameter) | Explicit data flow |
-
----
-
-### Legacy API Migration (Pre-0.1)
-
-If you were using early versions of Vibe Piper, here are the key API changes:
-
-**Old API (deprecated):**
-```python
-from vibe_piper import Pipeline, Stage
-
-pipeline = Pipeline(name="my_pipeline")
-pipeline.add_stage(Stage(name="clean", transform=lambda x: x.strip()))
-result = pipeline.run(data)
-```
-
-**New API (current - AssetGraph):**
-```python
-from vibe_piper import PipelineBuilder, asset
-
-# Using PipelineBuilder (explicit builder pattern)
-pipeline = PipelineBuilder("my_pipeline")
-
-pipeline.asset(name="source_data", fn=lambda: ["  hello  "])
-
-@asset
-def clean_data(source_data):
-    return [x.strip() for x in source_data]
-
-pipeline.asset(name="clean_data", fn=clean_data, depends_on=["source_data"])
-graph = pipeline.build()
-
-# Execute with ExecutionEngine or OrchestrationEngine
-
-from vibe_piper import ExecutionEngine, OrchestrationEngine, PipelineContext
-
-# Basic execution (sequential)
-engine = ExecutionEngine()
-context = PipelineContext(pipeline_id="my_pipeline", run_id="run_1")
-result = engine.execute(graph, context)
-
-# Advanced orchestration (parallel, incremental, caching)
-orch_engine = OrchestrationEngine(OrchestrationConfig(max_workers=4, enable_incremental=True))
-context = PipelineContext(pipeline_id="my_pipeline", run_id="run_1")
-result = orch_engine.execute(graph, context)
-```
-
-### Execution Layering
-
-Vibe Piper provides a layered execution architecture with three execution levels:
-
-- **Layer 1: Operator Execution** - Single transformation functions with unit testing support
-- **Layer 2: Pipeline Execution** - Sequential operator chains for quick scripts
-- **Layer 3: AssetGraph Execution** - DAG-based production pipelines with orchestration
-
-- **ExecutionEngine** (`src/vibe_piper/execution.py`):
-  - Sequential asset graph execution
-  - Error handling with retry support
-  - Uses shared core utilities for ordering and metrics
-
-- **OrchestrationEngine** (`src/vibe_piper/orchestration.py`):
-  - Parallel execution with thread pools
-  - State tracking and incremental runs
-  - Checkpointing and recovery
-  - Result caching with TTL
-  - Uses shared core utilities for ordering and metrics
-
-**Learn more:** See the [Execution Layering Guide](docs/execution_layering.md) for:
-- Detailed examples of each layer
-- Comparison of use cases
-- Migration guide from Pipeline to AssetGraph
-- Advanced orchestration features
-
-### Key Changes
-
-- **Stages → Assets**: Pipeline stages are now assets with explicit dependencies
-- **Automatic Dependency Inference**: Dependencies are inferred from function parameter names
-- **Separate Contexts**:
-  - `PipelineContext` (runtime): Execution configuration and state
-  - `PipelineDefinitionContext` (definition-time): For building pipelines declaratively
-- **Multi-Upstream Support**: Assets with multiple dependencies receive structured `UpstreamData`
-
-### Migration Tips
-
-1. Replace `Pipeline` with `PipelineDefinitionContext` or `PipelineBuilder`
-2. Replace `Operator` objects with `@pipeline.asset()` decorator within a context
-    - **Important**: Use `PipelineDefinitionContext("name") as pipeline:` to register assets
-    - Decorate functions with `@pipeline.asset()` or `@pipeline.asset(depends_on=[...])`
-3. Dependencies are specified via `depends_on` or inferred from parameter names
-    - Explicit: `@pipeline.asset(depends_on=["source_data"])`
-    - Inferred: `def process(source_data:)` automatically depends on `source_data` asset
-4. Use `ExecutionEngine.execute()` to run pipelines instead of `pipeline.run()`
-
----
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](docs/source/contributing.rst) for guidelines.
-
-### Areas for Contribution
-
-- 🔌 **New Connectors** - Add support for more databases and file formats
-- 🎯 **Operators** - Contribute new transformation operators
-- 📚 **Documentation** - Improve docs and examples
-- 🧪 **Tests** - Increase test coverage
-- 🐛 **Bug Fixes** - Help squash bugs!
-
----
-
-## Project Status
-
-**Phase 0: Foundation** (Current)
-
-We are establishing the core architecture and infrastructure. Features are being added rapidly as we build toward a stable release.
-
-### Roadmap
-
-- ✅ Core pipeline framework
-- ✅ Asset decorators and dependency resolution
-- ✅ Database connectors (PostgreSQL, MySQL, Snowflake, BigQuery)
-- ✅ File I/O (CSV, JSON, Parquet, Excel)
-- ✅ REST/GraphQL integration
-- ✅ Error handling and retry logic
-- ✅ Data quality checks
-- 🚧 **In Progress**: Advanced materialization strategies
-- 📋 **Planned**: Streaming data support
-- 📋 **Planned**: Web UI for pipeline visualization
-- 📋 **Planned**: Kubernetes execution backend
 
 ---
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-Built with inspiration from:
-- [Dagster](https://dagster.io/) - Data orchestration concepts
-- [Pandas](https://pandas.pydata.org/) - Data manipulation APIs
-- [Great Expectations](https://greatexpectations.io/) - Data validation patterns
-- [Airflow](https://airflow.apache.org/) - Pipeline abstractions
-
----
-
-<div align="center">
-
-**Built with ❤️ by the Vibe Piper Team**
-
-[GitHub](https://github.com/your-org/vibe-piper) • [Documentation](https://your-org.github.io/vibe-piper) • [Issues](https://github.com/your-org/vibe-piper/issues) • [Discussions](https://github.com/your-org/vibe-piper/discussions)
-
-</div>
