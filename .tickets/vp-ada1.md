@@ -1,6 +1,6 @@
 ---
 "id": "vp-ada1"
-"status": "open"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-01-31T19:56:31Z"

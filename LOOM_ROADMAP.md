@@ -3,11 +3,10 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (8)
+- # Tickets (7)
 - - `vp-1cba` P1 in_progress - Debug TRANSFORM asset execution failure
 - - `vp-debe` P1 in_progress - Unify pipeline definition APIs (builder/context/@asset)
 - - `vp-28e9` P2 in_progress - Untitled
-- - `vp-ada1` P2 open - Align docs/examples + CLI naming with canonical API
 - - `vp-e990` P2 in_progress - Update README with canonical pipeline model guidance
 - - `vp-6d4f` P3 in_progress - Create migration guide for Pipeline -> AssetGraph
 - - `vp-7ae9` P3 in_progress - Update API documentation with execution layering examples
