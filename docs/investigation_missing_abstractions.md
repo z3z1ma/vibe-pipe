@@ -877,12 +877,18 @@ def ingest_users(raw_users, clean_users, ctx):
     return users_sink.store(clean_users)
 
 # Build and execute
+from vibe_piper import ExecutionEngine, PipelineContext
+
 pipeline = build_pipeline("user_ingestion")
     .asset("raw_users", users_source.fetch)
     .asset("clean_users", clean_users)
     .asset("users", ingest_users, depends_on=["clean_users"])
 
-result = pipeline.execute()
+# Build graph
+graph = pipeline.build()
+
+# Execute
+result = ExecutionEngine().execute(graph, context=PipelineContext(pipeline_id="user_ingestion", run_id="run_1"))
 ```
 
 **Benefits:**
