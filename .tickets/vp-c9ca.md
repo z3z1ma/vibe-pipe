@@ -1,6 +1,6 @@
 ---
 "id": "vp-c9ca"
-"status": "in_progress"
+"status": "closed"
 "deps":
 - "vp-07cd"
 - "vp-d800"
