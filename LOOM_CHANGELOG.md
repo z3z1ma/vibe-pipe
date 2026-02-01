@@ -4,6 +4,11 @@ This log is optimized for *agents*, not humans.
 It tracks changes to skills, instincts, and core context files.
 
 <!-- BEGIN:compound:changelog-entries -->
+- 2026-02-01T04:33:06.202Z Capture a lockstep heuristic to keep execution changes aligned with stable public types and avoid circular imports.
+- 2026-02-01T04:20:09.391Z Reinforced CompoundSpec application hygiene: treat .claude skill diffs as mirror noise and always re-emit full skill bodies with JSON-only output.
+- 2026-02-01T04:13:27.847Z Reinforced heuristics to treat mirrored skill diffs and memory-store churn as low-signal evidence during autolearn.
+- 2026-02-01T04:11:05.683Z Reinforce low-signal heuristics for memory/docs churn and update the compound-apply-spec skill to reflect CompoundSpec v2 and current apply flow.
+- 2026-02-01T03:53:57.661Z Codify a tight contract between execution and shared types, plus a repeatable verification checklist for strict ruff/mypy stability.
 - 2026-02-01T03:05:02.486Z Reinforced the heuristic that ticket/docs-only diffs are low-signal; no new skills or docs updates proposed.
 - 2026-02-01T03:00:17.916Z Slightly strengthened the low-signal heuristic for ticket/docs-only diffs to avoid inferring product behavior from workflow churn.
 - 2026-02-01T01:43:22.724Z Add a SQL assets development skill and an instinct to keep src/vibe_piper/sql_assets.py, docs/sql_assets.md, tests/test_sql_assets.py, and src/vibe_piper/__init__.py aligned.

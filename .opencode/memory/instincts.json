@@ -10,7 +10,7 @@
       "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T03:38:36.670Z",
-      "updated_at": "2026-01-31T18:43:59.434Z",
+      "updated_at": "2026-02-01T04:13:26.795Z",
       "evidence": [
         {
           "ts": "2026-01-31T03:38:36.670Z",
@@ -60,6 +60,16 @@
           "ts": "2026-01-31T18:43:59.434Z",
           "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
           "note": "Autolearn runs can coincide with instincts store edits; keep proposals focused and evidence-based when memory files churn."
+        },
+        {
+          "ts": "2026-02-01T04:11:04.643Z",
+          "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
+          "note": "Recent changes are primarily .opencode/memory/instincts.json and .opencode/memory/INSTINCTS.md; reinforce that this is often bookkeeping/low-signal."
+        },
+        {
+          "ts": "2026-02-01T04:13:26.795Z",
+          "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
+          "note": "This run includes a sizable change to .opencode/memory/instincts.json alongside index/docs churn; treat as bookkeeping unless corroborated by product code diffs."
         }
       ]
     },
@@ -69,10 +79,10 @@
       "trigger": "Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.",
       "action": "Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.",
       "tags": [],
-      "confidence": 0.9300000000000002,
+      "confidence": 0.9800000000000002,
       "status": "active",
       "created_at": "2026-01-31T04:03:28.880Z",
-      "updated_at": "2026-01-31T18:43:59.434Z",
+      "updated_at": "2026-02-01T04:20:08.325Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:03:28.880Z",
@@ -102,6 +112,16 @@
           "ts": "2026-01-31T18:43:59.434Z",
           "sessionID": "ses_3eadeda92ffeaujfvdSXbWKIoc",
           "note": "compound-autolearn-compoundspec SKILL.md appears changed in duplicate paths (likely mirror); prefer targeting .opencode/skills only in proposals."
+        },
+        {
+          "ts": "2026-02-01T04:13:26.795Z",
+          "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
+          "note": "Diffstat shows the same skill edited under both .claude/skills/compound-apply-spec/SKILL.md and .opencode/skills/compound-apply-spec/SKILL.md, consistent with mirror/sync churn."
+        },
+        {
+          "ts": "2026-02-01T04:20:08.325Z",
+          "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
+          "note": "Diffstat shows the same skill edited under both .claude/skills/compound-apply-spec/SKILL.md and .opencode/skills/compound-apply-spec/SKILL.md, consistent with mirror/sync noise."
         }
       ]
     },
@@ -114,7 +134,7 @@
       "confidence": 1,
       "status": "active",
       "created_at": "2026-01-31T04:32:43.781Z",
-      "updated_at": "2026-02-01T03:05:02.484Z",
+      "updated_at": "2026-02-01T04:11:04.643Z",
       "evidence": [
         {
           "ts": "2026-01-31T04:32:43.781Z",
@@ -174,6 +194,11 @@
           "ts": "2026-02-01T03:05:02.484Z",
           "sessionID": "ses_3e95b3c0bffe3ll7RrmKn3qxdD",
           "note": "Autolearn diff evidence was ticket-only (.tickets/vp-d016.md, 1-line edit) with no product code changes; reinforces treating ticket/docs churn as low-signal for product behavior learnings."
+        },
+        {
+          "ts": "2026-02-01T04:11:04.643Z",
+          "sessionID": "ses_3e8cf132effeApcFV6xxBglka0",
+          "note": "Git diffstat shows changes mainly in AGENTS.md, LOOM_ROADMAP.md, LOOM_CHANGELOG.md plus memory indexes; treat as process churn and avoid inferring product behavior."
         }
       ]
     },
@@ -421,6 +446,57 @@
         {
           "ts": "2026-02-01T01:43:21.769Z",
           "sessionID": "ses_3e93a1b8bffet49PoWRKiMzypO"
+        }
+      ]
+    },
+    {
+      "id": "execution-types-contract-lockstep",
+      "title": "Keep Execution And Types In Lockstep",
+      "trigger": "Git diff shows meaningful changes in src/vibe_piper/execution.py and/or new execution-related abstractions.",
+      "action": "Audit src/vibe_piper/types.py for the corresponding public types/protocols/aliases, keep names consistent, and run uv-driven ruff + mypy + a fast pytest slice to catch contract breaks early.",
+      "tags": [],
+      "confidence": 0.76,
+      "status": "active",
+      "created_at": "2026-02-01T03:53:56.455Z",
+      "updated_at": "2026-02-01T03:53:56.455Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T03:53:56.455Z",
+          "sessionID": "ses_3e8c4ec23ffeIgu877IWAR00As"
+        }
+      ]
+    },
+    {
+      "id": "execution-public-api-stability-sweep",
+      "title": "Execution Changes Require Public API Sweep",
+      "trigger": "Execution module grows substantially (large insertions) or introduces new entrypoints.",
+      "action": "Do a quick sweep for downstream breakage: search for imports/usages of the changed symbols, ensure exports stay stable (or rename via a project-wide rename), and add/adjust tests to pin the contract.",
+      "tags": [],
+      "confidence": 0.68,
+      "status": "active",
+      "created_at": "2026-02-01T03:53:56.456Z",
+      "updated_at": "2026-02-01T03:53:56.456Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T03:53:56.456Z",
+          "sessionID": "ses_3e8c4ec23ffeIgu877IWAR00As"
+        }
+      ]
+    },
+    {
+      "id": "execution-types-lockstep",
+      "title": "Keep execution changes aligned with public types",
+      "trigger": "Git diffstat shows changes in both src/vibe_piper/execution.py and src/vibe_piper/types.py in the same session/PR.",
+      "action": "Treat src/vibe_piper/types.py as the stable, user-facing contract: move/define any new public dataclasses/enums there, keep src/vibe_piper/execution.py focused on orchestration, and avoid circular imports by importing types from vibe_piper.types (not the other direction).",
+      "tags": [],
+      "confidence": 0.74,
+      "status": "active",
+      "created_at": "2026-02-01T04:33:04.958Z",
+      "updated_at": "2026-02-01T04:33:04.958Z",
+      "evidence": [
+        {
+          "ts": "2026-02-01T04:33:04.958Z",
+          "sessionID": "ses_3e8c4ec23ffeIgu877IWAR00As"
         }
       ]
     }

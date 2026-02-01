@@ -1,6 +1,6 @@
 ---
 name: compound-apply-spec
-description: Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills and docs.
+description: Write a CompoundSpec v2 JSON payload and apply it via compound_apply to create/update skills, instincts, and docs.
 license: MIT
 compatibility: opencode,claude
 metadata:
@@ -20,14 +20,10 @@ So we separate:
 
 ## CompoundSpec v2
 
-Top-level shape:
+Top-level keys (all optional except `schema_version`):
 
 - `schema_version`: must be `2`
 - `auto`: `{ reason, sessionID }`
-- `instincts`: `{ create[], update[] }`
-- `skills`: `{ create[], update[] }`
-- `docs`: `{ sync, blocks? }`
-- `changelog`: `{ note }`
 
 ### `instincts`
 
@@ -40,29 +36,29 @@ Top-level shape:
 - `update[]`: `{ name, description?, body }`
 
 Notes:
-- `name` should match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
-- `body` is markdown without frontmatter.
-- For `skills.update[]`, `body` must be the entire final managed body (no snippets/diffs).
+- `name` must match `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
+- `body` is markdown **without** frontmatter.
+- If updating a skill: `skills.update[].body` must be the **entire final** managed body (no snippets/diffs).
 
 ### `docs`
 
-- Prefer `docs.sync: true` when changing skills/instincts so derived indexes refresh.
-- Optionally upsert AI-managed blocks:
-  - `docs.blocks.upsert[]`: `{ file, id, content }`
+- `sync`: boolean (refresh derived indexes/blocks)
+- `blocks.upsert[]`: `{ file, id, content }`
 
-Use repo-root-relative paths when referencing files (e.g., `AGENTS.md`, `LOOM_ROADMAP.md`).
+Only upsert AI-managed blocks; do not rewrite human-owned text.
 
-## Output hygiene
+When writing markdown content inside `docs.blocks.upsert[].content`:
+- Use repo-root-relative paths when referencing files/dirs (no absolute paths).
 
-- Output exactly one JSON object.
-- Do not wrap in code fences.
-- Do not include commentary.
+### `changelog`
+
+- `{ note }`: a single sentence describing the memory delta.
 
 ## Apply
 
-Call:
-
-- `compound_apply()`
+1. Draft the CompoundSpec v2 as a single JSON object.
+2. Output JSON only (no code fences, no commentary).
+3. Run `compound_apply()` to validate and write the memory/doc updates.
 <!-- END:compound:skill-managed -->
 
 ## Manual notes

@@ -174,12 +174,12 @@ This block is maintained by the compound plugin.
 - **snapshot-testing-implementation-check** (100%)
   - Trigger: Investigating Phase 3 testing or any testing-related ticket
   - Action: 1. Check if tests/helpers/snapshots.py exists. 2. Check if tests/helpers/test_snapshots.py exists. 3. Check if tests/snapshots/ directory exists. 4. If missing: check if snapshot-testing skill exists …
+- **claude-opencode-skill-mirror-artifact** (98%)
+  - Trigger: Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.
+  - Action: Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.
 - **phase3-ticket-scoping-investigation** (97%)
   - Trigger: Investigating a Phase 3 ticket (vp-cf95, vp-6cf1, vp-7d49, vp-f17e, vp-0429) that has empty body or unclear status
   - Action: 1. Check ROADMAP.md for the ticket's Phase 3 role (Orchestration, CLI, Scheduling, Monitoring, Testing) and component description. 2. Check all related Phase 3 tickets to see overall completion status…
-- **claude-opencode-skill-mirror-artifact** (93%)
-  - Trigger: Git diffstat shows the same skill files changed under both .claude/skills/ and .opencode/skills/ in the same session/PR.
-  - Action: Assume .claude/skills is a mirror/sync artifact; prefer proposals that target .opencode/skills only and avoid inferring new behavior from duplicated diffs.
 - **ticket-scope-check-implementation-gap** (90%)
   - Trigger: Scoping a ticket where skill definition exists but implementation code is missing
   - Action: 1. Verify skill exists (e.g., .opencode/skills/snapshot-testing/SKILL.md). 2. Check if implementation files exist (e.g., tests/helpers/snapshots.py, tests/snapshots/). 3. If skill exists but implement…
@@ -192,6 +192,9 @@ This block is maintained by the compound plugin.
 - **inst-egg-info-deletions-are-cleanup** (76%)
   - Trigger: git diffstat shows large deletions under src/*.egg-info (PKG-INFO, SOURCES.txt, requires.txt, etc.)
   - Action: Assume this is cleanup of generated packaging artifacts, not a functional product change; avoid inferring new behavior changes from it and keep follow-up focused on untracking/ignoring egg-info rather…
+- **execution-types-contract-lockstep** (76%)
+  - Trigger: Git diff shows meaningful changes in src/vibe_piper/execution.py and/or new execution-related abstractions.
+  - Action: Audit src/vibe_piper/types.py for the corresponding public types/protocols/aliases, keep names consistent, and run uv-driven ruff + mypy + a fast pytest slice to catch contract breaks early.
 - **git-unmerged-state-blocker** (75%)
   - Trigger: Git summary/status shows unmerged paths (e.g., diffstat lines labeled 'Unmerged <path>') or merge conflict state.
   - Action: Treat the diff as incomplete/low-signal; do not infer product behavior from it. Resolve conflicts first, then re-run format/lint/tests before making further changes or drafting release notes/PR summar…
@@ -201,12 +204,18 @@ This block is maintained by the compound plugin.
 - **sql-assets-docs-tests-lockstep** (74%)
   - Trigger: A change touches src/vibe_piper/sql_assets.py and tests/test_sql_assets.py and also rewrites docs/sql_assets.md.
   - Action: Treat docs/sql_assets.md as the public contract: update it alongside code changes, and add/adjust tests/test_sql_assets.py to cover the documented behavior; if a symbol becomes public, ensure it's exp…
+- **execution-types-lockstep** (74%)
+  - Trigger: Git diffstat shows changes in both src/vibe_piper/execution.py and src/vibe_piper/types.py in the same session/PR.
+  - Action: Treat src/vibe_piper/types.py as the stable, user-facing contract: move/define any new public dataclasses/enums there, keep src/vibe_piper/execution.py focused on orchestration, and avoid circular imp…
 - **pipeline-execution-parity-as-contract** (70%)
   - Trigger: Changes touch pipeline execution and a parity-focused test file (e.g., tests/*parity*.py).
   - Action: Treat parity tests as the contract: keep them explicit about user-facing vs agent-facing execution paths, and prefer simplifying the contract rather than expanding mocking complexity when refactoring …
 - **ruff-f401-unused-import** (70%)
   - Trigger: Ruff/lint reports F401: imported but unused
   - Action: Remove the unused import; if intentionally kept for side effects, add an explicit usage or a narrowly-scoped ignore with a comment explaining why.
+- **execution-public-api-stability-sweep** (68%)
+  - Trigger: Execution module grows substantially (large insertions) or introduces new entrypoints.
+  - Action: Do a quick sweep for downstream breakage: search for imports/usages of the changed symbols, ensure exports stay stable (or rename via a project-wide rename), and add/adjust tests to pin the contract.
 <!-- END:compound:instincts-index -->
 
 <!-- BEGIN:compound:rules-index -->
