@@ -180,7 +180,7 @@ if __name__ == "__main__":
 **More examples:**
 - See `examples/etl_pipeline/` - PostgreSQL → Parquet with quality checks
 - See `examples/api_ingestion/` - REST API with pagination
-- See `examples/pipelines/` - Production pipeline patterns
+- See `examples/README.md` - Complete examples catalog
 
 ---
 
@@ -486,12 +486,13 @@ Full documentation is available in the [docs/](docs/) directory and examples in 
 
 ### Examples
 
+- `examples/README.md` - Complete examples catalog
 - `examples/etl_pipeline/` - Complete production ETL with PostgreSQL
 - `examples/api_ingestion/` - REST API integration with pagination
-- `examples/pipelines/` - Production pipeline patterns
-- `examples/sample_pipeline/` - Simple transformation examples
+- `examples/asset_graph_etl/` - Canonical AssetGraph ETL with file I/O
+- `examples/pipeline_simple/` - Simple Pipeline model examples
+- `examples/drift_detection/` - Data drift detection and monitoring
 - `examples/transformation_example.py` - Common transformation patterns
-- `examples/drift_detection_example.py` - Data drift detection
 
 ---
 
