@@ -230,6 +230,13 @@ function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
 }
 
+function safeFilenameComponent(input: string, fallback = "unknown"): string {
+  const s = String(input ?? "").trim();
+  if (!s) return fallback;
+  const cleaned = s.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 80);
+  return cleaned || fallback;
+}
+
 async function tuiToast(client: any, message: string, variant: "success" | "error" | "info" = "info") {
   try {
     await client.tui.showToast({ body: { message, variant } });
@@ -505,25 +512,40 @@ ${blockMarkers("instincts-md").end}
 
   // Gitignore for noisy, potentially sensitive runtime artifacts
   const memIgnore = path.join(root, MEMORY_DIR, ".gitignore");
-  if (!(await pathExists(memIgnore))) {
-    await atomicWrite(
-      memIgnore,
-      normalizeNewlines(`# Generated runtime logs (usually not for git)
-observations.jsonl
-autolearn_failures/
-`)
-    );
-  }
+  const memStatus = await _ensure_lines_in_file({
+    dest: memIgnore,
+    requiredLines: ["observations.jsonl", "observations.jsonl.*.bak", "autolearn_failures/"],
+  });
+  void memStatus;
 
   const compoundIgnore = path.join(root, COMPOUND_DIR, ".gitignore");
-  if (!(await pathExists(compoundIgnore))) {
-    await atomicWrite(
-      compoundIgnore,
-      normalizeNewlines(`# Local plugin runtime state
-state.json
-`)
-    );
+  const compStatus = await _ensure_lines_in_file({
+    dest: compoundIgnore,
+    requiredLines: ["state.json", "*.tmp.*"],
+  });
+  void compStatus;
+}
+
+async function _ensure_lines_in_file(opts: { dest: string; requiredLines: string[] }): Promise<"wrote" | "skipped"> {
+  const dest = opts.dest;
+  const required = opts.requiredLines.map((l) => String(l).trim()).filter(Boolean);
+  let existing = "";
+  try {
+    existing = await fs.readFile(dest, "utf8");
+  } catch {
+    existing = "";
   }
+
+  const existingLines = new Set(normalizeNewlines(existing).split("\n").map((l) => l.trim()).filter(Boolean));
+  const missing = required.filter((l) => !existingLines.has(l));
+  if (!missing.length && existing) return "skipped";
+  if (!missing.length && !existing) {
+    await atomicWrite(dest, required.join("\n") + "\n");
+    return "wrote";
+  }
+  const next = (existing ? existing.trimEnd() + "\n" : "") + missing.join("\n") + "\n";
+  await atomicWrite(dest, next);
+  return "wrote";
 }
 
 function extractSessionID(resp: any): string {
@@ -576,32 +598,83 @@ async function saveState(root: string, state: PluginState): Promise<void> {
 // Observations
 // -----------------------------
 
-function redactLargeFields(toolName: string, args: any): any {
+const SECRET_KEY_RE = /(pass(word)?|secret|token|api[_-]?key|auth(orization)?|cookie|session|private[_-]?key)/i;
+const SECRET_VALUE_RE = [
+  /\bghp_[A-Za-z0-9]{20,}\b/g, // GitHub classic
+  /\bgithub_pat_[A-Za-z0-9_]{20,}\b/g, // GitHub fine-grained
+  /\bsk-[A-Za-z0-9]{16,}\b/g, // common API key prefix
+  /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, // JWT
+  /(Authorization\s*:\s*Bearer)\s+[^\s"']+/gi,
+  /(Bearer)\s+[^\s"']+/gi,
+  /-----BEGIN[\s\S]{0,2000}?-----END[^-]*-----/g,
+];
+
+function scrubString(s: string): string {
+  let out = String(s ?? "");
+  for (const re of SECRET_VALUE_RE) {
+    out = out.replace(re, (m, p1) => (p1 ? `${p1} [REDACTED]` : "[REDACTED]"));
+  }
+  return out;
+}
+
+function sanitizeObservationArgs(toolName: string, args: any): any {
   if (!args || typeof args !== "object") return args;
 
-  // Common patterns: Bash has {command}; Write/Edit have {file_path, content}; Read has {file_path}
+  // For shell-like tools, never persist the raw command.
+  if (/bash|shell/i.test(toolName)) {
+    const cmd = typeof (args as any)?.command === "string" ? String((args as any).command) : "";
+    return {
+      redacted: true,
+      command_len: cmd.length,
+      command_sha256: cmd ? sha256(cmd) : "",
+    };
+  }
+
   const cloned: any = Array.isArray(args) ? [...args] : { ...args };
 
-  const maybeRedact = (k: string) => {
+  const dropTextField = (k: string) => {
     if (!(k in cloned)) return;
     const v = cloned[k];
     if (typeof v === "string") {
-      cloned[k] = v.length > 400 ? `${v.slice(0, 200)}…(len=${v.length},sha=${sha256(v)})` : v;
-    } else if (v && typeof v === "object") {
-      cloned[k] = `{…sha=${sha256(JSON.stringify(v))}}`;
+      cloned[`${k}_len`] = v.length;
+      cloned[`${k}_sha256`] = sha256(v);
+      cloned[k] = "[REDACTED]";
+      return;
+    }
+    if (v && typeof v === "object") {
+      const raw = JSON.stringify(v);
+      cloned[`${k}_len`] = raw.length;
+      cloned[`${k}_sha256`] = sha256(raw);
+      cloned[k] = "[REDACTED]";
     }
   };
 
   if (/write|edit/i.test(toolName)) {
-    // Different tool implementations use different arg names; cover the usual suspects.
-    ["content", "new_content", "old_content", "patch", "text"].forEach(maybeRedact);
+    ["content", "new_content", "old_content", "patch", "text"].forEach(dropTextField);
   }
 
-  if (/bash|shell/i.test(toolName)) {
-    maybeRedact("command");
-  }
+  const scrub = (v: any, key: string, depth: number): any => {
+    if (depth > 4) return "{…}";
+    if (SECRET_KEY_RE.test(key)) return "[REDACTED]";
+    if (typeof v === "string") return scrubString(v);
+    if (Array.isArray(v)) {
+      return v.slice(0, 50).map((x) => scrub(x, key, depth + 1));
+    }
+    if (v && typeof v === "object") {
+      const out: any = {};
+      for (const [k, vv] of Object.entries(v)) {
+        if (SECRET_KEY_RE.test(k)) {
+          out[k] = "[REDACTED]";
+        } else {
+          out[k] = scrub(vv, k, depth + 1);
+        }
+      }
+      return out;
+    }
+    return v;
+  };
 
-  return cloned;
+  return scrub(cloned, "args", 0);
 }
 
 async function appendObservation(root: string, obs: Observation): Promise<void> {
@@ -970,6 +1043,27 @@ async function scanSkills(
     } catch {}
   }
   return out.sort((a: any, b: any) => a.name.localeCompare(b.name));
+}
+
+async function syncClaudeSkillsMirror(root: string): Promise<{ synced: number }> {
+  if (!MIRROR_CLAUDE) return { synced: 0 };
+
+  const skills = await scanSkills(root);
+  let synced = 0;
+  for (const s of skills) {
+    const srcPath = path.join(root, s.path);
+    const dstPath = path.join(root, CLAUDE_SKILLS_DIR, s.name, "SKILL.md");
+    const raw = await safeReadFile(srcPath, "");
+    if (!raw) continue;
+
+    const existing = await safeReadFile(dstPath, "");
+    if (existing === raw) continue;
+
+    await ensureDir(path.dirname(dstPath));
+    await atomicWrite(dstPath, raw);
+    synced += 1;
+  }
+  return { synced };
 }
 
 async function writeOrUpdateSkill(root: string, input: SkillSpec | (SkillUpdateSpec & { description: string })): Promise<{ action: "created" | "updated"; path: string }> {
@@ -1801,6 +1895,7 @@ ${recentObs
 
     // Always sync docs after autolearn, to keep indexes fresh.
     await syncDocs(writeRoot);
+    await syncClaudeSkillsMirror(writeRoot);
 
     // Notify only on meaningful changes.
     try {
@@ -1862,8 +1957,17 @@ function extractTextFromMessage(resp: any): string {
 async function recordAutolearnFailure(root: string, sessionID: string | null | undefined, text: string): Promise<void> {
   const dir = path.join(root, MEMORY_DIR, "autolearn_failures");
   await ensureDir(dir);
-  const p = path.join(dir, `${Date.now()}_${sessionID ?? "unknown"}.txt`);
-  await atomicWrite(p, text || "(empty)");
+  const safeID = safeFilenameComponent(sessionID ?? "", "unknown");
+  const raw = String(text ?? "");
+  const excerpt = scrubString(raw).slice(0, 4000);
+  const payload = [
+    `sessionID: ${safeID}`,
+    `sha256: ${raw ? sha256(raw) : ""}`,
+    "",
+    excerpt || "(empty)",
+  ].join("\n");
+  const p = path.join(dir, `${Date.now()}_${safeID}.txt`);
+  await atomicWrite(p, payload);
 }
 
 // -----------------------------
@@ -1876,6 +1980,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
 
   await ensureBootstrap(writeRoot);
   await syncDocs(writeRoot);
+  await syncClaudeSkillsMirror(writeRoot);
 
   // Tools
   const compound_bootstrap = tool({
@@ -1933,6 +2038,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       const spec = coerceSpec(parsed);
       const r = await applySpec(writeRoot, spec, "manual");
       await syncDocs(writeRoot);
+      await syncClaudeSkillsMirror(writeRoot);
       return JSON.stringify(r, null, 2);
     },
   });
@@ -2070,7 +2176,10 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
     let safeProps: any = undefined;
     if (props && typeof props === "object") {
       if (type === "command.executed") {
-        safeProps = pick(props, ["name", "command", "argv", "args"]);
+        safeProps = {
+          name: props.name ?? props.command,
+          argv_count: Array.isArray(props.argv) ? props.argv.length : undefined,
+        };
       } else if (type === "session.updated") {
         safeProps = pick(props, ["title", "id", "sessionID", "sessionId"]);
       } else if (type === "session.idle") {
@@ -2135,7 +2244,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       const args = output?.args ?? input?.args ?? null;
       const ok = output?.ok ?? output?.success ?? null;
 
-      const redactedArgs = redactLargeFields(toolName, args);
+      const redactedArgs = sanitizeObservationArgs(toolName, args);
       const obs: Observation = {
         id: randomUUID(),
         ts: nowIso(),
@@ -2149,10 +2258,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       // Helpful single-line summary for pattern mining.
       try {
         const file = (redactedArgs as any)?.file_path ?? (redactedArgs as any)?.path ?? (redactedArgs as any)?.file;
-        const cmd = (redactedArgs as any)?.command ?? (redactedArgs as any)?.cmd;
         const bits: string[] = [];
         if (file) bits.push(`file=${String(file)}`);
-        if (typeof cmd === "string") bits.push(`cmd=${oneLine(cmd, 160)}`);
         if (bits.length) (obs as any).summary = bits.join(" ");
       } catch {}
 
@@ -2169,7 +2276,7 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
       const sessionID = input?.sessionID ?? input?.sessionId ?? null;
       const args = output?.args ?? input?.args ?? null;
 
-      const redactedArgs = redactLargeFields(toolName, args);
+      const redactedArgs = sanitizeObservationArgs(toolName, args);
       const obs: Observation = {
         id: randomUUID(),
         ts: nowIso(),
@@ -2181,10 +2288,8 @@ export const CompoundEngineeringPlugin: Plugin = async ({ client, directory, wor
 
       try {
         const file = (redactedArgs as any)?.file_path ?? (redactedArgs as any)?.path ?? (redactedArgs as any)?.file;
-        const cmd = (redactedArgs as any)?.command ?? (redactedArgs as any)?.cmd;
         const bits: string[] = [];
         if (file) bits.push(`file=${String(file)}`);
-        if (typeof cmd === "string") bits.push(`cmd=${oneLine(cmd, 160)}`);
         if (bits.length) (obs as any).summary = bits.join(" ");
       } catch {}
 
