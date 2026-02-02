@@ -355,7 +355,7 @@ vibepiper config describe --config pipeline.toml --asset clean_users
 
 ## Complete Example
 
-See `examples/pipelines/demo_pipeline.toml` and `examples/pipelines/demo_pipeline.yaml` for complete working examples.
+The sections above provide complete examples in both TOML and YAML formats. See the [TOML Format](#toml-format) and [YAML Format](#yaml-format) sections for full working examples that you can copy and adapt.
 
 ## Best Practices
 
