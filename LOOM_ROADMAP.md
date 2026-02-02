@@ -3,10 +3,11 @@
 High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
-- # Tickets (3)
-- - `vp-875f` P1 in_progress - Sprint prep: Examples Revitalization
+- # Tickets (4)
 - - `vp-1a6a` P2 in_progress - Example: AssetGraph local ETL
-- - `vp-1d9b` P2 in_progress - Examples catalog and cleanup (deps:vp-07c3,vp-1a6a,vp-ac5f,vp-c9f3)
+- - `vp-3945` P2 in_progress - Fix README documentation link rot
+- - `vp-8eec` P2 in_progress - Untitled
+- - `vp-f2be` P2 in_progress - Clean up config-driven pipelines doc example references
 <!-- END:compound:roadmap-backlog -->
 
 <!-- BEGIN:compound:roadmap-ai-notes -->
