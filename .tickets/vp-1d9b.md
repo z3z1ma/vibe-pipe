@@ -1,6 +1,6 @@
 ---
 "id": "vp-1d9b"
-"status": "in_progress"
+"status": "closed"
 "deps":
 - "vp-07c3"
 - "vp-1a6a"
