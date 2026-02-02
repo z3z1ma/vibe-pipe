@@ -475,14 +475,12 @@ Full documentation is available in the [docs/](docs/) directory and examples in 
 
 ### Core Topics
 
-- **[CORE_ABSTRACTION_CONTRACT.md](CORE_ABSTRACTION_CONTRACT.md)** - Canonical pipeline abstractions and API contracts
-- **[API Reference](docs/source/api_reference.rst)** - Complete API documentation
-- **[Execution Layering](docs/execution_layering.md)** - Understanding AssetGraph vs Pipeline models
-- **[Connectors](docs/source/connectors.rst)** - Database and file connectors
-- **[Error Handling](docs/source/error_handling.rst)** - Retry logic and recovery
-- **[Data Quality](docs/source/data_quality.rst)** - Validation and quality checks
-- **[Integration Guide](docs/source/integration_guide.rst)** - REST, GraphQL integration
-- **[Contributing](docs/source/contributing.rst)** - Contribution guidelines
+ - **[CORE_ABSTRACTION_CONTRACT.md](CORE_ABSTRACTION_CONTRACT.md)** - Canonical pipeline abstractions and API contracts
+ - **[API Reference](docs/source/api/index.rst)** - Complete API documentation
+ - **[Execution Layering](docs/execution_layering.md)** - Understanding AssetGraph vs Pipeline models
+ - **[Database Connectors](docs/database_connectors.md)** - Database and file connectors
+ - **[Data Quality](docs/quality-scoring.md)** - Validation and quality checks
+ - **[Contributing](docs/source/contributing.rst)** - Contribution guidelines
 
 ### Examples
 
