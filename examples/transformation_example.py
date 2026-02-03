@@ -6,7 +6,7 @@ reduces code from 40+ lines of manual transformations to ~5 lines
 using the fluent, composable API.
 """
 
-from vibe_piper import DataRecord, DataType, Schema, SchemaField, asset
+from vibe_piper import DataRecord, DataType, Schema, SchemaField
 from vibe_piper.transformations import (
     compute_field,
     # Built-in transformations
@@ -73,19 +73,6 @@ def manual_transform_users(users):
 # ============================================================================
 
 
-@asset(
-    name="transformed_users_v2",
-    schema=Schema(
-        name="users_transformed",
-        fields=(
-            SchemaField("id", DataType.INTEGER),
-            SchemaField("name", DataType.STRING),
-            SchemaField("email", DataType.STRING),
-            SchemaField("age", DataType.INTEGER),
-            SchemaField("status", DataType.STRING),
-        ),
-    ),
-)
 def transform_with_library(users):
     """
     Transformation logic using Vibe Piper fluent API.
