@@ -1,6 +1,6 @@
 ---
 "id": "vp-4c2f"
-"status": "open"
+"status": "review"
 "deps":
 - "vp-521f"
 - "vp-a0d9"
@@ -53,3 +53,13 @@ Risks/edge cases:
 ## Acceptance Criteria
 
 Top-level docs pruned or relocated; README links accurate; CLI commands match actual usage
+
+## Notes
+
+**2026-02-03T03:06:21Z**
+
+Investigation complete. Plan: Move 3 docs to docs/, remove 2 outdated files, update README CLI commands. Starting implementation.
+
+**2026-02-03T03:10:42Z**
+
+Cleanup complete. Moved 3 docs to docs/ (core_abstraction_contract.md, roadmap.md, api_curation_analysis.md), removed 2 outdated files (INVESTIGATION_NOTES.md, TICKETS.md), updated README CLI commands with accurate signatures, updated documentation references. Commit: a827027
