@@ -394,19 +394,24 @@ vibepiper test
 vibepiper docs
 
 # Show pipeline status
-vibepiper pipeline-status-cmd
+vibepiper pipeline-status-cmd [--asset ASSET_NAME] [--verbose]
 
-# Show pipeline history
-vibepiper pipeline-history-cmd
+# Show pipeline run history
+vibepiper pipeline-history-cmd [--limit N] [--successful-only] [--failed-only] [--asset ASSET_NAME]
 
-# List all assets
-vibepiper asset-list-cmd
+# Backfill pipeline data for a date range
+vibepiper pipeline-backfill-cmd --start-date YYYY-MM-DD --end-date YYYY-MM-DD [--asset ASSET_NAME] [--dry-run] [--parallel N]
 
-# Show asset details
-vibepiper asset-show-cmd asset_name
+# List all assets in pipeline
+vibepiper asset-list-cmd [--type SOURCE|TRANSFORM|SINK] [--verbose]
 
-# Configuration-driven commands
-vibepiper config
+# Show detailed information about a specific asset
+vibepiper asset-show-cmd ASSET_NAME [--format TABLE|JSON] [--config] [--metadata]
+
+# Configuration-driven pipeline commands
+vibepiper config run --config PATH [--asset ASSET_NAME] [--env KEY=VALUE] [--dry-run] [--verbose]
+vibepiper config validate --config PATH [--verbose]
+vibepiper config describe --config PATH [--asset ASSET_NAME] [--format TEXT|JSON|DOT]
 ```
 
 ---
@@ -475,12 +480,12 @@ Full documentation is available in the [docs/](docs/) directory and examples in 
 
 ### Core Topics
 
- - **[CORE_ABSTRACTION_CONTRACT.md](CORE_ABSTRACTION_CONTRACT.md)** - Canonical pipeline abstractions and API contracts
- - **[API Reference](docs/source/api/index.rst)** - Complete API documentation
- - **[Execution Layering](docs/execution_layering.md)** - Understanding AssetGraph vs Pipeline models
- - **[Database Connectors](docs/database_connectors.md)** - Database and file connectors
- - **[Data Quality](docs/quality-scoring.md)** - Validation and quality checks
- - **[Contributing](docs/source/contributing.rst)** - Contribution guidelines
+  - **[Core Abstraction Contract](docs/core_abstraction_contract.md)** - Canonical pipeline abstractions and API contracts
+  - **[API Reference](docs/source/api/index.rst)** - Complete API documentation
+  - **[Execution Layering](docs/execution_layering.md)** - Understanding AssetGraph vs Pipeline models
+  - **[Database Connectors](docs/database_connectors.md)** - Database and file connectors
+  - **[Data Quality](docs/quality-scoring.md)** - Validation and quality checks
+  - **[Contributing](docs/source/contributing.rst)** - Contribution guidelines
 
 ### Examples
 
