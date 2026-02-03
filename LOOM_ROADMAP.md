@@ -4,8 +4,8 @@ High-level direction and priorities.
 
 <!-- BEGIN:compound:roadmap-backlog -->
 - # Tickets (4)
-- - `vp-4c2f` P2 open - Docs and README cleanup pass (deps:vp-521f,vp-a0d9)
 - - `vp-1a6a` P2 in_progress - Example: AssetGraph local ETL
+- - `vp-4c2f` P2 in_progress - Docs and README cleanup pass (deps:vp-521f,vp-a0d9)
 - - `vp-521f` P2 review - Dead code and unused module pruning (deps:vp-a0d9)
 - - `vp-a0d9` P2 review - Examples audit and pruning
 <!-- END:compound:roadmap-backlog -->
