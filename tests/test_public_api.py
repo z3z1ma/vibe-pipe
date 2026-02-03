@@ -244,7 +244,7 @@ class TestOptionalFeatures:
         "RetryMetrics",
         "capture_error_context",
         "retry_with_backoff",
-        # Caching & Lazy
+        # Caching
         "CacheBackend",
         "CacheEntry",
         "CacheKey",
@@ -252,37 +252,6 @@ class TestOptionalFeatures:
         "DiskCacheBackend",
         "MemoryCacheBackend",
         "cached",
-        "LazyContext",
-        "LazySequence",
-        "LazyTransform",
-        "LazyValue",
-        "is_lazy",
-        "lazy",
-        "lazy_filter",
-        "lazy_map",
-        "lazy_reduce",
-        "lazy_transform",
-        "materialize",
-        # Query Hints
-        "IndexHint",
-        "IndexHintType",
-        "JoinHint",
-        "JoinStrategy",
-        "LimitHint",
-        "MaterializeHint",
-        "ParallelHint",
-        "ScanHint",
-        "ScanHintType",
-        "QueryHints",
-        "QueryHintsBuilder",
-        "with_query_hints",
-        # Benchmarking
-        "BenchmarkResult",
-        "BenchmarkRunner",
-        "BenchmarkStats",
-        "ComparisonResult",
-        "benchmark",
-        "compare_benchmarks",
     ]
 
     @pytest.mark.parametrize("name", OPTIONAL_FEATURES)

@@ -476,22 +476,7 @@ except ImportError:
 from vibe_piper.connectors.utils.inference import infer_schema_from_file
 
 # Monitoring & Observability (optional, advanced use)
-try:
-    from vibe_piper.benchmarks import (
-        BenchmarkResult,
-        BenchmarkRunner,
-        BenchmarkStats,
-        ComparisonResult,
-        benchmark,
-        compare_benchmarks,
-    )
-except ImportError:
-    BenchmarkResult = None  # type: ignore
-    BenchmarkRunner = None  # type: ignore
-    BenchmarkStats = None  # type: ignore
-    ComparisonResult = None  # type: ignore
-    benchmark = None  # type: ignore
-    compare_benchmarks = None  # type: ignore
+
 
 try:
     from vibe_piper.caching import (
@@ -511,37 +496,6 @@ except ImportError:
     DiskCacheBackend = None  # type: ignore
     MemoryCacheBackend = None  # type: ignore
     cached = None  # type: ignore
-
-try:
-    # Import classes and helper functions first, then the decorator function
-    from vibe_piper.lazy import (
-        LazyContext,
-        LazySequence,
-        LazyTransform,
-        LazyValue,
-        is_lazy,
-        lazy_filter,
-        lazy_map,
-        lazy_reduce,
-        lazy_transform,
-        materialize,
-    )
-    from vibe_piper.lazy import lazy as lazy_decorator
-
-    # Export under standard name
-    lazy = lazy_decorator  # type: ignore
-except ImportError:
-    LazyContext = None  # type: ignore
-    LazySequence = None  # type: ignore
-    LazyTransform = None  # type: ignore
-    LazyValue = None  # type: ignore
-    is_lazy = None  # type: ignore
-    lazy = None  # type: ignore
-    lazy_filter = None  # type: ignore
-    lazy_map = None  # type: ignore
-    lazy_reduce = None  # type: ignore
-    lazy_transform = None  # type: ignore
-    materialize = None  # type: ignore
 
 try:
     from vibe_piper.monitoring import (
@@ -580,34 +534,6 @@ except ImportError:
     log_execution = None  # type: ignore
     profile_execution = None  # type: ignore
 
-try:
-    from vibe_piper.query_hints import (
-        IndexHint,
-        IndexHintType,
-        JoinHint,
-        JoinStrategy,
-        LimitHint,
-        MaterializeHint,
-        ParallelHint,
-        QueryHints,
-        QueryHintsBuilder,
-        ScanHint,
-        ScanHintType,
-        with_query_hints,
-    )
-except ImportError:
-    IndexHint = None  # type: ignore
-    IndexHintType = None  # type: ignore
-    JoinHint = None  # type: ignore
-    JoinStrategy = None  # type: ignore
-    LimitHint = None  # type: ignore
-    MaterializeHint = None  # type: ignore
-    ParallelHint = None  # type: ignore
-    QueryHints = None  # type: ignore
-    QueryHintsBuilder = None  # type: ignore
-    ScanHint = None  # type: ignore
-    ScanHintType = None  # type: ignore
-    with_query_hints = None  # type: ignore
 
 # External quality tools (optional, advanced use)
 try:
@@ -856,6 +782,14 @@ __all__ = [
     "OrchestrationEngine",
     "ParallelExecutor",
     "StateManager",
+    # Caching
+    "CacheBackend",
+    "CacheEntry",
+    "CacheKey",
+    "CacheManager",
+    "DiskCacheBackend",
+    "MemoryCacheBackend",
+    "cached",
     # Scheduling
     "Schedule",
     "ScheduleType",
@@ -908,43 +842,4 @@ __all__ = [
     "RetryMetrics",
     "capture_error_context",
     "retry_with_backoff",
-    # Caching & Lazy
-    "CacheBackend",
-    "CacheEntry",
-    "CacheKey",
-    "CacheManager",
-    "DiskCacheBackend",
-    "MemoryCacheBackend",
-    "cached",
-    "LazyContext",
-    "LazySequence",
-    "LazyTransform",
-    "LazyValue",
-    "is_lazy",
-    "lazy",
-    "lazy_filter",
-    "lazy_map",
-    "lazy_reduce",
-    "lazy_transform",
-    "materialize",
-    # Query Hints
-    "IndexHint",
-    "IndexHintType",
-    "JoinHint",
-    "JoinStrategy",
-    "LimitHint",
-    "MaterializeHint",
-    "ParallelHint",
-    "ScanHint",
-    "ScanHintType",
-    "QueryHints",
-    "QueryHintsBuilder",
-    "with_query_hints",
-    # Benchmarking
-    "BenchmarkResult",
-    "BenchmarkRunner",
-    "BenchmarkStats",
-    "ComparisonResult",
-    "benchmark",
-    "compare_benchmarks",
 ]
