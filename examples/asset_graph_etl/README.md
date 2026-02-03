@@ -63,33 +63,6 @@ cat output/users_transformed.csv
 cat output/summary.json
 ```
 
-Or from the project root:
-
-```bash
-uv pip install -e ".[files]"
-```
-
-### Run the Pipeline
-
-```bash
-# Run pipeline once
-uv run python pipeline.py --once
-```
-
-Expected output:
-- `output/users_transformed.csv` - Cleaned and enriched user data
-- `output/summary.json` - Pipeline statistics
-
-### View Output
-
-```bash
-# Check transformed data
-cat output/users_transformed.csv
-
-# View summary
-cat output/summary.json
-```
-
 ## Data Transformations
 
 The pipeline applies the following transformations:
