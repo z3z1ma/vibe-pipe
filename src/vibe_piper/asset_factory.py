@@ -6,7 +6,6 @@ ensuring consistent behavior across decorators, builders, and other asset
 creation paths.
 """
 
-import inspect
 from collections.abc import Callable
 from typing import Any, ParamSpec, TypeVar
 
