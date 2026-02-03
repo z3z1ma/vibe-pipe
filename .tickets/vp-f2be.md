@@ -1,6 +1,6 @@
 ---
 "id": "vp-f2be"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-02-02T06:00:30Z"

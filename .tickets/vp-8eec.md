@@ -1,6 +1,6 @@
 ---
 "id": "vp-8eec"
-"status": "in_progress"
+"status": "closed"
 "deps": []
 "links": []
 "created": "2026-02-02T05:59:56Z"
