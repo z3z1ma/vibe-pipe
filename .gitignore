@@ -56,6 +56,10 @@ docs/_build/
 # OS
 .DS_Store
 
+# Examples output directories
+examples/*/output/
+examples/*/data/
+
 # UV
 .uv/
 
